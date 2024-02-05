@@ -1,0 +1,17 @@
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+default-members = ["crates/*"]
+
+[workspace.package]
+homepage = "https://cicero-project.org/"
+repository = "https://github.com/sicikh/cicero"
+authors = ["Kirill Lukashev <kirill.lukashev.sic@gmail.com>", "Gleb Krylov <gleb_cry@mail.ru>"]
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+
+[workspace.dependencies]
