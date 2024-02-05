@@ -7,3 +7,4 @@
 - Add proper branches
 - Manage dependencies for cicero-dsl and cicero
 - Add a proper README
+- Make end-to-end tests work
