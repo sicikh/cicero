@@ -1,0 +1,25 @@
+[package]
+name = "cicero-app"
+version = "0.1.0"
+description = "Web-app for creating and using interactive documents templates"
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+leptos = { workspace = true, features = ["serde"] }
+leptos_router.workspace = true
+leptos_meta.workspace = true
+leptos_axum = { workspace = true, optional = true }
+http.workspace = true
+thiserror.workspace = true
+
+[features]
+hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
+ssr = ["leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum"]
+
+[lints]
+workspace = true

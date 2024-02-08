@@ -1,4 +1,4 @@
-name: Primary pipeline
+name: CI
 on: [pull_request, push]
 
 env:
@@ -50,19 +50,40 @@ jobs:
       - name: Run tests
         run: cargo test --workspace --all-features --all-targets
 
-#  build:
+  build:
+    runs-on: ubuntu-latest
+    name: Build workspace
+    needs: [ check ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: "wasm32-unknown-unknown"
+      - uses: Swatinem/rust-cache@v2
+      - uses: jetli/trunk-action@v0.4.0
+      - name: Build
+        run: |
+          cargo install cargo-leptos
+          cargo leptos build 
+
+# TODO: enable when E2E tests are added
+#  test:
+#    timeout-minutes: 60
 #    runs-on: ubuntu-latest
-#    name: Build leptos
-#    needs: [ test ]
 #    steps:
 #      - uses: actions/checkout@v3
-#      - uses: dtolnay/rust-toolchain@nightly
+#      - uses: actions/setup-node@v3
 #        with:
-#          targets: "wasm32-unknown-unknown"
-#      - uses: Swatinem/rust-cache@v2
-#      - uses: jetli/trunk-action@v0.4.0
-#      - name: Build
-#        run: |
-#          cargo build --verbose
-#          rustup target add wasm32-unknown-unknown
-#          trunk build
+#          node-version: 18
+#      - name: Install dependencies
+#        run: npm ci
+#      - name: Install Playwright Browsers
+#        run: npx playwright install --with-deps
+#      - name: Run Playwright tests
+#        run: npx playwright test
+#      - uses: actions/upload-artifact@v3
+#        if: always()
+#        with:
+#          name: playwright-report
+#          path: playwright-report/
+#          retention-days: 30

@@ -3,8 +3,15 @@ unsafe_code = "forbid"
 
 [workspace]
 resolver = "2"
-members = ["crates/*"]
-default-members = ["crates/*"]
+members = ["crates/cicero-dsl", "crates/cicero-app", "crates/cicero-front", "crates/cicero-server"]
+default-members = ["crates/cicero-dsl", "crates/cicero-app", "crates/cicero-front", "crates/cicero-server"]
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
 
 [workspace.package]
 homepage = "https://cicero-project.org/"
@@ -15,3 +22,38 @@ license = "MIT OR Apache-2.0"
 edition = "2021"
 
 [workspace.dependencies]
+cicero-dsl = { version = "0.1.0", path = "crates/cicero-dsl" }
+cicero-app = { version = "0.1.0", path = "crates/cicero-app" }
+cicero-front = { version = "0.1.0", path = "crates/cicero-front" }
+cicero-server = { version = "0.1.0", path = "crates/cicero-server" }
+leptos = { version = "0.6.5", default-features = false }
+leptos_meta = { version = "0.6.5", default-features = false }
+leptos_router = { version = "0.6.5", default-features = false }
+leptos_axum = { version = "0.6.5" }
+gloo-net = { version = "0.5.0", features = ["http"] }
+http = "1.0.0"
+thiserror = { version = "1.0.41" }
+tracing = { version = "0.1.40" }
+
+[[workspace.metadata.leptos]]
+name = "cicero"
+output-name = "cicero"
+bin-package = "cicero-server"
+lib-package = "cicero-front"
+assets-dir = "crates/cicero-front/public"
+tailwind-input-file = "crates/cicero-front/style/tailwind.css"
+tailwind-config-file = "crates/cicero-front/tailwind.config.js"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+site-addr = "127.0.0.1:3000"
+reload-port = 3001
+end2end-cmd = "npx playwright test"
+end2end-dir = "crates/cicero-e2e"
+browserquery = "defaults"
+watch = false
+env = "DEV"
+bin-features = []
+bin-default-features = false
+lib-features = []
+lib-default-features = false
+lib-profile-release = "wasm-release"

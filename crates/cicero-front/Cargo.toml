@@ -1,0 +1,24 @@
+[package]
+name = "cicero-front"
+version = "0.1.0"
+description = "Cicero front-end"
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cicero-app = { workspace = true, features = ["hydrate"] }
+leptos = { workspace = true, features = ["serde", "hydrate", "nightly"] }
+wasm-bindgen = "0.2.91"
+console_log = "1.0.0"
+console_error_panic_hook = "0.1.7"
+log = "0.4.1"
+
+[lints]
+workspace = true
