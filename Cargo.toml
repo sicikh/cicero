@@ -26,9 +26,9 @@ cicero-dsl = { version = "0.1.0", path = "crates/cicero-dsl" }
 cicero-app = { version = "0.1.0", path = "crates/cicero-app" }
 cicero-front = { version = "0.1.0", path = "crates/cicero-front" }
 cicero-server = { version = "0.1.0", path = "crates/cicero-server" }
-leptos = { version = "0.6.5", default-features = false }
-leptos_meta = { version = "0.6.5", default-features = false }
-leptos_router = { version = "0.6.5", default-features = false }
+leptos = { version = "0.6.5", default-features = false, features = ["nightly","serde"] }
+leptos_meta = { version = "0.6.5", default-features = false, features = ["nightly"] }
+leptos_router = { version = "0.6.5", default-features = false, features = ["nightly"] }
 leptos_axum = { version = "0.6.5" }
 gloo-net = { version = "0.5.0", features = ["http"] }
 http = "1.0.0"

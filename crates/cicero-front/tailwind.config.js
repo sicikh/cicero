@@ -11,7 +11,7 @@
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["*.html", "./src/**/*.rs",],
+    content: ["*.html", "./src/**/*.rs", "../cicero-app/**/*.rs"],
     theme: {
         extend: {},
     },
