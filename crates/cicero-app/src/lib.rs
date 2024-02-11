@@ -20,12 +20,14 @@ mod error_template;
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/cicero.css"/>
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
         // sets the document title
         <Title text="Welcome to Leptos"/>
@@ -39,7 +41,7 @@ pub fn App() -> impl IntoView {
             }
             .into_view()
         }>
-            <main>
+            <main class="h-screen">
                 <Routes>
                     <Route path="" view=HomePage/>
                 </Routes>
@@ -52,24 +54,29 @@ pub fn App() -> impl IntoView {
 #[component]
 fn HomePage() -> impl IntoView {
     // Creates a reactive value to update the button
-    let (count, set_count) = create_signal(0);
-
     view! {
-        <div class="my-0 mx-auto max-w-3xl text-center">
-            <h2 class="p-6 text-4xl">"Welcome to Leptos with Tailwind"</h2>
-            <p class="px-10 pb-10 text-left">"Tailwind will scan your Rust files for Tailwind class names and compile them into a CSS file."</p>
-            <button
-                class="bg-amber-600 hover:bg-sky-700 px-5 py-3 text-white rounded-lg"
-                on:click=move |_| set_count.update(|count| *count += 1)
-            >
-                "Something's here | "
-                {move || if count() == 0 {
-                    "Click me!".to_string()
-                } else {
-                    count().to_string()
-                }}
-                " | Some more text"
-            </button>
-        </div>
+        <header class="bg-[#8C7456] h-36">
+            <nav id="nav-bar" class="flex justify-between items-center w-[92%] mx-auto h-36">
+                <div id="logo" class = "flex items-start">
+                </div>
+                <div class="" id="nav-bar-container-elem">
+                    <ul class="flex items-center gap-[3vw]">
+                        <li id="nav-bar-main" class="text-white">
+                            <a href="#" style = "text-base">Главная</a>
+                        </li>
+                        <li id="nav-bar-kit" class="text-white">
+                            <a href="#" style = "text-base">Конструктор</a>
+                        </li>
+                        <li id="nav-bar-contact" class="text-white">
+                            <a href="#" style = "text-base">Контакты</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="text-end" id="button_entry">
+                    <button id="nav-bar-but2" class="bg-[#F2D8A7] font-semibold text-white px-5 py-2 rounded-full hover:bg-[#261201]">Войти</button>
+                    <button id="nav-bar-but1" class="bg-[#F2D8A7] font-semibold text-white px-5 py-2 rounded-full hover:bg-[#261201]">Зарегистрироваться</button>
+                </div>
+            </nav>
+        </header>
     }
 }
