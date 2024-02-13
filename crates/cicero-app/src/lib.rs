@@ -55,26 +55,31 @@ pub fn App() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
-        <header class="bg-[#8C7456] h-36">
-            <nav id="nav-bar" class="flex justify-between items-center w-[92%] mx-auto h-36">
-                <div id="logo" class = "flex items-start">
+        <header class="bg-[#8C7456] h-[180px]">
+            <nav id="nav-bar" class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]">
+                <div id="logo" class = "md:flex items-start text-center">
+                    <p class = "text-white text-[40px] mt-[60px] mb-[60px]">Cicero</p>
                 </div>
-                <div class="" id="nav-bar-container-elem">
-                    <ul class="flex items-center gap-[3vw]">
-                        <li id="nav-bar-main" class="text-white">
-                            <a href="#" style = "text-base">Главная</a>
+                <div class="text-inter text-center pl-36 font-light" id="nav-bar-container-elem">
+                    <ul class="md:flex md:items-center gap-[22px] md:justify-center">
+                        <li id="nav-bar-main" class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px] ">
+                            <a href="#" style = "text-center">Главная</a>
                         </li>
-                        <li id="nav-bar-kit" class="text-white">
-                            <a href="#" style = "text-base">Конструктор</a>
+                        <li id="nav-bar-kit" class="text-white text-center items-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]">
+                            <a href="#" style = "text-center">Конструктор</a>
                         </li>
-                        <li id="nav-bar-contact" class="text-white">
-                            <a href="#" style = "text-base">Контакты</a>
+                        <li id="nav-bar-contact" class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]">
+                            <a href="#" style = "text-center">Контакты</a>
                         </li>
+                        <div class = "text-center gap-y-[15px] grid items-end">   
+                            <div class="text-center" id="button_entry">
+                                <button id="nav-bar-but2" class="bg-[#A69286] text-white px-5 py-2 rounded-full text-[20px] hover:bg-[#261201]">Войти</button>
+                            </div>
+                            <div class="text-center" id="button_entry1">
+                                <button id="nav-bar-but2" class="bg-[#A69286] text-white px-5 py-2 rounded-full text-[20px] hover:bg-[#261201]">Зарегистрироваться</button>
+                            </div>
+                        </div>
                     </ul>
-                </div>
-                <div class="text-end" id="button_entry">
-                    <button id="nav-bar-but2" class="bg-[#F2D8A7] font-semibold text-white px-5 py-2 rounded-full hover:bg-[#261201]">Войти</button>
-                    <button id="nav-bar-but1" class="bg-[#F2D8A7] font-semibold text-white px-5 py-2 rounded-full hover:bg-[#261201]">Зарегистрироваться</button>
                 </div>
             </nav>
         </header>

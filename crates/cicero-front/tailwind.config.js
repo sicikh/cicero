@@ -16,7 +16,11 @@ module.exports = {
         files: ["*.html", "./src/**/*.rs", "../cicero-app/src/**/*.rs"],
     },
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                'inter': ["Inter"]
+            }
+        },
     },
     plugins: [],
 }
