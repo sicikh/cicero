@@ -179,6 +179,7 @@ fn Contact() -> impl IntoView {
         <div>
             <h1>13</h1>
             <h1>43</h1>
+            <h1>43</h1>
         </div>
     }
 }
