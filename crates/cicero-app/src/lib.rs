@@ -139,6 +139,7 @@ fn Konstruktor() -> impl IntoView {
             <div id="right_side">
             </div>
         </div>
+        
     }
 }
 
@@ -189,7 +190,7 @@ fn Login() -> impl IntoView {
         <div id="wrapper" class="md:flex md:justify-center md:items-center min-h-screen bg-[#8C7456]">
             <form action="" class="w-[420px] bg-transparent border-solid border-2 border-[#ffffff33] backdrop-blur-[20px] text-[#EEEEEE] rounded-[10px] pt-[30px] pb-[30px] pl-[40px] pr-[40px]">
                 <h1 class="text-center text-[36px] font-bold">Войти</h1>
-                <div  class="w-fullxh-[50px] mt-[30px] mb-0 relative">
+                <div class="w-full h-[50px] mt-[30px] mb-0 relative">
                     <input id="input-box" class="w-full h-full bg-transparent outline-none border-solid border-2 border-[#ffffff33] rounded-[40px] placeholder-[#EEEEEE] text-[18px] pb-[20px] pr-[45px] pt-[20px] pl-[20px]" type="text" placeholder="Логин" required></input>
                     <i class="bx bx-user absolute right-[20px] text-[20px] top-[50%] -translate-y-1/2"></i>
                 </div>
