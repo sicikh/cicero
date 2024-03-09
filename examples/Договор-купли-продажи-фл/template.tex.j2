@@ -1,0 +1,59 @@
+%%!(Начало)> date, town
+
+\documentclass{article}
+
+\begin{document}
+
+{{ town }}
+
+{{ date }}
+
+%%(Стороны договора)> seller, buyer
+
+{{ seller.citizen_naming|capitalize }} {{ seller.surname }} {{ seller.name }} {{ seller.patronym }}, {{ seller.resident }} по адресу {{ seller.place_of_registration }}, паспорт серии {{ seller.passport.serial }} №{{ seller.passport.number }}, выдан {{ seller.passport.issued_when }} {{ seller.passport.issued_by }}, {{ seller.called }} в дальнейшем «Продавец», с одной стороны, и {{ buyer.citizen_naming }} {{ buyer.surname }} {{ buyer.name }} {{ buyer.patronym }}, проживающий по адресу {{ buyer.place_of_registration }}, паспорт серии {{ buyer.passport.serial }} №{{ buyer.passport.number }}, выдан {{ buyer.passport.issued_when }} {{ buyer.passport.issued_by }}, {{ buyer.called }} в дальнейшем «Покупатель», с другой стороны, совместно именуемые «Стороны», заключили настоящий Договор о нижеследующем: 
+
+%%(Предмет договора)> flat
+
+\section{Предмет договора} 
+
+\subsection{}
+
+Продавец обязуется продать, а Покупатель купить и оплатить, в соответствии с условиями настоящего Договора, квартиру площадью {{ flat.quadrature }} кв. м., расположенную по адресу {{ flat.adress }}. Кадастровый номер: {{ flat.cadastral_number }}.
+
+\subsection{}
+
+Квартира принадлежит Продавцу на праве собственности, на основании {{ flat.document.print }}, о чём в Едином государственном реестре прав на недвижимое имущество и сделок с ним от { flat.egrn.date } сделана запись регистрации №{ flat.egrn.id }, кадастровый номер: { flat.cadastral_number }.
+
+\subsection{}
+
+Стоимость квартиры составляет { flat.cost.in_numbers } ({ flat.cost.in_words }) рублей.
+
+\subsection{}
+
+Цена квартиры является фиксированной и пересмотру не подлежит.
+
+\section{Обязанности сторон}
+
+2. Обязанности сторон
+
+\begin{enumerate}
+    
+\item Продавец принимает на себя следующие обязательства:
+\begin{enumerate}
+
+\item подготовить и предоставить Покупателю для изучения 
+
+\end{enumerate}
+
+\end{enumerate}
+
+\begin{tabular}{lr}
+Покупатель & Продавец \\
+{ buyer.surname } { buyer.name } { buyer.patronym } & { seller.surname } { seller.name } { seller.patronym } \\
+Место проживания: { buyer.place_of_registration } & Место проживания: { seller.place_of_registration } \\
+Паспорт серии { buyer.passport.serial } №{ buyer.passport.number }, выдан { buyer.passport.issued_when } { buyer.passport.issued_by } & Паспорт серии { seller.passport.serial } №{ seller.passport.number }, выдан { seller.passport.issued_when } { seller.passport.issued_by } \\
+Подпись: & Подпись: \\
+________ / ______/ & ________ / ______/ \\
+\end{tabular}
+
+\end{document}

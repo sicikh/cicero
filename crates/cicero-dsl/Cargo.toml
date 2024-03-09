@@ -1,7 +1,7 @@
 [package]
 name = "cicero-dsl"
 version = "0.1.0"
-description = "Compiler for the Cicero DSL to create interactive document templates"
+description = "Data for Cicero DSL: types, schemas, and more."
 homepage.workspace = true
 repository.workspace = true
 authors.workspace = true
@@ -9,7 +9,13 @@ readme.workspace = true
 license.workspace = true
 edition.workspace = true
 
+[features]
+render = ["dep:minijinja"]
+
 [dependencies]
+serde = { workspace = true, features = ["derive", "rc"] }
+indexmap.workspace = true
+minijinja = { version = "1.0.12", optional = true }
 
 [lints]
 workspace = true

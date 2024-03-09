@@ -3,8 +3,18 @@ unsafe_code = "forbid"
 
 [workspace]
 resolver = "2"
-members = ["crates/cicero-dsl", "crates/cicero-app", "crates/cicero-front", "crates/cicero-server"]
-default-members = ["crates/cicero-dsl", "crates/cicero-app", "crates/cicero-front", "crates/cicero-server"]
+members = [
+    "crates/cicero-dsl",
+    "crates/cicero-app",
+    "crates/cicero-front",
+    "crates/cicero-server",
+]
+default-members = [
+    "crates/cicero-dsl",
+    "crates/cicero-app",
+    "crates/cicero-front",
+    "crates/cicero-server",
+]
 
 [profile.wasm-release]
 inherits = "release"
@@ -16,7 +26,10 @@ panic = "abort"
 [workspace.package]
 homepage = "https://cicero-project.org/"
 repository = "https://github.com/sicikh/cicero"
-authors = ["Kirill Lukashev <kirill.lukashev.sic@gmail.com>", "Gleb Krylov <gleb_cry@mail.ru>"]
+authors = [
+    "Kirill Lukashev <kirill.lukashev.sic@gmail.com>",
+    "Gleb Krylov <gleb_cry@mail.ru>",
+]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 edition = "2021"
@@ -26,14 +39,24 @@ cicero-dsl = { version = "0.1.0", path = "crates/cicero-dsl" }
 cicero-app = { version = "0.1.0", path = "crates/cicero-app" }
 cicero-front = { version = "0.1.0", path = "crates/cicero-front" }
 cicero-server = { version = "0.1.0", path = "crates/cicero-server" }
-leptos = { version = "0.6.5", default-features = false, features = ["nightly","serde"] }
-leptos_meta = { version = "0.6.5", default-features = false, features = ["nightly"] }
-leptos_router = { version = "0.6.5", default-features = false, features = ["nightly"] }
+serde = { version = "1.0" }
+leptos = { version = "0.6.5", default-features = false, features = [
+    "nightly",
+    "serde",
+] }
+leptos_meta = { version = "0.6.5", default-features = false, features = [
+    "nightly",
+] }
+leptos_router = { version = "0.6.5", default-features = false, features = [
+    "nightly",
+] }
 leptos_axum = { version = "0.6.5" }
 gloo-net = { version = "0.5.0", features = ["http"] }
 http = "1.0.0"
 thiserror = { version = "1.0.41" }
 tracing = { version = "0.1.40" }
+tokio = { version = "1.0" }
+indexmap = { version = "2.2.5", features = ["serde"] }
 
 [[workspace.metadata.leptos]]
 name = "cicero"

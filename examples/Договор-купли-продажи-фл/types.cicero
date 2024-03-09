@@ -1,0 +1,96 @@
+struct FullName {
+    name: String,
+    surname: String,
+    patronym: String?,
+}
+
+struct Person {
+    name: String,
+    surname: String,
+    patronym: String?,
+    sex: Sex,
+    passport: Passport,
+    place_of_registration: Place,
+
+    fn citizen_naming {
+        match self.sex {
+            Sex::Man => "гражданин",
+            Sex::Woman => "гражданка",
+        }
+    }
+
+    fn called {
+        match self.sex {
+            Sex::Man => "именуемый",
+            Sex::Woman => "именуемая",
+        }
+    }
+
+    fn resident {
+        match self.sex {
+            Sex::Man => "проживающий",
+            Sex::Woman => "проживающая",
+        }
+    }
+}
+
+struct Passport {
+    serial: PassportSerial,
+    number: PassportNumber,
+    issued_by: String,
+    issued_when: Date,
+}
+
+/// Квартира. Если квартира находится в экстраординарных домах, 
+/// то её адрес следует уточнить самостоятельно на основе ...
+struct Flat {
+    adress: Place,
+    cadastral_number: CadastralNumber,
+    quadrature: Number,
+    cost: Cost,
+    document: ConstitutiveDocument,
+    egrn: Egrn,
+}
+
+struct Egrn {
+    date: Date,
+    id: EgrnId
+}
+
+enum ConstitutiveDocument {
+    /// Договор купли-продажи от: 
+    PSA(Date),
+    /// Договор дарения от:
+    DA(Date),
+    /// Договор участия в долевом строительстве от:
+    SCA(Date),
+    /// Свидетельство о праве на наследство:
+    IC(InheritanceCertificate),
+    /// Иное основание
+    Another(String),
+
+    fn print {
+        match self {
+            PSA(date) => f"договора купли-продажи от {date}",
+            DA(date) => f"договора дарения от {date}",
+            SCA(date) => f"договора участия в долевом строительстве от: {date}",
+            IC(certificate) => f"свидетельства о праве на наследство №{certificate.id} от {certificate.date}, выданного нотариусом { certificate.issued_by.surname } { certificate.issued_by.name } { certificate.issued_by.patronym }",
+            Another(string) => string,
+        }
+    }
+}
+
+struct InheritanceCertificate {
+    /// Дата
+    date: Date,
+    /// Номер договора
+    id: String,
+    /// Кем выдано (например, Ивановым Иваном Ивановичем):
+    issued_by: FullName,
+}
+
+let date: Date,
+let town: Town,
+let buyer: Person;
+let seller: Person;
+let flat: Flat;

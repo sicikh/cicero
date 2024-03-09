@@ -9,8 +9,6 @@
  * except according to those terms.
  */
 
-#![allow(dead_code)]
+pub const STD_LIB: &str = r#"
 
-pub mod data;
-pub mod std_lib;
-pub mod types;
+"#;

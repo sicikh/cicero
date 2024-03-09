@@ -337,6 +337,7 @@ dependencies = [
 name = "cicero-app"
 version = "0.1.0"
 dependencies = [
+ "cicero-dsl",
  "http 1.0.0",
  "leptos",
  "leptos_axum",
@@ -348,6 +349,11 @@ dependencies = [
 [[package]]
 name = "cicero-dsl"
 version = "0.1.0"
+dependencies = [
+ "indexmap",
+ "minijinja",
+ "serde",
+]
 
 [[package]]
 name = "cicero-front"
@@ -920,12 +926,13 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.2.2"
+version = "2.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "824b2ae422412366ba479e8111fd301f7b5faece8149317bb81925979a53f520"
+checksum = "7b0b929d511467233429c45a44ac1dcaa21ba0f5ba11e4879e6ed28ddb4f9df4"
 dependencies = [
  "equivalent",
  "hashbrown 0.14.3",
+ "serde",
 ]
 
 [[package]]
@@ -1301,6 +1308,15 @@ checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
 dependencies = [
  "mime",
  "unicase",
+]
+
+[[package]]
+name = "minijinja"
+version = "1.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fe0ff215195a22884d867b547c70a0c4815cbbcc70991f281dca604b20d10ce"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

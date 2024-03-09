@@ -9,8 +9,14 @@
  * except according to those terms.
  */
 
-#![allow(dead_code)]
+use serde::{Deserialize, Serialize};
 
-pub mod data;
-pub mod std_lib;
-pub mod types;
+use super::Data;
+
+/// Syntax tree for the methods on types.
+#[derive(Serialize, Deserialize, Debug)]
+pub enum Ast {}
+
+pub fn eval(data: &Data, ast: &Ast) -> Option<String> {
+    unimplemented!()
+}
