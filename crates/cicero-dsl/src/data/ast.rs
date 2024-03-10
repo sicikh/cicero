@@ -15,8 +15,8 @@ use super::Data;
 
 /// Syntax tree for the methods on types.
 #[derive(Serialize, Deserialize, Debug)]
-pub enum Ast {}
+pub enum Method {}
 
-pub fn eval(data: &Data, ast: &Ast) -> Option<String> {
+pub fn eval(data: &Data, ast: &Method) -> Option<String> {
     unimplemented!()
 }

@@ -52,6 +52,8 @@ struct Flat {
     egrn: Egrn,
 }
 
+-- комментарий
+
 struct Egrn {
     date: Date,
     id: EgrnId
@@ -66,7 +68,7 @@ enum ConstitutiveDocument {
     SCA(Date),
     /// Свидетельство о праве на наследство:
     IC(InheritanceCertificate),
-    /// Иное основание
+    /// Иное основание:
     Another(String),
 
     fn print {

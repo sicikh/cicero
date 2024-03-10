@@ -1,8 +1,15 @@
 use std::collections::VecDeque;
-use std::fmt::{Display, Formatter};
+use std::fmt::{write, Display, Formatter};
 use std::str::FromStr;
 
 use logos::{Lexer, Logos};
+
+#[inline]
+fn strip_quotes<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Result<&'src str, ()> {
+    let slice = lex.slice();
+    let stripped = &slice[1..slice.len() - 1];
+    Ok(stripped)
+}
 
 #[inline]
 fn number<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Option<i64> {
@@ -11,6 +18,7 @@ fn number<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Option<i64> {
     Some(n)
 }
 
+// TODO: doc-comments and comments
 #[derive(Logos, Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum Token<'src> {
     #[regex(r"\d+", number)]
@@ -47,17 +55,67 @@ pub enum Token<'src> {
     LBrace,
     #[token("}")]
     RBrace,
+    #[token(":")]
+    Colon,
     #[token(";")]
     Semicolon,
     #[token(",")]
     Comma,
     #[token(".")]
     Period,
+    #[token("?")]
+    QuestionMark,
+    #[regex(r"///[^\n\r]*(?:\*\)|[\n\r])")]
+    DocComment(&'src str),
     // ==== KEYWORDS ====
-    #[regex("abort")]
+    #[regex("fn")]
+    FN,
+    #[regex("struct")]
     STRUCT,
     #[regex("enum")]
     ENUM,
     #[regex("match")]
     MATCH,
+    // ==== CONTROL TOKENS ====
+    // Are not included in the logos (!) lexer output
+    #[regex(r"[ \t\n\f]+", logos::skip)]
+    Whitespace,
+    #[regex(r"--[^\r\n]*(\r\n|\n)?", logos::skip)]
+    Comment,
+}
+
+impl<'src> Display for Token<'src> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Token::Number(n) => write!(f, "{}", n),
+            Token::Ident(ident) => write!(f, "{}", ident),
+            Token::DoubleQuotedString(s) => write!(f, "\"{}\"", s),
+            Token::GtEq => write!(f, ">="),
+            Token::LtEq => write!(f, "<="),
+            Token::Neq => write!(f, "!="),
+            Token::Asterisk => write!(f, "*"),
+            Token::Slash => write!(f, "/"),
+            Token::Plus => write!(f, "+"),
+            Token::Minus => write!(f, "-"),
+            Token::Gt => write!(f, ">"),
+            Token::Lt => write!(f, "<"),
+            Token::Eq => write!(f, "="),
+            Token::LParen => write!(f, "("),
+            Token::RParen => write!(f, ")"),
+            Token::LBrace => write!(f, "{{"),
+            Token::RBrace => write!(f, "}}"),
+            Token::Colon => write!(f, ":"),
+            Token::Semicolon => write!(f, ";"),
+            Token::Comma => write!(f, ","),
+            Token::Period => write!(f, "."),
+            Token::QuestionMark => write!(f, "?"),
+            Token::DocComment(doc) => write!(f, "/// {doc}"),
+            Token::FN => write!(f, "fn"),
+            Token::STRUCT => write!(f, "struct"),
+            Token::ENUM => write!(f, "enum"),
+            Token::MATCH => write!(f, "match"),
+            Token::Whitespace => write!(f, " "),
+            Token::Comment => write!(f, "--"),
+        }
+    }
 }

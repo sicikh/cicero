@@ -16,11 +16,12 @@ render = ["dep:minijinja", "dep:chumsky", "dep:logos"]
 serde = { workspace = true, features = ["derive"] }
 indexmap.workspace = true
 minijinja = { version = "1.0.12", optional = true }
-chumsky = { version = "1.0.0-alpha.4", features = [
+chumsky = { version = "1.0.0-alpha.6", features = [
     "nightly",
     "label",
     "memoization",
     "spin",
+    "sync",
 ], optional = true }
 logos = { version = "0.13.0", optional = true }
 

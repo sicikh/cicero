@@ -16,6 +16,9 @@ use serde::{Deserialize, Serialize};
 
 pub type MarkdownString = String;
 
+#[cfg(feature = "render")]
+use crate::data::ast::Method;
+
 /// Fields of a struct or a variant of an enum.
 pub type Fields = IndexMap<String, FieldType>;
 
@@ -23,19 +26,23 @@ pub type Fields = IndexMap<String, FieldType>;
 pub type TypeEnv = HashMap<String, Entity>;
 #[cfg(feature = "render")]
 pub type VarEnv = HashMap<String, Variable>;
+#[cfg(feature = "render")]
+pub type Methods = HashMap<String, Method>;
 
 /// Metadata of the single scenario.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScenarioMeta {
-    name: String,
-    description: MarkdownString,
-    date_of_creation: String,
-    date_of_last_change: String,
-    author: String,
+    pub id: u64,
+    pub name: String,
+    pub description: MarkdownString,
+    pub date_of_creation: String,
+    pub date_of_last_change: String,
+    pub author: String,
 }
 
 impl ScenarioMeta {
     pub fn new(
+        id: u64,
         name: String,
         description: MarkdownString,
         date_of_creation: String,
@@ -43,6 +50,7 @@ impl ScenarioMeta {
         author: String,
     ) -> Self {
         Self {
+            id,
             name,
             description,
             date_of_creation,
@@ -50,25 +58,17 @@ impl ScenarioMeta {
             author,
         }
     }
+}
 
-    pub fn name(&self) -> &str {
-        &self.name
+impl PartialEq for ScenarioMeta {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
     }
+}
 
-    pub fn description(&self) -> &str {
-        &self.description
-    }
-
-    pub fn date_of_creation(&self) -> &str {
-        &self.date_of_creation
-    }
-
-    pub fn date_of_last_change(&self) -> &str {
-        &self.date_of_last_change
-    }
-
-    pub fn author(&self) -> &str {
-        &self.author
+impl PartialOrd for ScenarioMeta {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.id.partial_cmp(&other.id)
     }
 }
 
@@ -76,21 +76,27 @@ impl ScenarioMeta {
 ///
 /// The data, descripted by this structure, is only that is needed
 /// to continue evaluation of the scenario.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScenarioStep {
     /// Name of the step.
-    name: String,
+    pub name: String,
     /// Header of the step, that may be displayed on top of data entry form.
     ///
     /// Usually it contains legal information, references to the law and
     /// warnings to the user.
-    header: Option<MarkdownString>,
+    pub header: Option<MarkdownString>,
     /// Variables, that are needed to be filled in order to continue the
     /// scenario.
-    variables: Vec<Variable>,
+    pub variables: Vec<Variable>,
     /// Is step of the first phase of the scenario, when the render is not
     /// ready.
-    is_first_phase: bool,
+    pub is_first_phase: bool,
+}
+
+impl PartialEq for ScenarioStep {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl ScenarioStep {
@@ -107,70 +113,59 @@ impl ScenarioStep {
             is_first_phase,
         }
     }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn header(&self) -> Option<&str> {
-        self.header.as_deref()
-    }
-
-    pub fn variables(&self) -> &[Variable] {
-        &self.variables
-    }
 }
 
 /// A variable, that is needed to be filled in order to continue the scenario.
 ///
 /// A variable is created by `let name: Ty` statement in the types of the
 /// scenario.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Variable {
     /// Name of the variable.
-    name: String,
+    pub name: String,
     /// Comment, that should be displayed on top of the data entry field.
-    comment: MarkdownString,
+    pub comment: MarkdownString,
     /// Type of the variable.
-    ty: Entity,
+    pub ty: Entity,
+}
+
+impl PartialEq for Variable {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl Variable {
     pub fn new(name: String, comment: MarkdownString, ty: Entity) -> Self {
         Self { name, comment, ty }
     }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn comment(&self) -> &str {
-        &self.comment
-    }
-
-    pub fn ty(&self) -> &Entity {
-        &self.ty
-    }
 }
 
 /// A single enumeration type.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnumType {
-    name: String,
-    variants: Vec<EnumVariantType>,
+    pub name: String,
+    pub comment: Option<MarkdownString>,
+    pub variants: Vec<EnumVariantType>,
+}
+
+impl PartialEq for EnumType {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl EnumType {
-    pub fn new(name: String, variants: Vec<EnumVariantType>) -> Self {
-        Self { name, variants }
-    }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn variants(&self) -> &[EnumVariantType] {
-        &self.variants
+    pub fn new(
+        name: String,
+        comment: Option<MarkdownString>,
+        variants: Vec<EnumVariantType>,
+    ) -> Self {
+        Self {
+            name,
+            comment,
+            variants,
+        }
     }
 
     /// Returns false if any of the variants has fields.
@@ -179,11 +174,17 @@ impl EnumType {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnumVariantType {
-    name: String,
-    comment: MarkdownString,
-    fields: Vec<Entity>,
+    pub name: String,
+    pub comment: MarkdownString,
+    pub fields: Vec<Entity>,
+}
+
+impl PartialEq for EnumVariantType {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl EnumVariantType {
@@ -199,26 +200,20 @@ impl EnumVariantType {
     pub fn is_simple(&self) -> bool {
         self.fields.is_empty()
     }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn comment(&self) -> &str {
-        &self.comment
-    }
-
-    pub fn fields(&self) -> &[Entity] {
-        &self.fields
-    }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct StructType {
-    name: String,
-    comment: Option<MarkdownString>,
-    fields: Fields,
-    ancestor: Option<Box<StructType>>,
+    pub name: String,
+    pub comment: Option<MarkdownString>,
+    pub fields: Fields,
+    pub ancestor: Option<Box<StructType>>,
+}
+
+impl PartialEq for StructType {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl StructType {
@@ -247,71 +242,40 @@ impl StructType {
     pub fn is_descendant(&self) -> bool {
         self.ancestor.is_some()
     }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn comment(&self) -> Option<&str> {
-        self.comment.as_deref()
-    }
-
-    pub fn ancestor(&self) -> Option<&StructType> {
-        self.ancestor.as_deref()
-    }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FieldType {
-    comment: MarkdownString,
-    ty: Entity,
-    required: bool,
+    pub comment: MarkdownString,
+    pub ty: Entity,
+}
+
+impl PartialEq for FieldType {
+    fn eq(&self, other: &Self) -> bool {
+        self.ty == other.ty
+    }
 }
 
 impl FieldType {
-    pub fn new(comment: MarkdownString, ty: Entity, required: bool) -> Self {
-        Self {
-            comment,
-            ty,
-            required,
-        }
-    }
-
-    pub fn comment(&self) -> &str {
-        &self.comment
-    }
-
-    pub fn ty(&self) -> &Entity {
-        &self.ty
-    }
-
-    pub fn required(&self) -> bool {
-        self.required
+    pub fn new(comment: MarkdownString, ty: Entity) -> Self {
+        Self { comment, ty }
     }
 }
 
 /// A single type of the scenario.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Entity {
-    name: String,
-    ty: EntityType,
+    pub ty: EntityType,
+    pub required: bool,
 }
 
 impl Entity {
-    pub fn new(name: String, ty: EntityType) -> Self {
-        Self { name, ty }
-    }
-
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    pub fn ty(&self) -> &EntityType {
-        &self.ty
+    pub fn new(ty: EntityType, required: bool) -> Self {
+        Self { ty, required }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum EntityType {
     String,
     Number,
