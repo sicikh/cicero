@@ -40,7 +40,7 @@ pub struct StructData {
 impl StructData {
     #[cfg(feature = "render")]
     pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name)
+        type_env.get(&self.type_name).map(|ent| ent.ty())
     }
 }
 
@@ -55,7 +55,7 @@ pub struct EnumData {
 impl EnumData {
     #[cfg(feature = "render")]
     pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name)
+        type_env.get(&self.type_name).map(|ent| ent.ty())
     }
 }
 
