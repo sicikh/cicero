@@ -14,7 +14,9 @@ use indexmap::IndexMap;
 use minijinja::value::{StructObject, Value};
 use serde::{Deserialize, Serialize};
 
-use crate::types::{EntityType, TypeEnv};
+use crate::types::EntityType;
+#[cfg(feature = "render")]
+use crate::types::TypeEnv;
 
 #[cfg(feature = "render")]
 pub mod ast;
@@ -36,6 +38,7 @@ pub struct StructData {
 }
 
 impl StructData {
+    #[cfg(feature = "render")]
     pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
         type_env.get(&self.type_name)
     }
@@ -50,6 +53,7 @@ pub struct EnumData {
 }
 
 impl EnumData {
+    #[cfg(feature = "render")]
     pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
         type_env.get(&self.type_name)
     }

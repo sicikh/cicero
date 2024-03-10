@@ -10,12 +10,19 @@ license.workspace = true
 edition.workspace = true
 
 [features]
-render = ["dep:minijinja"]
+render = ["dep:minijinja", "dep:chumsky", "dep:logos"]
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 indexmap.workspace = true
 minijinja = { version = "1.0.12", optional = true }
+chumsky = { version = "1.0.0-alpha.4", features = [
+    "nightly",
+    "label",
+    "memoization",
+    "spin",
+], optional = true }
+logos = { version = "0.13.0", optional = true }
 
 [lints]
 workspace = true

@@ -9,10 +9,7 @@
  * except according to those terms.
  */
 
-#![allow(dead_code)]
-
-#[cfg(feature = "render")]
-pub mod compiler;
-pub mod data;
-pub mod std_lib;
-pub mod types;
+pub mod parse_types;
+pub use parse_types::*;
+pub mod parse_template;
+pub use parse_template::*;

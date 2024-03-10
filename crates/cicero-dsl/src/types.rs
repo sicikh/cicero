@@ -20,7 +20,9 @@ pub type MarkdownString = String;
 pub type Fields = IndexMap<String, FieldType>;
 
 #[cfg(feature = "render")]
-pub type TypeEnv = HashMap<String, EntityType>;
+pub type TypeEnv = HashMap<String, Entity>;
+#[cfg(feature = "render")]
+pub type VarEnv = HashMap<String, Variable>;
 
 /// Metadata of the single scenario.
 #[derive(Serialize, Deserialize, Debug)]
@@ -70,9 +72,6 @@ impl ScenarioMeta {
     }
 }
 
-/// Name of the scenario steps.
-pub type ScenarioSteps = Vec<String>;
-
 /// A single step of a scenario.
 ///
 /// The data, descripted by this structure, is only that is needed
@@ -89,14 +88,23 @@ pub struct ScenarioStep {
     /// Variables, that are needed to be filled in order to continue the
     /// scenario.
     variables: Vec<Variable>,
+    /// Is step of the first phase of the scenario, when the render is not
+    /// ready.
+    is_first_phase: bool,
 }
 
 impl ScenarioStep {
-    pub fn new(name: String, header: Option<MarkdownString>, variables: Vec<Variable>) -> Self {
+    pub fn new(
+        name: String,
+        header: Option<MarkdownString>,
+        variables: Vec<Variable>,
+        is_first_phase: bool,
+    ) -> Self {
         Self {
             name,
             header,
             variables,
+            is_first_phase,
         }
     }
 
@@ -174,12 +182,12 @@ impl EnumType {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EnumVariantType {
     name: String,
-    comment: Option<MarkdownString>,
+    comment: MarkdownString,
     fields: Vec<Entity>,
 }
 
 impl EnumVariantType {
-    pub fn new(name: String, comment: Option<MarkdownString>, fields: Vec<Entity>) -> Self {
+    pub fn new(name: String, comment: MarkdownString, fields: Vec<Entity>) -> Self {
         Self {
             name,
             comment,
@@ -190,6 +198,18 @@ impl EnumVariantType {
     /// Returns false if the variant has fields.
     pub fn is_simple(&self) -> bool {
         self.fields.is_empty()
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn comment(&self) -> &str {
+        &self.comment
+    }
+
+    pub fn fields(&self) -> &[Entity] {
+        &self.fields
     }
 }
 
