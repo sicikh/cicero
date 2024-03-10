@@ -19,7 +19,59 @@ pub type MarkdownString = String;
 /// Fields of a struct or a variant of an enum.
 pub type Fields = IndexMap<String, FieldType>;
 
+#[cfg(feature = "render")]
 pub type TypeEnv = HashMap<String, EntityType>;
+
+/// Metadata of the single scenario.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ScenarioMeta {
+    name: String,
+    description: MarkdownString,
+    date_of_creation: String,
+    date_of_last_change: String,
+    author: String,
+}
+
+impl ScenarioMeta {
+    pub fn new(
+        name: String,
+        description: MarkdownString,
+        date_of_creation: String,
+        date_of_last_change: String,
+        author: String,
+    ) -> Self {
+        Self {
+            name,
+            description,
+            date_of_creation,
+            date_of_last_change,
+            author,
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+
+    pub fn date_of_creation(&self) -> &str {
+        &self.date_of_creation
+    }
+
+    pub fn date_of_last_change(&self) -> &str {
+        &self.date_of_last_change
+    }
+
+    pub fn author(&self) -> &str {
+        &self.author
+    }
+}
+
+/// Name of the scenario steps.
+pub type ScenarioSteps = Vec<String>;
 
 /// A single step of a scenario.
 ///

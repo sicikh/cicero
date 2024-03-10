@@ -13,7 +13,7 @@ edition.workspace = true
 render = ["dep:minijinja"]
 
 [dependencies]
-serde = { workspace = true, features = ["derive", "rc"] }
+serde = { workspace = true, features = ["derive"] }
 indexmap.workspace = true
 minijinja = { version = "1.0.12", optional = true }
 
