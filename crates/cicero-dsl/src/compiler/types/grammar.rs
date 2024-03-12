@@ -110,7 +110,7 @@ fn field_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, MarkdownString, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     let comment = select! {
-        Token::DocComment(doc) => doc.replace("/// ", ""),
+        Token::DocComment(doc) => doc.replace("/// ", "").replace("///", ""),
     };
 
     comment
@@ -237,7 +237,7 @@ fn wrap_lexer(
     let eoi = SimpleSpan::from(src.len()..src.len());
     TokenStream::from_iter(lex_iter).spanned(eoi)
 }
-// FIXME: /// without a leading whitespace
+
 #[cfg(test)]
 mod tests {
     use super::*;
