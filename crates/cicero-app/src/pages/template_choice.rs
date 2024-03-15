@@ -21,7 +21,7 @@ pub fn TemplateChoice() -> impl IntoView {
     view! {
         <Layout>
             <div id="main_body">
-                <div id="left_side" class="md:flex md:items-center w-1/2">
+                <div id="left_side" class="md:flex md:items-center border w-1/2">
                     <section id="search" class="w-full h-[73px] bg-[#EEEEEE]">
                         <div class="justify-between items-center h-[37px] mt-[18px] mb-[18px] ml-[25px] mr-[25px] relative">
                             <input
