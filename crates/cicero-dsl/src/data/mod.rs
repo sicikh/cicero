@@ -9,59 +9,74 @@
  * except according to those terms.
  */
 
+use std::collections::HashMap;
+use std::fmt::Display;
+use std::sync::Arc;
+
 use indexmap::IndexMap;
-#[cfg(feature = "render")]
-use minijinja::value::{StructObject, Value};
 use serde::{Deserialize, Serialize};
 
 use crate::types::EntityType;
-#[cfg(feature = "render")]
-use crate::types::TypeEnv;
 
 #[cfg(feature = "render")]
-pub mod ast;
+pub mod expr;
 #[cfg(feature = "render")]
-use ast::Method;
+use expr::Expr;
 
-#[derive(Serialize, Deserialize, Debug)]
+// TODO: move methods to here
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Var {
+    pub name: String,
+    pub data: Data,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Data {
-    Struct(StructData),
-    Enum(EnumData),
+    Struct(Struct),
+    Enum(Enum),
+    String(String),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct StructData {
-    type_name: String,
-    fields: IndexMap<String, Data>,
-    #[cfg(feature = "render")]
-    methods: IndexMap<String, Method>,
-}
-
-impl StructData {
-    #[cfg(feature = "render")]
-    pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name).map(|ent| &ent.ty)
+impl Display for Data {
+    // TODO
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Data::Struct(s) => write!(f, "{}", s.name),
+            Data::Enum(e) => write!(f, "{}", e.name),
+            Data::String(s) => write!(f, "{}", s),
+        }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct EnumData {
-    type_name: String,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Struct {
+    pub name: String,
+    pub fields: IndexMap<String, Data>,
+    #[cfg(feature = "render")]
+    #[serde(skip)]
+    pub methods: Arc<HashMap<String, Expr>>,
+}
+
+impl Display for Struct {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Enum {
+    pub name: String,
     // TODO: maybe use a usize?
-    discriminant: String,
-    fields: Vec<Data>,
-}
-
-impl EnumData {
+    pub discriminant: String,
+    pub field: Option<Box<Data>>,
     #[cfg(feature = "render")]
-    pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name).map(|ent| &ent.ty)
-    }
+    #[serde(skip)]
+    pub methods: Arc<HashMap<String, Expr>>,
 }
 
-#[cfg(feature = "render")]
-impl StructObject for StructData {
-    fn get_field(&self, field: &str) -> Option<Value> {
+impl Display for Enum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         todo!()
     }
 }

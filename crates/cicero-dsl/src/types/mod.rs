@@ -14,11 +14,6 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "render")]
-mod render;
-#[cfg(feature = "render")]
-pub use render::*;
-
 pub type MarkdownString = String;
 
 /// Fields of a struct.
@@ -82,7 +77,7 @@ pub struct ScenarioStep {
     pub header: Option<MarkdownString>,
     /// Variables, that are needed to be filled in order to continue the
     /// scenario.
-    pub variables: Vec<Variable>,
+    pub variables: Vec<Var>,
     /// Is step of the first phase of the scenario, when the render is not
     /// ready.
     pub is_first_phase: bool,
@@ -98,7 +93,7 @@ impl ScenarioStep {
     pub fn new(
         name: String,
         header: Option<MarkdownString>,
-        variables: Vec<Variable>,
+        variables: Vec<Var>,
         is_first_phase: bool,
     ) -> Self {
         Self {
@@ -115,7 +110,7 @@ impl ScenarioStep {
 /// A variable is created by `let name: Ty` statement in the types of the
 /// scenario.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Variable {
+pub struct Var {
     /// Name of the variable.
     pub name: String,
     /// Comment, that should be displayed on top of the data entry field.
@@ -124,13 +119,13 @@ pub struct Variable {
     pub ty: Entity,
 }
 
-impl PartialEq for Variable {
+impl PartialEq for Var {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl Variable {
+impl Var {
     pub fn new(name: String, comment: MarkdownString, ty: Entity) -> Self {
         Self { name, comment, ty }
     }
@@ -266,18 +261,14 @@ impl Entity {
     }
 }
 
+// TODO: More
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum EntityType {
     String,
-    Number,
+    Integer,
     PhoneNumber,
     Date,
     Place,
     Enum(Enum),
     Struct(Struct),
 }
-
-// TODO: think about this
-// impl EntityType {
-//     pub fn validate_regex(&self) ->
-// }
