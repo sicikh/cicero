@@ -9,7 +9,8 @@
  * except according to those terms.
  */
 
-#![allow(dead_code)]
+// FIXME
+#![allow(dead_code, unused_imports, unused_variables, clippy::manual_try_fold)]
 
 #[cfg(feature = "render")]
 pub mod compiler;

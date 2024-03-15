@@ -9,7 +9,8 @@
  * except according to those terms.
  */
 
-use cicero_dsl::types::ScenarioMeta;
+#![allow(dead_code, unused_imports, unused_variables, clippy::empty_docs)]
+
 use error_template::{AppError, ErrorTemplate};
 use leptos::*;
 use leptos_meta::*;

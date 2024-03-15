@@ -9,7 +9,7 @@
  * except according to those terms.
  */
 
-pub mod parse_types;
-pub use parse_types::*;
-pub mod parse_template;
-pub use parse_template::*;
+pub mod types;
+pub use types::*;
+pub mod template;
+pub use template::*;

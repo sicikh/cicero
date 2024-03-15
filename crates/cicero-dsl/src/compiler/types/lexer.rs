@@ -1,4 +1,14 @@
-use std::collections::VecDeque;
+/*
+ * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
+ * Gleb Krylov <gleb_cry@mail.ru>
+ *
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
+
 use std::fmt::{write, Display, Formatter};
 use std::str::FromStr;
 
@@ -18,7 +28,7 @@ fn number<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Option<i64> {
     Some(n)
 }
 
-// TODO: doc-comments and comments
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Logos, Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum Token<'src> {
     #[regex(r"\d+", number)]
@@ -76,12 +86,15 @@ pub enum Token<'src> {
     ENUM,
     #[regex("match")]
     MATCH,
+    #[regex("let")]
+    LET,
     // ==== CONTROL TOKENS ====
     // Are not included in the logos (!) lexer output
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Whitespace,
     #[regex(r"--[^\r\n]*(\r\n|\n)?", logos::skip)]
     Comment,
+    Unknown(&'src str),
 }
 
 impl<'src> Display for Token<'src> {
@@ -114,8 +127,10 @@ impl<'src> Display for Token<'src> {
             Token::STRUCT => write!(f, "struct"),
             Token::ENUM => write!(f, "enum"),
             Token::MATCH => write!(f, "match"),
+            Token::LET => write!(f, "let"),
             Token::Whitespace => write!(f, " "),
             Token::Comment => write!(f, "--"),
+            Token::Unknown(s) => write!(f, "#{s}#"),
         }
     }
 }

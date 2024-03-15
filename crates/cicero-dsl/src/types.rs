@@ -14,20 +14,15 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "render")]
+mod render;
+#[cfg(feature = "render")]
+pub use render::*;
+
 pub type MarkdownString = String;
 
-#[cfg(feature = "render")]
-use crate::data::ast::Method;
-
-/// Fields of a struct or a variant of an enum.
-pub type Fields = IndexMap<String, FieldType>;
-
-#[cfg(feature = "render")]
-pub type TypeEnv = HashMap<String, Entity>;
-#[cfg(feature = "render")]
-pub type VarEnv = HashMap<String, Variable>;
-#[cfg(feature = "render")]
-pub type Methods = HashMap<String, Method>;
+/// Fields of a struct.
+pub type Fields = IndexMap<String, Field>;
 
 /// Metadata of the single scenario.
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -143,24 +138,20 @@ impl Variable {
 
 /// A single enumeration type.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EnumType {
+pub struct Enum {
     pub name: String,
     pub comment: Option<MarkdownString>,
-    pub variants: Vec<EnumVariantType>,
+    pub variants: Vec<EnumVariant>,
 }
 
-impl PartialEq for EnumType {
+impl PartialEq for Enum {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl EnumType {
-    pub fn new(
-        name: String,
-        comment: Option<MarkdownString>,
-        variants: Vec<EnumVariantType>,
-    ) -> Self {
+impl Enum {
+    pub fn new(name: String, comment: Option<MarkdownString>, variants: Vec<EnumVariant>) -> Self {
         Self {
             name,
             comment,
@@ -175,64 +166,64 @@ impl EnumType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct EnumVariantType {
+pub struct EnumVariant {
     pub name: String,
     pub comment: MarkdownString,
-    pub fields: Vec<Entity>,
+    pub field: Option<Entity>,
 }
 
-impl PartialEq for EnumVariantType {
+impl PartialEq for EnumVariant {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl EnumVariantType {
-    pub fn new(name: String, comment: MarkdownString, fields: Vec<Entity>) -> Self {
+impl EnumVariant {
+    pub fn new(name: String, comment: MarkdownString, field: Option<Entity>) -> Self {
         Self {
             name,
             comment,
-            fields,
+            field,
         }
     }
 
-    /// Returns false if the variant has fields.
+    /// Returns false if the variant has field.
     pub fn is_simple(&self) -> bool {
-        self.fields.is_empty()
+        self.field.is_none()
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct StructType {
+pub struct Struct {
     pub name: String,
     pub comment: Option<MarkdownString>,
     pub fields: Fields,
-    pub ancestor: Option<Box<StructType>>,
+    pub parent: Option<Box<Struct>>,
 }
 
-impl PartialEq for StructType {
+impl PartialEq for Struct {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl StructType {
+impl Struct {
     pub fn new(
         name: String,
         comment: Option<MarkdownString>,
         fields: Fields,
-        ancestor: Option<Box<StructType>>,
+        parent: Option<Box<Struct>>,
     ) -> Self {
         Self {
             name,
             comment,
             fields,
-            ancestor,
+            parent,
         }
     }
 
-    pub fn get_field(&self, name: &str) -> Option<&FieldType> {
-        self.ancestor
+    pub fn get_field(&self, name: &str) -> Option<&Field> {
+        self.parent
             .as_deref()
             .and_then(|ancestor| ancestor.get_field(name))
             // FIXME: eagerly evaluated at this moment, profile and check
@@ -240,23 +231,23 @@ impl StructType {
     }
 
     pub fn is_descendant(&self) -> bool {
-        self.ancestor.is_some()
+        self.parent.is_some()
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FieldType {
+pub struct Field {
     pub comment: MarkdownString,
     pub ty: Entity,
 }
 
-impl PartialEq for FieldType {
+impl PartialEq for Field {
     fn eq(&self, other: &Self) -> bool {
         self.ty == other.ty
     }
 }
 
-impl FieldType {
+impl Field {
     pub fn new(comment: MarkdownString, ty: Entity) -> Self {
         Self { comment, ty }
     }
@@ -282,8 +273,8 @@ pub enum EntityType {
     PhoneNumber,
     Date,
     Place,
-    Enum(EnumType),
-    Struct(StructType),
+    Enum(Enum),
+    Struct(Struct),
 }
 
 // TODO: think about this
