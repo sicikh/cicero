@@ -5,16 +5,27 @@ use std::sync::Arc;
 use minijinja::value::{Object, ObjectKind, StructObject, Value};
 
 use crate::data::{self, Data};
-use crate::types;
+use crate::types::{self, EntityType};
 
 pub type VarEnv = HashMap<String, types::Var>;
+pub type Methods = HashMap<String, data::Expr>;
 
+#[derive(Debug, Clone, Default)]
 pub struct Context {
     // TODO: arc + mutex to avoid cloning? this would cause to use tokio::sync::Mutex
-    pub inner: Vec<Vec<data::Var>>,
+    // TODO: inner hashmap
+    inner: Vec<Vec<data::Var>>,
+    methods: HashMap<String, Arc<Methods>>,
 }
 
 impl Context {
+    pub fn new(methods: HashMap<String, Arc<Methods>>) -> Self {
+        Self {
+            inner: vec![],
+            methods,
+        }
+    }
+
     // TODO: optimize
     pub fn get(&self, name: &str) -> Option<&data::Var> {
         self.inner
@@ -22,11 +33,22 @@ impl Context {
             .rev()
             .find_map(|env| env.iter().find(|var| var.name == name))
     }
-}
 
-pub struct Scenario {
-    pub context: Context,
-    // TODO: meta, types, etc
+    /// Insert data into a new layer.
+    ///
+    /// Data should not contain methods, as they are added from the context.
+    pub fn insert_layer(&mut self, mut data: Vec<data::Var>) {
+        for var in data.iter_mut() {
+            insert_methods(&mut var.data, &self.methods);
+        }
+
+        self.inner.push(data);
+    }
+
+    #[inline(always)]
+    pub fn drop_layer(&mut self) -> Option<Vec<data::Var>> {
+        self.inner.pop()
+    }
 }
 
 impl StructObject for Context {
@@ -84,7 +106,7 @@ impl Object for data::Struct {
             ));
         }
 
-        match self.methods.get(name) {
+        match self.methods.as_ref().and_then(|inner| inner.get(name)) {
             Some(expr) => {
                 match expr.evaluate(&data::Data::Struct(self.clone())) {
                     Ok(value) => Ok(Value::from(value)),
@@ -106,6 +128,26 @@ impl Object for data::Struct {
     }
 }
 
+#[allow(clippy::map_clone)] // to show that we are cloning the Arc
+fn insert_methods(data: &mut Data, methods: &HashMap<String, Arc<Methods>>) {
+    match data {
+        Data::Struct(structure) => {
+            structure.methods = methods.get(&structure.name).map(Arc::clone);
+            for field in structure.fields.values_mut() {
+                insert_methods(field, methods);
+            }
+        },
+        Data::Enum(enumeration) => {
+            enumeration.methods = methods.get(&enumeration.name).map(Arc::clone);
+
+            if let Some(field) = enumeration.field.as_mut() {
+                insert_methods(field, methods);
+            }
+        },
+        _ => {},
+    }
+}
+
 impl StructObject for data::Enum {
     // TODO: as enum carries only a discriminant,
     //  we cannot test if the field is present in the enum.
@@ -113,7 +155,7 @@ impl StructObject for data::Enum {
     fn get_field(&self, name: &str) -> Option<Value> {
         if name == self.discriminant {
             match self.field {
-                // FIXME: maybe don't use true?
+                // TODO: maybe don't use true?
                 None => Some(Value::from_serializable(&true)),
                 Some(ref data) => Some(Value::from_object(*data.clone())),
             }
@@ -125,7 +167,6 @@ impl StructObject for data::Enum {
 
 #[cfg(test)]
 mod tests {
-    use indexmap::IndexMap;
     use minijinja::Environment;
 
     use super::*;
@@ -139,11 +180,11 @@ mod tests {
         let user_struct = data::Struct {
             name: "User".to_string(),
             fields: {
-                let mut fields = IndexMap::new();
+                let mut fields = HashMap::new();
                 fields.insert("name".to_string(), data::Data::String("Lawyer".to_string()));
                 fields
             },
-            methods: Arc::new(HashMap::new()),
+            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -152,6 +193,7 @@ mod tests {
 
         let context = Context {
             inner: vec![vec![user]],
+            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -169,7 +211,7 @@ mod tests {
             name: "User".to_string(),
             discriminant: "Name".to_string(),
             field: Some(Box::new(data::Data::String("Lawyer".to_string()))),
-            methods: Arc::new(HashMap::new()),
+            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -178,6 +220,7 @@ mod tests {
 
         let context = Context {
             inner: vec![vec![user]],
+            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -196,7 +239,7 @@ mod tests {
             name: "User".to_string(),
             discriminant: "is_admin".to_string(),
             field: None,
-            methods: Arc::new(HashMap::new()),
+            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -205,6 +248,7 @@ mod tests {
 
         let context = Context {
             inner: vec![vec![user]],
+            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -225,6 +269,7 @@ mod tests {
 
         let context = Context {
             inner: vec![vec![user]],
+            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();

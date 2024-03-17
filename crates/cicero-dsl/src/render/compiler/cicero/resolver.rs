@@ -28,6 +28,7 @@ const STD_TYPES: &[(&str, types::EntityType)] = &[
     ("Place", types::EntityType::Place),
 ];
 
+// TODO: separate methods
 pub fn resolve(module: ast::Module) -> Result<VarEnv, String> {
     let ast::Module {
         type_defs,
@@ -90,7 +91,12 @@ fn resolve_type(
         // TODO: more
         _ => Err("".to_string()),
     }
-    .map(|ty| types::Entity { ty, required });
+    .map(|ty| {
+        types::Entity {
+            ty,
+            is_required: required,
+        }
+    });
 
     if let Ok(ty) = type_name {
         return Ok(ty);
@@ -197,7 +203,7 @@ fn resolve_type(
                         .as_ref()
                         .map(|ty| resolve_type(ty, type_defs, visited, resolved))
                         .transpose()?;
-
+                    // TODO: check that there is no dup variants
                     let variant = types::EnumVariant {
                         name: name.clone(),
                         comment: comment.clone(),

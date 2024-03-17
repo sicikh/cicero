@@ -10,6 +10,7 @@
  */
 
 use std::collections::HashMap;
+use std::hash::Hash;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -125,6 +126,14 @@ impl PartialEq for Var {
     }
 }
 
+impl Eq for Var {}
+
+impl Hash for Var {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
 impl Var {
     pub fn new(name: String, comment: MarkdownString, ty: Entity) -> Self {
         Self { name, comment, ty }
@@ -136,6 +145,7 @@ impl Var {
 pub struct Enum {
     pub name: String,
     pub comment: Option<MarkdownString>,
+    // TODO: change to indexmap
     pub variants: Vec<EnumVariant>,
 }
 
@@ -252,12 +262,12 @@ impl Field {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Entity {
     pub ty: EntityType,
-    pub required: bool,
+    pub is_required: bool,
 }
 
 impl Entity {
-    pub fn new(ty: EntityType, required: bool) -> Self {
-        Self { ty, required }
+    pub fn new(ty: EntityType, is_required: bool) -> Self {
+        Self { ty, is_required }
     }
 }
 
