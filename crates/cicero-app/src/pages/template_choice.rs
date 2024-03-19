@@ -20,9 +20,9 @@ pub fn TemplateChoice() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
         <Layout>
-            <div id="main_body">
-                <div id="left_side" class="md:flex md:items-center border w-1/2">
-                    <section id="search" class="w-full h-[73px] bg-[#EEEEEE]">
+            <div id="main_body" class="md: flex flex-row">
+                <div id="left_side" class="md:flex border-r-[7px] border-[#8C7456] w-1/2 basis-1/2">
+                    <section id="search" class="w-full h-[73px] relative bg-[#EEEEEE]">
                         <div class="justify-between items-center h-[37px] mt-[18px] mb-[18px] ml-[25px] mr-[25px] relative">
                             <input
                                 type="search"
@@ -35,9 +35,26 @@ pub fn TemplateChoice() -> impl IntoView {
                     </section>
                     <section id="find_doc"></section>
                 </div>
-                <div id="balka_ebanay" class="w-[14px] h-full bg-[#8C7456]"></div>
-                <div id="right_side">
-                    <div></div>
+                // посмотрим     // <div id="balka_ebanay" class="md:flex w-[14px] h-full bg-[#8C7456]"></div>
+                <div
+                    id="right_side"
+                    class="md:flex md:items-center border-l-[7px] border-[#8C7456] w-1/2 basis-1/2"
+                >
+                    <section
+                        id="create_template"
+                        class="grid grid-cols-1 w-full h-[220px] bg-[#EEEEEE]"
+                    >
+                        <div class="ml-[27px] mt-[12px] gap-[25px]">
+                            <div class="text-[40px] font-light">
+                                Договор поставки
+                            </div>
+                            <div class="text-[20px] font-light">Актуально на:</div>
+                        </div>
+                        <button class="bg-[#BFA07A] items-center border-[37px] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
+                            Создать договор
+                        </button>
+                    </section>
+                    <section id="find_doc"></section>
                 </div>
             </div>
         </Layout>
