@@ -9,7 +9,15 @@
  * except according to those terms.
  */
 
-pub mod types;
-pub use types::*;
-pub mod template;
-pub use template::*;
+use serde::{Deserialize, Serialize};
+
+use super::*;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum Expr {}
+
+impl Expr {
+    pub fn evaluate(&self, data: &Data) -> Result<String, String> {
+        todo!()
+    }
+}

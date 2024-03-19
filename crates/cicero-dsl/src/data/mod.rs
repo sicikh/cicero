@@ -9,59 +9,131 @@
  * except according to those terms.
  */
 
+use std::collections::HashMap;
+use std::fmt::Display;
+use std::sync::Arc;
+
 use indexmap::IndexMap;
-#[cfg(feature = "render")]
-use minijinja::value::{StructObject, Value};
 use serde::{Deserialize, Serialize};
 
-use crate::types::EntityType;
-#[cfg(feature = "render")]
-use crate::types::TypeEnv;
+use crate::types::{self, Entity, EntityType};
 
 #[cfg(feature = "render")]
-pub mod ast;
+pub mod expr;
 #[cfg(feature = "render")]
-use ast::Method;
+pub use expr::Expr;
 
-#[derive(Serialize, Deserialize, Debug)]
+pub type Methods = HashMap<String, Expr>;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Var {
+    pub name: String,
+    pub data: Data,
+}
+
+// NB: Data does not contain a None variant,
+// because minijinja does not have instrument to handle it...
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Data {
-    Struct(StructData),
-    Enum(EnumData),
+    Struct(Struct),
+    Enum(Enum),
+    String(String),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct StructData {
-    type_name: String,
-    fields: IndexMap<String, Data>,
-    #[cfg(feature = "render")]
-    methods: IndexMap<String, Method>,
-}
-
-impl StructData {
-    #[cfg(feature = "render")]
-    pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name).map(|ent| &ent.ty)
+impl Data {
+    pub fn is_ty(&self, ty: &EntityType) -> bool {
+        match (self, ty) {
+            (Data::Struct(data_struct), EntityType::Struct(ty_struct)) => {
+                data_struct.is_ty(ty_struct)
+            },
+            (Data::Enum(data_enum), EntityType::Enum(ty_enum)) => data_enum.is_ty(ty_enum),
+            (Data::String(_), EntityType::String) => true,
+            _ => false,
+        }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct EnumData {
-    type_name: String,
-    // TODO: maybe use a usize?
-    discriminant: String,
-    fields: Vec<Data>,
-}
-
-impl EnumData {
-    #[cfg(feature = "render")]
-    pub fn ty<'a>(&self, type_env: &'a TypeEnv) -> Option<&'a EntityType> {
-        type_env.get(&self.type_name).map(|ent| &ent.ty)
+impl Display for Data {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Data::Struct(s) => write!(f, "`struct {}`", s.name),
+            Data::Enum(e) => write!(f, "`enum {}`", e.name),
+            Data::String(s) => write!(f, "{}", s),
+        }
     }
 }
 
-#[cfg(feature = "render")]
-impl StructObject for StructData {
-    fn get_field(&self, field: &str) -> Option<Value> {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Struct {
+    pub name: String,
+    pub fields: HashMap<String, Data>,
+    #[cfg(feature = "render")]
+    #[serde(skip)]
+    pub methods: Option<Arc<Methods>>,
+}
+
+// TODO: move to render feature
+// TODO: bool -> Result<(), String>
+impl Struct {
+    pub fn is_ty(&self, ty: &types::Struct) -> bool {
+        self.name == ty.name
+            // all data fields are present in the type
+            && self.fields.iter().all(|(name, field)| {
+                ty.fields
+                    .get(name)
+                    .map_or(false, |ty_field| field.is_ty(&ty_field.ty.ty))
+            })
+            // all required type fields are present in the data
+            && ty.fields.iter().filter(|(_, field)| field.ty.is_required).all(|(name, field_ty)| {
+                self.fields
+                    .get(name)
+                    // TODO: find more adequate naming... tytyty lol
+                    .map_or(false, |field| field.is_ty(&field_ty.ty.ty))
+            })
+    }
+}
+
+impl Display for Struct {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Enum {
+    pub name: String,
+    pub discriminant: String,
+    pub field: Option<Box<Data>>,
+    #[cfg(feature = "render")]
+    #[serde(skip)]
+    pub methods: Option<Arc<Methods>>,
+}
+
+impl Enum {
+    pub fn is_ty(&self, ty: &types::Enum) -> bool {
+        self.name == ty.name
+            && match ty
+                .variants
+                .iter()
+                .find(|variant| variant.name == self.discriminant)
+            {
+                Some(variant) => {
+                    match (&variant.field, &self.field) {
+                        (Some(variant_field), Some(self_field)) => {
+                            self_field.is_ty(&variant_field.ty)
+                        },
+                        (Some(variant_field), None) => !variant_field.is_required,
+                        (None, None) => true,
+                        (None, Some(_)) => false,
+                    }
+                },
+                None => false,
+            }
+    }
+}
+
+impl Display for Enum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         todo!()
     }
 }

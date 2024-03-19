@@ -14,6 +14,9 @@ mod grammar;
 mod lexer;
 mod resolver;
 
+pub use grammar::parse_module;
+pub use resolver::resolve;
+
 #[cfg(test)]
 mod tests {
     use super::grammar::parse_module;

@@ -10,14 +10,10 @@
  */
 
 use std::collections::HashMap;
+use std::hash::Hash;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "render")]
-mod render;
-#[cfg(feature = "render")]
-pub use render::*;
 
 pub type MarkdownString = String;
 
@@ -82,7 +78,7 @@ pub struct ScenarioStep {
     pub header: Option<MarkdownString>,
     /// Variables, that are needed to be filled in order to continue the
     /// scenario.
-    pub variables: Vec<Variable>,
+    pub variables: Vec<Var>,
     /// Is step of the first phase of the scenario, when the render is not
     /// ready.
     pub is_first_phase: bool,
@@ -98,7 +94,7 @@ impl ScenarioStep {
     pub fn new(
         name: String,
         header: Option<MarkdownString>,
-        variables: Vec<Variable>,
+        variables: Vec<Var>,
         is_first_phase: bool,
     ) -> Self {
         Self {
@@ -115,7 +111,7 @@ impl ScenarioStep {
 /// A variable is created by `let name: Ty` statement in the types of the
 /// scenario.
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Variable {
+pub struct Var {
     /// Name of the variable.
     pub name: String,
     /// Comment, that should be displayed on top of the data entry field.
@@ -124,13 +120,21 @@ pub struct Variable {
     pub ty: Entity,
 }
 
-impl PartialEq for Variable {
+impl PartialEq for Var {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl Variable {
+impl Eq for Var {}
+
+impl Hash for Var {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
+impl Var {
     pub fn new(name: String, comment: MarkdownString, ty: Entity) -> Self {
         Self { name, comment, ty }
     }
@@ -141,6 +145,7 @@ impl Variable {
 pub struct Enum {
     pub name: String,
     pub comment: Option<MarkdownString>,
+    // TODO: change to indexmap
     pub variants: Vec<EnumVariant>,
 }
 
@@ -257,27 +262,23 @@ impl Field {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Entity {
     pub ty: EntityType,
-    pub required: bool,
+    pub is_required: bool,
 }
 
 impl Entity {
-    pub fn new(ty: EntityType, required: bool) -> Self {
-        Self { ty, required }
+    pub fn new(ty: EntityType, is_required: bool) -> Self {
+        Self { ty, is_required }
     }
 }
 
+// TODO: More
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum EntityType {
     String,
-    Number,
+    Integer,
     PhoneNumber,
     Date,
     Place,
     Enum(Enum),
     Struct(Struct),
 }
-
-// TODO: think about this
-// impl EntityType {
-//     pub fn validate_regex(&self) ->
-// }

@@ -9,6 +9,21 @@
  * except according to those terms.
  */
 
-pub const STD_LIB: &str = r#"
+pub mod cicero;
+use std::path::Path;
 
-"#;
+pub use cicero::*;
+pub mod template;
+pub use template::*;
+
+use super::context::{Context, VarEnv};
+use super::scenario::Scenario;
+use crate::types::ScenarioMeta;
+
+fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
+    todo!()
+}
+
+pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
+    todo!()
+}

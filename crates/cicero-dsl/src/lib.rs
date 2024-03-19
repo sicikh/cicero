@@ -12,8 +12,7 @@
 // FIXME
 #![allow(dead_code, unused_imports, unused_variables, clippy::manual_try_fold)]
 
-#[cfg(feature = "render")]
-pub mod compiler;
 pub mod data;
-pub mod std_lib;
+#[cfg(feature = "render")]
+pub mod render;
 pub mod types;
