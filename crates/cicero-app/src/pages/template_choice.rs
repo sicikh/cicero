@@ -20,7 +20,7 @@ pub fn TemplateChoice() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
         <Layout>
-            <div id="main_body" class="md: flex flex-row">
+            <div id="main_body" class="md: flex flex-row h-full bg-[#EEEEEE]">
                 <div id="left_side" class="md:flex border-r-[7px] border-[#8C7456] w-1/2 basis-1/2">
                     <section id="search" class="w-full h-[73px] relative bg-[#EEEEEE]">
                         <div class="justify-between items-center h-[37px] mt-[18px] mb-[18px] ml-[25px] mr-[25px] relative">
@@ -33,12 +33,12 @@ pub fn TemplateChoice() -> impl IntoView {
                             <i class="bx bx-search items-center pt-[8px] pl-[7px] text-[#8C7456] text-[25px] absolute"></i>
                         </div>
                     </section>
-                    <section id="find_doc"></section>
+                    <section id="choice"></section>
                 </div>
                 // посмотрим     // <div id="balka_ebanay" class="md:flex w-[14px] h-full bg-[#8C7456]"></div>
                 <div
                     id="right_side"
-                    class="md:flex md:items-center border-l-[7px] border-[#8C7456] w-1/2 basis-1/2"
+                    class="md:flex flex-col md:items-center border-l-[7px] border-[#8C7456] w-1/2 basis-1/2"
                 >
                     <section
                         id="create_template"
@@ -50,11 +50,28 @@ pub fn TemplateChoice() -> impl IntoView {
                             </div>
                             <div class="text-[20px] font-light">Актуально на:</div>
                         </div>
-                        <button class="bg-[#BFA07A] items-center border-[37px] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
-                            Создать договор
+                        <div class="items-center pl-[35px] pr-[35px]">
+                            <button class="bg-[#BFA07A] w-full items-center rounded-[37px] text-[#EEEEEE] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
+                                Создать договор
+                            </button>
+                        </div>
+                    </section>
+                    <section
+                        id="choice_description_or_change"
+                        class="flex flex-row w-full h-[40px] relative bg-[#EEEEEE]"
+                    >
+                        <button class="w-1/2 rounded-tr-[10px] border-t-[3px] border-r-[3px] border-b-[3px] border-[#8C7456] items-center text-center active:border-b-none active:text-[#BFA07A]">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A] ">Описание</div>
+                        </button>
+                        <button class="w-1/2 rounded-tl-[10px] border-t-[3px] border-l-[3px] border-b-[3px] border-[#8C7456] items-center text-center active:border-b-none active:text-[#BFA07A]">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
+                                Изменения в документе
+                            </div>
                         </button>
                     </section>
-                    <section id="find_doc"></section>
+                    <section id="description" class="mt-[15px] ml-[5px] mr-[5px] text-[#8C7456]">
+                        Мега анусятина
+                    </section>
                 </div>
             </div>
         </Layout>

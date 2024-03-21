@@ -22,7 +22,7 @@ use crate::types::{self, Entity, EntityType};
 pub mod expr;
 #[cfg(feature = "render")]
 pub use expr::Expr;
-
+#[cfg(feature = "render")]
 pub type Methods = HashMap<String, Expr>;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
