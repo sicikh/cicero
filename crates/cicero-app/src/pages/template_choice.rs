@@ -21,7 +21,10 @@ pub fn TemplateChoice() -> impl IntoView {
     view! {
         <Layout>
             <div id="main_body" class="md: flex flex-row h-full bg-[#EEEEEE]">
-                <div id="left_side" class="md:flex border-r-[7px] border-[#8C7456] w-1/2 basis-1/2">
+                <div
+                    id="left_side"
+                    class="md:flex flex-col border-r-[7px] border-[#8C7456] w-1/2 basis-1/2"
+                >
                     <section id="search" class="w-full h-[73px] relative bg-[#EEEEEE]">
                         <div class="justify-between items-center h-[37px] mt-[18px] mb-[18px] ml-[25px] mr-[25px] relative">
                             <input
@@ -33,7 +36,89 @@ pub fn TemplateChoice() -> impl IntoView {
                             <i class="bx bx-search items-center pt-[8px] pl-[7px] text-[#8C7456] text-[25px] absolute"></i>
                         </div>
                     </section>
-                    <section id="choice"></section>
+                    <section
+                        id="choice"
+                        class="flex flex-row justify-start w-full h-[40px] relative bg-[#EEEEEE]"
+                    >
+                        <button class="rounded-tr-[10px] border-t-[3px] border-r-[3px] border-b-[3px] w-[115px] border-[#8C7456] items-center text-center">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
+                                Документы
+                            </div>
+                        </button>
+                        <button class="rounded-t-[10px] border-[3px] border-[#8C7456] w-[160px] items-center text-center">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
+                                Учетная политика
+                            </div>
+                        </button>
+                        <button class="rounded-t-[10px] border-[3px] border-[#8C7456] w-[130px] items-center text-center">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
+                                Мои проекты
+                            </div>
+                        </button>
+                        <button class="rounded-tl-[10px] flex-1 border-t-[3px] border-l-[3px] border-b-[3px] border-[#8C7456] items-center text-center">
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]"></div>
+                        </button>
+                    </section>
+                    <section class="flex flex-row justify-evenly">
+                        <div
+                            id="choice_a_election_dogovor"
+                            class="flex flex-col bg-[#8C7456] rounded-[10px] p-[10px] gap-[20px]"
+                        >
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">Купля-продажи и мена</a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">
+                                        Договоры в сфере корпоративного плана
+                                    </a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">Другие договора</a>
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            id="choice_a_dogovor"
+                            class="flex flex-col bg-[#8C7456] rounded-[10px] p-[10px] gap-[20px]"
+                        >
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">Договор поставки</a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">Рамочный договор поставки</a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">
+                                        Договор купли-продажи транспортного средства
+                                    </a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">
+                                        Договор купли-продажи земельного участка
+                                    </a>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                                    <a href="#">
+                                        Договор купли-продажи нежилого недвижимого участка
+                                    </a>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
                 // посмотрим     // <div id="balka_ebanay" class="md:flex w-[14px] h-full bg-[#8C7456]"></div>
                 <div
@@ -60,12 +145,15 @@ pub fn TemplateChoice() -> impl IntoView {
                         id="choice_description_or_change"
                         class="flex flex-row w-full h-[40px] relative bg-[#EEEEEE]"
                     >
+
                         <button class="w-1/2 rounded-tr-[10px] border-t-[3px] border-r-[3px] border-b-[3px] border-[#8C7456] items-center text-center active:border-b-none active:text-[#BFA07A]">
-                            <div class="text-[#8C7456] hover:text-[#BFA07A] ">Описание</div>
+                            <div class="text-[#8C7456] hover:text-[#BFA07A] ">
+                                <a href="#">Описание</a>
+                            </div>
                         </button>
                         <button class="w-1/2 rounded-tl-[10px] border-t-[3px] border-l-[3px] border-b-[3px] border-[#8C7456] items-center text-center active:border-b-none active:text-[#BFA07A]">
                             <div class="text-[#8C7456] hover:text-[#BFA07A]">
-                                Изменения в документе
+                                <a href="#">Изменения в документе</a>
                             </div>
                         </button>
                     </section>
