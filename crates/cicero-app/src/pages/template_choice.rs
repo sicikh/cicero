@@ -59,59 +59,59 @@ pub fn TemplateChoice() -> impl IntoView {
                             <div class="text-[#8C7456] hover:text-[#BFA07A]"></div>
                         </button>
                     </section>
-                    <section class="flex flex-row justify-evenly">
+                    <section class="flex flex-row justify-evenly mt-[25px]">
                         <div
                             id="choice_a_election_dogovor"
-                            class="flex flex-col bg-[#8C7456] rounded-[10px] p-[10px] gap-[20px]"
+                            class="flex flex-col w-[280px] bg-[#8C7456] items-start text-start rounded-[10px] p-[10px] gap-[10px]"
                         >
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">Купля-продажи и мена</a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">
                                         Договоры в сфере корпоративного плана
                                     </a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">Другие договора</a>
                                 </button>
                             </div>
                         </div>
                         <div
                             id="choice_a_dogovor"
-                            class="flex flex-col bg-[#8C7456] rounded-[10px] p-[10px] gap-[20px]"
+                            class="flex flex-col w-[550px] bg-[#8C7456] rounded-[10px] p-[10px] gap-[20px]"
                         >
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">Договор поставки</a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">Рамочный договор поставки</a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">
                                         Договор купли-продажи транспортного средства
                                     </a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="h-[35px] w-full text-start">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">
                                         Договор купли-продажи земельного участка
                                     </a>
                                 </button>
                             </div>
-                            <div class="">
-                                <button class="text-[#EEEEEE] text-[16px] font-light">
+                            <div class="text-center">
+                                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] h-[35px] w-full hover:bg-[#544027]">
                                     <a href="#">
                                         Договор купли-продажи нежилого недвижимого участка
                                     </a>
