@@ -47,6 +47,7 @@ thiserror = { version = "1.0.41" }
 tracing = { version = "0.1.40" }
 tokio = { version = "1.0" }
 indexmap = { version = "2.2.5", features = ["serde"] }
+tempfile = "3.10.1"
 
 [[workspace.metadata.leptos]]
 name = "cicero"

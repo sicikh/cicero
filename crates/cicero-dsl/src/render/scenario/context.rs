@@ -51,6 +51,11 @@ impl Context {
     }
 
     #[inline(always)]
+    pub fn has_layer(&self, layer: usize) -> bool {
+        self.data_env.len() > layer
+    }
+
+    #[inline(always)]
     pub fn drop_layer(&mut self) -> Option<HashMap<String, data::Var>> {
         self.data_env.pop()
     }

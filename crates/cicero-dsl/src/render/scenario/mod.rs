@@ -69,14 +69,6 @@ impl Scenario {
         &self.meta
     }
 
-    pub fn template(&self) -> &Template {
-        &self.template
-    }
-
-    pub fn context(&self) -> &Context {
-        &self.context
-    }
-
     /// Returns `false` if we can continue scenario.
     pub fn is_ended(&self) -> bool {
         self.current_step >= self.template.steps.len()
@@ -91,6 +83,19 @@ impl Scenario {
         self.current_step == 0
     }
 
+    pub fn template_at_step(&self, step: usize) -> String {
+        let mut rendered = self.template.beginning_clause.clone();
+
+        let step = &self.template.steps[step];
+
+        rendered.push_str(&step.body);
+
+        rendered.push_str(&self.template.ending_clause);
+
+        rendered
+    }
+
+    // TODO: refactor
     pub fn next_step(&mut self, data: HashMap<String, data::Var>) -> Result<usize, String> {
         if self.is_ended() {
             return Err("Scenario is ended".to_string());
@@ -117,14 +122,24 @@ impl Scenario {
         Ok(self.current_step)
     }
 
-    pub fn render_step(&self) -> Result<String, String> {
-        let rendered = self.step_template();
+    #[inline(always)]
+    pub fn has_step_data(&self, step: usize) -> bool {
+        self.context.has_layer(step)
+    }
 
-        let source = &self.step_template();
+    #[inline(always)]
+    pub fn has_current_step_data(&self) -> bool {
+        self.has_step_data(self.current_step)
+    }
+
+    pub fn render_current_step(&self) -> Result<String, String> {
+        let source = &self.current_step_template();
+
         let mut env = Environment::new();
         env.add_template("template", source)
             .map_err(|e| e.to_string())?;
         let template = env.get_template("template").map_err(|e| e.to_string())?;
+
         let rendered = template
             .render(minijinja::Value::from_struct_object(self.context.clone()))
             .map_err(|e| e.to_string())?;
@@ -132,16 +147,8 @@ impl Scenario {
         Ok(rendered)
     }
 
-    pub fn step_template(&self) -> String {
-        let mut rendered = self.template.beginning_clause.clone();
-
-        let step = &self.template.steps[self.current_step - 1];
-
-        rendered.push_str(&step.body);
-
-        rendered.push_str(&self.template.ending_clause);
-
-        rendered
+    pub fn current_step_template(&self) -> String {
+        self.template_at_step(self.current_step)
     }
 
     pub fn full_step_template(&self) -> String {

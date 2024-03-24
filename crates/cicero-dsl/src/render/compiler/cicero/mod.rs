@@ -14,8 +14,20 @@ mod grammar;
 mod lexer;
 mod resolver;
 
-pub use grammar::parse_module;
-pub use resolver::resolve;
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use grammar::parse_module;
+use resolver::resolve;
+
+use crate::render::context::{Methods, VarEnv};
+
+pub fn compile_types(source: &str) -> Result<(VarEnv, HashMap<String, Arc<Methods>>), String> {
+    let module = parse_module(source)?;
+    let var_env = resolve(module)?;
+    // TODO:
+    Ok(var_env, HashMap::new())
+}
 
 #[cfg(test)]
 mod tests {

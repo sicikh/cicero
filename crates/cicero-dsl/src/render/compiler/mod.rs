@@ -9,21 +9,32 @@
  * except according to those terms.
  */
 
-pub mod cicero;
 use std::path::Path;
-
-pub use cicero::*;
-pub mod template;
-pub use template::*;
 
 use super::context::{Context, VarEnv};
 use super::scenario::Scenario;
 use crate::types::ScenarioMeta;
 
+pub mod cicero;
+pub mod template;
+
+use self::cicero::compile_types;
+use self::template::compile_template;
+
 fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
-    todo!()
+    toml::from_str(input).map_err(|e| e.to_string())
 }
 
 pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
-    todo!()
+    let path = dir.as_ref();
+    let meta = std::fs::read_to_string(path.join("meta.yaml")).map_err(|e| e.to_string())?;
+    let types = std::fs::read_to_string(path.join("types.cicero")).map_err(|e| e.to_string())?;
+    let template =
+        std::fs::read_to_string(path.join("template.tex.j2")).map_err(|e| e.to_string())?;
+
+    let meta = parse_meta(&meta)?;
+    let (var_env, methods_map) = compile_types(&types)?;
+    let template = compile_template(&template, &var_env)?;
+
+    Ok(Scenario::new(meta, template, methods_map)?)
 }

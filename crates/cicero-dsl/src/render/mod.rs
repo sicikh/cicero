@@ -17,11 +17,14 @@ pub use scenario::context;
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use std::fs;
+
+    use tempfile::tempdir;
 
     use self::context::Methods;
     use self::scenario::Scenario;
     use super::*;
-    use crate::render::compiler::compile_template;
+    use crate::render::compiler::compile_scenario;
     use crate::types::ScenarioMeta;
     use crate::{data, types};
 
@@ -43,24 +46,20 @@ Hello, {{ user.name }}!
 
 %%end
 ending"#;
+        let meta_source = r#"
+        id = 0
+        name = "test"
+        description = "test"
+        category = "test"
+        "#;
 
-        let module = compiler::parse_module(types_source).unwrap();
-        let var_env = compiler::resolve(module).unwrap();
-        let method_map = HashMap::new();
-        let template = compile_template(template_source, &var_env).unwrap();
-        let meta = ScenarioMeta {
-            name: "name".to_string(),
-            description: "description".to_string(),
-            id: 0,
-            date_of_creation: "today".to_string(),
-            date_of_last_change: "today".to_string(),
-            author: "me".to_string(),
-        };
-        let mut scenario = Scenario::new(meta, template, method_map).unwrap();
-        assert_eq!(scenario.current_step_types(), &[var_env
-            .get("user")
-            .cloned()
-            .unwrap()]);
+        let dir = tempdir().unwrap();
+
+        fs::write(dir.path().join("types.cicero"), types_source).unwrap();
+        fs::write(dir.path().join("template.tex.j2"), template_source).unwrap();
+        fs::write(dir.path().join("meta.toml"), meta_source).unwrap();
+
+        let mut scenario = compile_scenario(dir.path()).unwrap();
 
         let data = HashMap::from([("user".to_string(), data::Var {
             name: "user".to_string(),
@@ -76,7 +75,7 @@ ending"#;
         })]);
 
         scenario.next_step(data).unwrap();
-        let res = scenario.render_step().unwrap();
+        let res = scenario.render_current_step().unwrap();
         let test = "beninging\n\nHello, Lawyer!\n\nending";
 
         assert_eq!(res, test);

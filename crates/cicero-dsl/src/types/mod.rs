@@ -26,27 +26,16 @@ pub struct ScenarioMeta {
     pub id: u64,
     pub name: String,
     pub description: MarkdownString,
-    pub date_of_creation: String,
-    pub date_of_last_change: String,
-    pub author: String,
+    pub category: String,
 }
 
 impl ScenarioMeta {
-    pub fn new(
-        id: u64,
-        name: String,
-        description: MarkdownString,
-        date_of_creation: String,
-        date_of_last_change: String,
-        author: String,
-    ) -> Self {
+    pub fn new(id: u64, name: String, description: MarkdownString, category: String) -> Self {
         Self {
             id,
             name,
             description,
-            date_of_creation,
-            date_of_last_change,
-            author,
+            category,
         }
     }
 }
