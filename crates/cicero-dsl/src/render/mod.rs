@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
+ * Gleb Krylov <gleb_cry@mail.ru>
+ *
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
+
 pub mod compiler;
 pub mod scenario;
 
@@ -10,24 +21,12 @@ mod tests {
     use self::context::Methods;
     use self::scenario::Scenario;
     use super::*;
+    use crate::render::compiler::compile_template;
     use crate::types::ScenarioMeta;
     use crate::{data, types};
 
     #[test]
     fn render_test() {
-        let step = compiler::Step {
-            name: "Greeting".to_string(),
-            comment: "Enter user name".to_string(),
-            variables: vec!["user".to_string()],
-            is_first_phase: false,
-            body: "Hello, {{ user.name }}!\n".to_string(),
-        };
-        let mut ast_template: compiler::Template = compiler::Template {
-            beginning_clause: "beninging\n".to_string(),
-            steps: vec![step],
-            ending_clause: "ending".to_string(),
-        };
-
         let types_source = r#"
             struct User {
                 name: String,
@@ -35,11 +34,20 @@ mod tests {
 
             let user: User;
         "#;
+        let template_source = r#"beninging
+
+%%begin
+%%(Greeting)> Enter user name
+%%> { user }
+Hello, {{ user.name }}!
+
+%%end
+ending"#;
 
         let module = compiler::parse_module(types_source).unwrap();
         let var_env = compiler::resolve(module).unwrap();
         let method_map = HashMap::new();
-        let template = compiler::resolve_template(ast_template, &var_env).unwrap();
+        let template = compile_template(template_source, &var_env).unwrap();
         let meta = ScenarioMeta {
             name: "name".to_string(),
             description: "description".to_string(),
@@ -54,7 +62,7 @@ mod tests {
             .cloned()
             .unwrap()]);
 
-        let data = vec![data::Var {
+        let data = HashMap::from([("user".to_string(), data::Var {
             name: "user".to_string(),
             data: data::Data::Struct(data::Struct {
                 name: "User".to_string(),
@@ -65,13 +73,11 @@ mod tests {
                     fields
                 },
             }),
-        }];
+        })]);
 
         scenario.next_step(data).unwrap();
         let res = scenario.render_step().unwrap();
-        let test = r#"beninging
-Hello, Lawyer!
-ending"#;
+        let test = "beninging\n\nHello, Lawyer!\n\nending";
 
         assert_eq!(res, test);
     }

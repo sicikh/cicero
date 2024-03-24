@@ -23,7 +23,8 @@ chumsky = { version = "1.0.0-alpha.6", features = [
     "spin",
     "sync",
 ], optional = true }
-logos = { version = "0.13.0", optional = true }
+logos = { version = "0.14.0", optional = true }
+cfg-if = "1.0.0"
 
 [lints]
 workspace = true

@@ -65,7 +65,7 @@ impl PartialOrd for ScenarioMeta {
 
 /// A single step of a scenario.
 ///
-/// The data, descripted by this structure, is only that is needed
+/// The data, described by this structure, is only that is needed
 /// to continue evaluation of the scenario.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScenarioStep {
@@ -76,7 +76,7 @@ pub struct ScenarioStep {
     /// Usually it contains legal information, references to the law and
     /// warnings to the user.
     pub header: Option<MarkdownString>,
-    /// Variables, that are needed to be filled in order to continue the
+    /// Variables, that are needed to be filled to continue the
     /// scenario.
     pub variables: Vec<Var>,
     /// Is step of the first phase of the scenario, when the render is not
@@ -106,10 +106,7 @@ impl ScenarioStep {
     }
 }
 
-/// A variable, that is needed to be filled in order to continue the scenario.
-///
-/// A variable is created by `let name: Ty` statement in the types of the
-/// scenario.
+/// A variable, that is needed to be filled to continue the scenario.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Var {
     /// Name of the variable.
@@ -145,8 +142,7 @@ impl Var {
 pub struct Enum {
     pub name: String,
     pub comment: Option<MarkdownString>,
-    // TODO: change to indexmap
-    pub variants: Vec<EnumVariant>,
+    pub variants: IndexMap<String, EnumVariant>,
 }
 
 impl PartialEq for Enum {
@@ -156,7 +152,11 @@ impl PartialEq for Enum {
 }
 
 impl Enum {
-    pub fn new(name: String, comment: Option<MarkdownString>, variants: Vec<EnumVariant>) -> Self {
+    pub fn new(
+        name: String,
+        comment: Option<MarkdownString>,
+        variants: IndexMap<String, EnumVariant>,
+    ) -> Self {
         Self {
             name,
             comment,
@@ -166,7 +166,7 @@ impl Enum {
 
     /// Returns false if any of the variants has fields.
     pub fn is_simple(&self) -> bool {
-        self.variants.iter().all(|variant| variant.is_simple())
+        self.variants.values().all(|variant| variant.is_simple())
     }
 }
 
@@ -231,8 +231,7 @@ impl Struct {
         self.parent
             .as_deref()
             .and_then(|ancestor| ancestor.get_field(name))
-            // FIXME: eagerly evaluated at this moment, profile and check
-            .or(self.fields.get(name))
+            .or_else(|| self.fields.get(name))
     }
 
     pub fn is_descendant(&self) -> bool {
@@ -243,18 +242,18 @@ impl Struct {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Field {
     pub comment: MarkdownString,
-    pub ty: Entity,
+    pub entity: Entity,
 }
 
 impl PartialEq for Field {
     fn eq(&self, other: &Self) -> bool {
-        self.ty == other.ty
+        self.entity == other.entity
     }
 }
 
 impl Field {
-    pub fn new(comment: MarkdownString, ty: Entity) -> Self {
-        Self { comment, ty }
+    pub fn new(comment: MarkdownString, entity: Entity) -> Self {
+        Self { comment, entity }
     }
 }
 
@@ -271,7 +270,6 @@ impl Entity {
     }
 }
 
-// TODO: More
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum EntityType {
     String,

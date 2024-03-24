@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
+ * Gleb Krylov <gleb_cry@mail.ru>
+ *
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
+
 pub mod context;
 
 use std::collections::{HashMap, HashSet};
@@ -17,8 +28,6 @@ use crate::types::{self, ScenarioMeta};
 /// The scenario is a state machine, which is driven by the `current_step`
 /// field.
 pub struct Scenario {
-    // TODO: ScenarioMeta is not defined here because the client needs it.
-    //  So think about organizing it differently.
     /// Scenario metadata, which is stored in the individual file.
     pub(crate) meta: ScenarioMeta,
     /// Runtime context, which is used to store the variables and the state of
@@ -82,16 +91,12 @@ impl Scenario {
         self.current_step == 0
     }
 
-    pub fn is_in_first_phase(&self) -> bool {
-        self.template.steps[self.current_step].is_first_phase
-    }
-
-    pub fn next_step(&mut self, data: Vec<data::Var>) -> Result<usize, String> {
+    pub fn next_step(&mut self, data: HashMap<String, data::Var>) -> Result<usize, String> {
         if self.is_ended() {
             return Err("Scenario is ended".to_string());
         }
 
-        check_data_validity(data.as_slice(), self.current_step_types())?;
+        check_data_validity(&data, self.current_step_types())?;
 
         self.context.insert_layer(data);
 
@@ -176,12 +181,10 @@ pub struct Template {
 /// A step may be a first phase step, which is used to initialize the scenario,
 /// i. e. without producing any visual output.
 pub struct Step {
-    /// Whether the step is a first phase step.
-    pub is_first_phase: bool,
     /// The name of the step.
     pub name: String,
     /// The comment of the step.
-    pub comment: String,
+    pub comment: Option<String>,
     /// The variables of the step.
     pub variables: Vec<types::Var>,
     /// The body of the step, containing instructions to the template engine.
@@ -189,15 +192,17 @@ pub struct Step {
 }
 
 /// Checks the validity of the data.
-fn check_data_validity(data: &[data::Var], types: &[types::Var]) -> Result<(), String> {
-    let data: HashMap<&str, &data::Var> = data.iter().map(|var| (var.name.as_str(), var)).collect();
+fn check_data_validity(
+    data: &HashMap<String, data::Var>,
+    types: &[types::Var],
+) -> Result<(), String> {
     let types: HashMap<&str, &types::Var> =
         types.iter().map(|var| (var.name.as_str(), var)).collect();
 
     for ty in types.values().filter(|ty| ty.ty.is_required) {
         match (ty, data.get(ty.name.as_str())) {
             (types::Var { ty, name, .. }, Some(var)) => {
-                if !var.data.is_ty(&ty.ty) {
+                if !var.data.is_type(&ty.ty) {
                     return Err(format!(
                         "Variable `{}` is present, but has a different type",
                         name

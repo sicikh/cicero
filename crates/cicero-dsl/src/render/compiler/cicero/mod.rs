@@ -40,6 +40,6 @@ mod tests {
         let module = parse_module(src).unwrap();
         let module = resolve(module).unwrap();
         // TODO: write test, but it works for now...
-        println!("{:#?}", module);
+        // println!("{:#?}", module);
     }
 }

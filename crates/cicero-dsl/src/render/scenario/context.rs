@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
+ * Gleb Krylov <gleb_cry@mail.ru>
+ *
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
+
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
@@ -12,56 +23,50 @@ pub type Methods = HashMap<String, data::Expr>;
 
 #[derive(Debug, Clone, Default)]
 pub struct Context {
-    // TODO: arc + mutex to avoid cloning? this would cause to use tokio::sync::Mutex
-    // TODO: inner hashmap
-    inner: Vec<Vec<data::Var>>,
+    data_env: Vec<HashMap<String, data::Var>>,
     methods: HashMap<String, Arc<Methods>>,
 }
 
 impl Context {
     pub fn new(methods: HashMap<String, Arc<Methods>>) -> Self {
         Self {
-            inner: vec![],
+            data_env: vec![],
             methods,
         }
     }
 
-    // TODO: optimize
-    pub fn get(&self, name: &str) -> Option<&data::Var> {
-        self.inner
-            .iter()
-            .rev()
-            .find_map(|env| env.iter().find(|var| var.name == name))
+    pub fn get_var(&self, var_name: &str) -> Option<&data::Var> {
+        self.data_env.iter().rev().find_map(|env| env.get(var_name))
     }
 
     /// Insert data into a new layer.
     ///
     /// Data should not contain methods, as they are added from the context.
-    pub fn insert_layer(&mut self, mut data: Vec<data::Var>) {
-        for var in data.iter_mut() {
+    pub fn insert_layer(&mut self, mut data: HashMap<String, data::Var>) {
+        for var in data.values_mut() {
             insert_methods(&mut var.data, &self.methods);
         }
 
-        self.inner.push(data);
+        self.data_env.push(data);
     }
 
     #[inline(always)]
-    pub fn drop_layer(&mut self) -> Option<Vec<data::Var>> {
-        self.inner.pop()
+    pub fn drop_layer(&mut self) -> Option<HashMap<String, data::Var>> {
+        self.data_env.pop()
     }
 }
 
 impl StructObject for Context {
     fn get_field(&self, name: &str) -> Option<Value> {
-        let var = self.get(name)?;
+        let var = self.get_var(name)?;
         let value = Value::from_object(var.data.clone());
         Some(value)
     }
 
     fn fields(&self) -> Vec<Arc<str>> {
-        self.inner
+        self.data_env
             .iter()
-            .flat_map(|env| env.iter().map(|var| Arc::from(var.name.as_str())))
+            .flat_map(|env| env.keys().map(|var_name| Arc::from(var_name.as_str())))
             .collect()
     }
 }
@@ -108,7 +113,7 @@ impl Object for data::Struct {
 
         match self.methods.as_ref().and_then(|inner| inner.get(name)) {
             Some(expr) => {
-                match expr.evaluate(&data::Data::Struct(self.clone())) {
+                match expr.evaluate(&Data::Struct(self.clone())) {
                     Ok(value) => Ok(Value::from(value)),
                     Err(err) => {
                         Err(minijinja::Error::new(
@@ -133,6 +138,7 @@ fn insert_methods(data: &mut Data, methods: &HashMap<String, Arc<Methods>>) {
     match data {
         Data::Struct(structure) => {
             structure.methods = methods.get(&structure.name).map(Arc::clone);
+
             for field in structure.fields.values_mut() {
                 insert_methods(field, methods);
             }
@@ -181,18 +187,18 @@ mod tests {
             name: "User".to_string(),
             fields: {
                 let mut fields = HashMap::new();
-                fields.insert("name".to_string(), data::Data::String("Lawyer".to_string()));
+                fields.insert("name".to_string(), Data::String("Lawyer".to_string()));
                 fields
             },
             methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
-            data: data::Data::Struct(user_struct),
+            data: Data::Struct(user_struct),
         };
 
         let context = Context {
-            inner: vec![vec![user]],
+            data_env: vec![HashMap::from([("user".to_string(), user)])],
             ..Default::default()
         };
 
@@ -210,16 +216,16 @@ mod tests {
         let user_enum = data::Enum {
             name: "User".to_string(),
             discriminant: "Name".to_string(),
-            field: Some(Box::new(data::Data::String("Lawyer".to_string()))),
+            field: Some(Box::new(Data::String("Lawyer".to_string()))),
             methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
-            data: data::Data::Enum(user_enum),
+            data: Data::Enum(user_enum),
         };
 
         let context = Context {
-            inner: vec![vec![user]],
+            data_env: vec![HashMap::from([("user".to_string(), user)])],
             ..Default::default()
         };
 
@@ -243,11 +249,11 @@ mod tests {
         };
         let user = data::Var {
             name: "user".to_string(),
-            data: data::Data::Enum(user_enum),
+            data: Data::Enum(user_enum),
         };
 
         let context = Context {
-            inner: vec![vec![user]],
+            data_env: vec![HashMap::from([("user".to_string(), user)])],
             ..Default::default()
         };
 
@@ -264,11 +270,11 @@ mod tests {
 
         let user = data::Var {
             name: "user".to_string(),
-            data: data::Data::String("Lawyer".to_string()),
+            data: Data::String("Lawyer".to_string()),
         };
 
         let context = Context {
-            inner: vec![vec![user]],
+            data_env: vec![HashMap::from([("user".to_string(), user)])],
             ..Default::default()
         };
 

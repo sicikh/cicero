@@ -13,17 +13,19 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::sync::Arc;
 
+use cfg_if::cfg_if;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 use crate::types::{self, Entity, EntityType};
 
-#[cfg(feature = "render")]
-pub mod expr;
-#[cfg(feature = "render")]
-pub use expr::Expr;
-#[cfg(feature = "render")]
-pub type Methods = HashMap<String, Expr>;
+cfg_if!(
+    if #[cfg(feature = "render")] {
+        pub mod expr;
+        pub use expr::Expr;
+        pub type Methods = HashMap<String, Expr>;
+    }
+);
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Var {
@@ -32,7 +34,7 @@ pub struct Var {
 }
 
 // NB: Data does not contain a None variant,
-// because minijinja does not have instrument to handle it...
+//  because minijinja does not have instrument to handle it...
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Data {
     Struct(Struct),
@@ -41,12 +43,13 @@ pub enum Data {
 }
 
 impl Data {
-    pub fn is_ty(&self, ty: &EntityType) -> bool {
+    #[cfg(feature = "render")]
+    pub fn is_type(&self, ty: &EntityType) -> bool {
         match (self, ty) {
-            (Data::Struct(data_struct), EntityType::Struct(ty_struct)) => {
-                data_struct.is_ty(ty_struct)
+            (Data::Struct(data_struct), EntityType::Struct(type_struct)) => {
+                data_struct.is_type(type_struct)
             },
-            (Data::Enum(data_enum), EntityType::Enum(ty_enum)) => data_enum.is_ty(ty_enum),
+            (Data::Enum(data_enum), EntityType::Enum(type_enum)) => data_enum.is_type(type_enum),
             (Data::String(_), EntityType::String) => true,
             _ => false,
         }
@@ -72,23 +75,22 @@ pub struct Struct {
     pub methods: Option<Arc<Methods>>,
 }
 
-// TODO: move to render feature
-// TODO: bool -> Result<(), String>
 impl Struct {
-    pub fn is_ty(&self, ty: &types::Struct) -> bool {
-        self.name == ty.name
+    #[cfg(feature = "render")]
+    pub fn is_type(&self, type_struct: &types::Struct) -> bool {
+        self.name == type_struct.name
             // all data fields are present in the type
-            && self.fields.iter().all(|(name, field)| {
-                ty.fields
-                    .get(name)
-                    .map_or(false, |ty_field| field.is_ty(&ty_field.ty.ty))
+            && self.fields.iter().all(|(field_name, data_field)| {
+                type_struct.fields
+                    .get(field_name)
+                    .map_or(false, |type_field| data_field.is_type(&type_field.entity.ty))
             })
             // all required type fields are present in the data
-            && ty.fields.iter().filter(|(_, field)| field.ty.is_required).all(|(name, field_ty)| {
+            && type_struct.fields.iter().filter(|&(_, type_field)| type_field.entity.is_required).all(|
+            (field_name, type_field)| {
                 self.fields
-                    .get(name)
-                    // TODO: find more adequate naming... tytyty lol
-                    .map_or(false, |field| field.is_ty(&field_ty.ty.ty))
+                    .get(field_name)
+                    .map_or(false, |data_field| data_field.is_type(&type_field.entity.ty))
             })
     }
 }
@@ -110,19 +112,16 @@ pub struct Enum {
 }
 
 impl Enum {
-    pub fn is_ty(&self, ty: &types::Enum) -> bool {
-        self.name == ty.name
-            && match ty
-                .variants
-                .iter()
-                .find(|variant| variant.name == self.discriminant)
-            {
-                Some(variant) => {
-                    match (&variant.field, &self.field) {
-                        (Some(variant_field), Some(self_field)) => {
-                            self_field.is_ty(&variant_field.ty)
+    #[cfg(feature = "render")]
+    pub fn is_type(&self, type_enum: &types::Enum) -> bool {
+        self.name == type_enum.name
+            && match type_enum.variants.get(&self.discriminant) {
+                Some(type_variant) => {
+                    match (&type_variant.field, &self.field) {
+                        (Some(variant_type_field), Some(data_field)) => {
+                            data_field.is_type(&variant_type_field.ty)
                         },
-                        (Some(variant_field), None) => !variant_field.is_required,
+                        (Some(variant_type_field), None) => !variant_type_field.is_required,
                         (None, None) => true,
                         (None, Some(_)) => false,
                     }

@@ -12,6 +12,8 @@
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 
+use indexmap::IndexMap;
+
 use super::ast;
 use super::ast::TypeDef;
 use crate::render::context::VarEnv;
@@ -210,9 +212,9 @@ fn resolve_type(
                         field,
                     };
 
-                    Ok(variant)
+                    Ok((name.clone(), variant))
                 })
-                .collect::<Result<Vec<types::EnumVariant>, String>>()?;
+                .collect::<Result<IndexMap<String, types::EnumVariant>, String>>()?;
 
             let enum_type = types::EntityType::Enum(types::Enum {
                 name: name.clone(),

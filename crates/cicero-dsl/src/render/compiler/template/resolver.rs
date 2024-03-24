@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
+ * Gleb Krylov <gleb_cry@mail.ru>
+ *
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ */
+
 use types::context::VarEnv;
 
 use super::ast;
@@ -11,7 +22,7 @@ pub fn resolve_template(
     let ast::Template {
         beginning_clause,
         steps,
-        ending_clause,
+        end_clause: ending_clause,
     } = template;
 
     let steps = steps
@@ -32,7 +43,6 @@ pub fn resolve_template(
 
 fn resolve_step(step: ast::Step, var_env: &VarEnv) -> Result<types::Step, String> {
     let ast::Step {
-        is_first_phase,
         name,
         comment,
         variables,
@@ -50,7 +60,6 @@ fn resolve_step(step: ast::Step, var_env: &VarEnv) -> Result<types::Step, String
         .collect::<Result<Vec<_>, String>>()?;
 
     let step = types::Step {
-        is_first_phase,
         name,
         comment,
         variables,
@@ -75,20 +84,6 @@ fn check_steps(steps: &[types::Step]) -> Result<(), String> {
             }
 
             var_env.insert(var.name.clone(), var.clone());
-        }
-    }
-
-    // Check that first phase steps are at the beginning
-    let mut first_phase = false;
-    for step in steps {
-        if step.is_first_phase {
-            if !first_phase {
-                first_phase = true;
-            } else {
-                return Err("First phase step after non-first phase step".to_string());
-            }
-        } else if first_phase {
-            return Err("Non-first phase step after first phase step".to_string());
         }
     }
 

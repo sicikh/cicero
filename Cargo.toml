@@ -3,18 +3,8 @@ unsafe_code = "forbid"
 
 [workspace]
 resolver = "2"
-members = [
-    "crates/cicero-dsl",
-    "crates/cicero-app",
-    "crates/cicero-front",
-    "crates/cicero-server",
-]
-default-members = [
-    "crates/cicero-dsl",
-    "crates/cicero-app",
-    "crates/cicero-front",
-    "crates/cicero-server",
-]
+members = ["crates/*"]
+exclude = ["crates/cicero-e2e"]
 
 [profile.wasm-release]
 inherits = "release"
