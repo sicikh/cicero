@@ -9,10 +9,10 @@
  * except according to those terms.
  */
 
+pub use scenario::context;
+
 pub mod compiler;
 pub mod scenario;
-
-pub use scenario::context;
 
 #[cfg(test)]
 mod tests {
@@ -21,12 +21,8 @@ mod tests {
 
     use tempfile::tempdir;
 
-    use self::context::Methods;
-    use self::scenario::Scenario;
-    use super::*;
+    use crate::data;
     use crate::render::compiler::compile_scenario;
-    use crate::types::ScenarioMeta;
-    use crate::{data, types};
 
     #[test]
     fn render_test() {
@@ -60,6 +56,7 @@ ending"#;
         fs::write(dir.path().join("meta.toml"), meta_source).unwrap();
 
         let mut scenario = compile_scenario(dir.path()).unwrap();
+        dir.close().unwrap();
 
         let data = HashMap::from([("user".to_string(), data::Var {
             name: "user".to_string(),

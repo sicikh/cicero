@@ -10,20 +10,20 @@
  */
 
 use std::collections::HashMap;
-use std::ops::Deref;
 use std::sync::Arc;
 
-use minijinja::value::{Object, ObjectKind, StructObject, Value};
+use minijinja::value::{Object, ObjectKind, SeqObject, StructObject, Value};
+use minijinja::State;
 
 use crate::data::{self, Data};
-use crate::types::{self, EntityType};
+use crate::types::{self};
 
 pub type VarEnv = HashMap<String, types::Var>;
 pub type Methods = HashMap<String, data::Expr>;
 
 #[derive(Debug, Clone, Default)]
 pub struct Context {
-    data_env: Vec<HashMap<String, data::Var>>,
+    data_env: Vec<Arc<HashMap<String, data::Var>>>,
     methods: HashMap<String, Arc<Methods>>,
 }
 
@@ -47,7 +47,7 @@ impl Context {
             insert_methods(&mut var.data, &self.methods);
         }
 
-        self.data_env.push(data);
+        self.data_env.push(Arc::new(data));
     }
 
     #[inline(always)]
@@ -56,7 +56,7 @@ impl Context {
     }
 
     #[inline(always)]
-    pub fn drop_layer(&mut self) -> Option<HashMap<String, data::Var>> {
+    pub fn drop_layer(&mut self) -> Option<Arc<HashMap<String, data::Var>>> {
         self.data_env.pop()
     }
 }
@@ -81,7 +81,30 @@ impl Object for Data {
         match &self {
             Data::Struct(structure) => ObjectKind::Struct(structure),
             Data::Enum(enumeration) => ObjectKind::Struct(enumeration),
+            Data::Array(array) => ObjectKind::Seq(array),
             Data::String(_) => ObjectKind::Plain,
+        }
+    }
+
+    // NB: (this cost me a lot of time)
+    //  Minijinja uses this to call method on a value, but on first glance
+    //  it seemed that it would cast value to a struct (as defined in kind()) and
+    // call method on it.
+    fn call_method(
+        &self,
+        state: &State,
+        name: &str,
+        args: &[Value],
+    ) -> Result<Value, minijinja::Error> {
+        match self {
+            Data::Struct(structure) => structure.call_method(state, name, args),
+            Data::Enum(enumeration) => enumeration.call_method(state, name, args),
+            _ => {
+                Err(minijinja::Error::new(
+                    minijinja::ErrorKind::UnknownMethod,
+                    "object does not have methods",
+                ))
+            },
         }
     }
 }
@@ -105,20 +128,20 @@ impl Object for data::Struct {
 
     fn call_method(
         &self,
-        _state: &minijinja::State,
+        _state: &State,
         name: &str,
         args: &[Value],
     ) -> Result<Value, minijinja::Error> {
         if !args.is_empty() {
             return Err(minijinja::Error::new(
                 minijinja::ErrorKind::TooManyArguments,
-                "Method does not accept arguments",
+                "Methods does not accept arguments",
             ));
         }
 
         match self.methods.as_ref().and_then(|inner| inner.get(name)) {
             Some(expr) => {
-                match expr.evaluate(&Data::Struct(self.clone())) {
+                match expr.evaluate(Data::Struct(self.clone())) {
                     Ok(value) => Ok(Value::from(value)),
                     Err(err) => {
                         Err(minijinja::Error::new(
@@ -160,19 +183,84 @@ fn insert_methods(data: &mut Data, methods: &HashMap<String, Arc<Methods>>) {
 }
 
 impl StructObject for data::Enum {
-    // TODO: as enum carries only a discriminant,
-    //  we cannot test if the field is present in the enum.
-    //  Think about this, maybe carry all discriminants in the enum data?
+    /// Tests, whether the field is the discriminant.
+    ///
+    /// Used in if statements to safely extract the field lately by calling
+    /// [method with the discriminant name](data::Enum::call_method).
     fn get_field(&self, name: &str) -> Option<Value> {
         if name == self.discriminant {
-            match self.field {
-                // TODO: maybe don't use true?
-                None => Some(Value::from_serializable(&true)),
-                Some(ref data) => Some(Value::from_object(*data.clone())),
-            }
+            Some(Value::from_serializable(&true))
         } else {
             None
         }
+    }
+}
+
+impl Object for data::Enum {
+    fn kind(&self) -> ObjectKind<'_> {
+        ObjectKind::Struct(self)
+    }
+
+    /// Extract the field by calling the method with the discriminant name
+    /// or call enum method.
+    ///
+    /// Used after testing the field with [`get_field`](data::Enum::get_field).
+    fn call_method(
+        &self,
+        _state: &State,
+        name: &str,
+        args: &[Value],
+    ) -> Result<Value, minijinja::Error> {
+        if !args.is_empty() {
+            return Err(minijinja::Error::new(
+                minijinja::ErrorKind::TooManyArguments,
+                "Methods does not accept arguments",
+            ));
+        }
+
+        if name == self.discriminant {
+            return match &self.field {
+                Some(data) => Ok(Value::from_object(*data.clone())),
+                None => {
+                    Err(minijinja::Error::new(
+                        minijinja::ErrorKind::InvalidOperation,
+                        format!("Enum {} has no field", self.name),
+                    ))
+                },
+            };
+        }
+
+        match self.methods.as_ref().and_then(|inner| inner.get(name)) {
+            Some(expr) => {
+                match expr.evaluate(Data::Enum(self.clone())) {
+                    Ok(value) => Ok(Value::from(value)),
+                    Err(err) => {
+                        Err(minijinja::Error::new(
+                            minijinja::ErrorKind::InvalidOperation,
+                            format!("Method failed: {}", err),
+                        ))
+                    },
+                }
+            },
+            None => {
+                Err(minijinja::Error::new(
+                    minijinja::ErrorKind::UnknownMethod,
+                    "Method not found",
+                ))
+            },
+        }
+    }
+}
+
+impl SeqObject for data::Array {
+    #[inline(always)]
+    fn get_item(&self, idx: usize) -> Option<Value> {
+        self.inner.get(idx).cloned().map(Value::from_object)
+    }
+
+    #[inline(always)]
+    fn item_count(&self) -> usize {
+        self.inner.len()
     }
 }
 
@@ -203,7 +291,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![HashMap::from([("user".to_string(), user)])],
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
             ..Default::default()
         };
 
@@ -215,7 +303,11 @@ mod tests {
     #[test]
     fn enum_field() {
         let mut env = Environment::new();
-        env.add_template("test", "Hello, {{ user.Name }}!").unwrap();
+        env.add_template(
+            "test",
+            "Hello, {{ user.Name() if user.Name else \"Test\" }}!",
+        )
+        .unwrap();
         let template = env.get_template("test").unwrap();
 
         let user_enum = data::Enum {
@@ -230,7 +322,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![HashMap::from([("user".to_string(), user)])],
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
             ..Default::default()
         };
 
@@ -258,7 +350,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![HashMap::from([("user".to_string(), user)])],
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
             ..Default::default()
         };
 
@@ -279,12 +371,103 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![HashMap::from([("user".to_string(), user)])],
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
             ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
         let test = "Hello, Lawyer!";
+        assert_eq!(result, test);
+    }
+
+    #[test]
+    fn enum_if_statement() {
+        let src = r"{% if user.Lawyer -%}
+Hello, lawyer {{ user.Lawyer().name }}!
+{% elif user.Newbie -%}
+Hello, user {{ user.Newbie().name }}!
+{% else -%}
+Hello, World!
+{% endif %}";
+        let mut env = Environment::new();
+        env.add_template("test", src).unwrap();
+        let template = env.get_template("test").unwrap();
+
+        let person_struct = data::Struct {
+            name: "Person".to_string(),
+            fields: {
+                let mut fields = HashMap::new();
+                fields.insert("name".to_string(), Data::String("David".to_string()));
+                fields
+            },
+            methods: None,
+        };
+
+        let user_enum = data::Enum {
+            name: "User".to_string(),
+            discriminant: "Lawyer".to_string(),
+            field: Some(Box::new(Data::Struct(person_struct))),
+            methods: None,
+        };
+
+        let context = Context {
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+                name: "user".to_string(),
+                data: Data::Enum(user_enum),
+            })]))],
+            ..Default::default()
+        };
+
+        let result = template.render(Value::from_struct_object(context)).unwrap();
+        let test = "Hello, lawyer David!\n";
+        assert_eq!(result, test);
+
+        let person_struct = data::Struct {
+            name: "Newbie".to_string(),
+            fields: {
+                let mut fields = HashMap::new();
+                fields.insert("name".to_string(), Data::String("John".to_string()));
+                fields
+            },
+            methods: None,
+        };
+
+        let user_enum = data::Enum {
+            name: "User".to_string(),
+            discriminant: "Newbie".to_string(),
+            field: Some(Box::new(Data::Struct(person_struct))),
+            methods: None,
+        };
+
+        let context = Context {
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+                name: "user".to_string(),
+                data: Data::Enum(user_enum),
+            })]))],
+            ..Default::default()
+        };
+
+        let result = template.render(Value::from_struct_object(context)).unwrap();
+        let test = "Hello, user John!\n";
+        assert_eq!(result, test);
+
+        let user_enum = data::Enum {
+            name: "User".to_string(),
+            discriminant: "None".to_string(),
+            field: None,
+            methods: None,
+        };
+
+        let context = Context {
+            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+                name: "user".to_string(),
+                data: Data::Enum(user_enum),
+            })]))],
+            ..Default::default()
+        };
+
+        let result = template.render(Value::from_struct_object(context)).unwrap();
+        let test = "Hello, World!\n";
         assert_eq!(result, test);
     }
 }

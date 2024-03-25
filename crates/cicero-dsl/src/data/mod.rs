@@ -11,16 +11,16 @@
 
 use std::collections::HashMap;
 use std::fmt::Display;
-use std::sync::Arc;
 
 use cfg_if::cfg_if;
-use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-
-use crate::types::{self, Entity, EntityType};
 
 cfg_if!(
     if #[cfg(feature = "render")] {
+        use std::sync::Arc;
+
+        use crate::types::{self, EntityType};
+
         pub mod expr;
         pub use expr::Expr;
         pub type Methods = HashMap<String, Expr>;
@@ -40,6 +40,7 @@ pub enum Data {
     Struct(Struct),
     Enum(Enum),
     String(String),
+    Array(Array),
 }
 
 impl Data {
@@ -62,6 +63,17 @@ impl Display for Data {
             Data::Struct(s) => write!(f, "`struct {}`", s.name),
             Data::Enum(e) => write!(f, "`enum {}`", e.name),
             Data::String(s) => write!(f, "{}", s),
+            Data::Array(a) => {
+                write!(
+                    f,
+                    "[{}]",
+                    a.inner
+                        .iter()
+                        .map(|d| d.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            },
         }
     }
 }
@@ -96,7 +108,7 @@ impl Struct {
 }
 
 impl Display for Struct {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         todo!()
     }
 }
@@ -132,7 +144,12 @@ impl Enum {
 }
 
 impl Display for Enum {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         todo!()
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Array {
+    pub inner: Vec<Data>,
 }

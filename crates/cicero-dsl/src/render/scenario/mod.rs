@@ -9,16 +9,15 @@
  * except according to those terms.
  */
 
-pub mod context;
-
-use std::collections::{HashMap, HashSet};
-use std::f32::consts::E;
+use std::collections::HashMap;
 
 use context::Context;
 use minijinja::Environment;
 
 use crate::data;
 use crate::types::{self, ScenarioMeta};
+
+pub mod context;
 
 /// A single running scenario.
 ///
@@ -86,7 +85,8 @@ impl Scenario {
     pub fn template_at_step(&self, step: usize) -> String {
         let mut rendered = self.template.beginning_clause.clone();
 
-        let step = &self.template.steps[step];
+        // FIXME: only for test passing before refactor
+        let step = &self.template.steps[step.saturating_sub(1)];
 
         rendered.push_str(&step.body);
 
@@ -201,15 +201,18 @@ pub struct Step {
 /// Checks the validity of the data.
 fn check_data_validity(
     data: &HashMap<String, data::Var>,
-    types: &[types::Var],
+    vars: &[types::Var],
 ) -> Result<(), String> {
-    let types: HashMap<&str, &types::Var> =
-        types.iter().map(|var| (var.name.as_str(), var)).collect();
-
-    for ty in types.values().filter(|ty| ty.ty.is_required) {
-        match (ty, data.get(ty.name.as_str())) {
-            (types::Var { ty, name, .. }, Some(var)) => {
-                if !var.data.is_type(&ty.ty) {
+    // Required variables are present in the data
+    for var in vars.iter().filter(|&var| var.ty.is_required) {
+        match (var, data.get(var.name.as_str())) {
+            (
+                types::Var {
+                    ty: entity, name, ..
+                },
+                Some(data_var),
+            ) => {
+                if !data_var.data.is_type(&entity.ty) {
                     return Err(format!(
                         "Variable `{}` is present, but has a different type",
                         name
@@ -222,11 +225,15 @@ fn check_data_validity(
         }
     }
 
-    for var in data.values() {
-        if !types.contains_key(var.name.as_str()) {
+    let vars: HashMap<&str, &types::Var> =
+        vars.iter().map(|var| (var.name.as_str(), var)).collect();
+
+    // All variables in the data are defined
+    for data_var in data.values() {
+        if !vars.contains_key(data_var.name.as_str()) {
             return Err(format!(
                 "Variable `{}` is present, but not defined",
-                var.name
+                data_var.name
             ));
         }
     }

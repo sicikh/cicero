@@ -208,15 +208,20 @@ fn variable_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|((comment, name), ty)| Variable { name, comment, ty })
 }
 
-/// type ::= ident [ '?' ]
+/// type ::= ( ident | '[' ident ']' ) [ '?' ]
 fn type_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Type, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     ident_parser()
+        .map(|name| (name, false))
+        .or(ident_parser()
+            .delimited_by(just(Token::LBracket), just(Token::RBracket))
+            .map(|name| (name, true)))
         .then(just(Token::QuestionMark).or_not())
-        .map(|(name, required)| {
+        .map(|((name, is_array), required)| {
             Type {
                 name,
-                required: required.is_none(),
+                is_array,
+                is_required: required.is_none(),
             }
         })
 }
@@ -248,7 +253,8 @@ mod tests {
         let ast = type_parser().parse(wrap_lexer(src)).unwrap();
         let test = Type {
             name: "String".to_string(),
-            required: false,
+            is_array: false,
+            is_required: false,
         };
 
         assert_eq!(ast, test);
@@ -278,7 +284,8 @@ mod tests {
                     comment: "Field comment\n\nMore **comments**".to_string(),
                     ty: Type {
                         name: "String".to_string(),
-                        required: false,
+                        is_array: false,
+                        is_required: false,
                     },
                 },
                 Field {
@@ -286,7 +293,8 @@ mod tests {
                     comment: "Field2 comment".to_string(),
                     ty: Type {
                         name: "String".to_string(),
-                        required: true,
+                        is_array: false,
+                        is_required: true,
                     },
                 },
             ],
@@ -318,7 +326,8 @@ mod tests {
                     comment: "Variant comment".to_string(),
                     field: Some(Type {
                         name: "String".to_string(),
-                        required: true,
+                        is_array: false,
+                        is_required: true,
                     }),
                 },
                 EnumVariant {
@@ -331,7 +340,8 @@ mod tests {
                     comment: "Blue comment".to_string(),
                     field: Some(Type {
                         name: "String".to_string(),
-                        required: false,
+                        is_array: false,
+                        is_required: false,
                     }),
                 },
             ],
@@ -383,7 +393,8 @@ mod tests {
                             comment: "Field comment\n\nMore **comments**".to_string(),
                             ty: Type {
                                 name: "String".to_string(),
-                                required: false,
+                                is_array: false,
+                                is_required: false,
                             },
                         },
                         Field {
@@ -391,7 +402,8 @@ mod tests {
                             comment: "Field2 comment".to_string(),
                             ty: Type {
                                 name: "String".to_string(),
-                                required: true,
+                                is_array: false,
+                                is_required: true,
                             },
                         },
                     ],
@@ -406,7 +418,8 @@ mod tests {
                             comment: "Variant comment".to_string(),
                             field: Some(Type {
                                 name: "String".to_string(),
-                                required: true,
+                                is_array: false,
+                                is_required: true,
                             }),
                         },
                         EnumVariant {
@@ -419,7 +432,8 @@ mod tests {
                             comment: "Blue comment".to_string(),
                             field: Some(Type {
                                 name: "String".to_string(),
-                                required: false,
+                                is_array: false,
+                                is_required: false,
                             }),
                         },
                     ],
@@ -431,7 +445,119 @@ mod tests {
                 comment: "Variable comment".to_string(),
                 ty: Type {
                     name: "Person".to_string(),
-                    required: true,
+                    is_array: false,
+                    is_required: true,
+                },
+            }],
+        };
+
+        assert_eq!(ast, test);
+    }
+
+    #[test]
+    fn array_parse_test() {
+        let src = r#"
+        /// Person
+        struct Person {
+            /// Person kind
+            kind: PersonKind,
+            /// Field with array
+            field: [String],
+        }
+        /// Person kind
+        enum PersonKind {
+            /// Newbie
+            Newbie(NewbieInfo),
+            /// Lawyer with a names
+            Lawyer([String]),
+        }
+        /// Newbie info
+        struct NewbieInfo {
+            /// Newbie names
+            field: [String],
+        }
+        /// Variable comment
+        let var: [Person];
+        "#;
+
+        let ast = module_parser().parse(wrap_lexer(src)).unwrap();
+
+        let test = Module {
+            type_defs: vec![
+                TypeDef::Struct(Struct {
+                    name: "Person".to_string(),
+                    comment: Some("Person".to_string()),
+                    fields: vec![
+                        Field {
+                            name: "kind".to_string(),
+                            comment: "Person kind".to_string(),
+                            ty: Type {
+                                name: "PersonKind".to_string(),
+                                is_array: false,
+                                is_required: true,
+                            },
+                        },
+                        Field {
+                            name: "field".to_string(),
+                            comment: "Field with array".to_string(),
+                            ty: Type {
+                                name: "String".to_string(),
+                                is_array: true,
+                                is_required: true,
+                            },
+                        },
+                    ],
+                    parent: None,
+                    methods: vec![],
+                }),
+                TypeDef::Enum(Enum {
+                    comment: Some("Person kind".to_string()),
+                    name: "PersonKind".to_string(),
+                    variants: vec![
+                        EnumVariant {
+                            name: "Newbie".to_string(),
+                            comment: "Newbie".to_string(),
+                            field: Some(Type {
+                                name: "NewbieInfo".to_string(),
+                                is_array: false,
+                                is_required: true,
+                            }),
+                        },
+                        EnumVariant {
+                            name: "Lawyer".to_string(),
+                            comment: "Lawyer with a names".to_string(),
+                            field: Some(Type {
+                                name: "String".to_string(),
+                                is_array: true,
+                                is_required: true,
+                            }),
+                        },
+                    ],
+                    methods: vec![],
+                }),
+                TypeDef::Struct(Struct {
+                    comment: Some("Newbie info".to_string()),
+                    name: "NewbieInfo".to_string(),
+                    parent: None,
+                    fields: vec![Field {
+                        name: "field".to_string(),
+                        comment: "Newbie names".to_string(),
+                        ty: Type {
+                            name: "String".to_string(),
+                            is_array: true,
+                            is_required: true,
+                        },
+                    }],
+                    methods: vec![],
+                }),
+            ],
+            variables: vec![Variable {
+                name: "var".to_string(),
+                comment: "Variable comment".to_string(),
+                ty: Type {
+                    name: "Person".to_string(),
+                    is_array: true,
+                    is_required: true,
                 },
             }],
         };

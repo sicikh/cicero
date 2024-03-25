@@ -9,8 +9,7 @@
  * except according to those terms.
  */
 
-use std::fmt::{write, Display, Formatter};
-use std::str::FromStr;
+use std::fmt::{Display, Formatter};
 
 use logos::{Lexer, Logos};
 
@@ -65,6 +64,10 @@ pub enum Token<'src> {
     LBrace,
     #[token("}")]
     RBrace,
+    #[token("[")]
+    LBracket,
+    #[token("]")]
+    RBracket,
     #[token(":")]
     Colon,
     #[token(";")]
@@ -115,6 +118,8 @@ impl<'src> Display for Token<'src> {
             Token::Eq => write!(f, "="),
             Token::LParen => write!(f, "("),
             Token::RParen => write!(f, ")"),
+            Token::LBracket => write!(f, "["),
+            Token::RBracket => write!(f, "]"),
             Token::LBrace => write!(f, "{{"),
             Token::RBrace => write!(f, "}}"),
             Token::Colon => write!(f, ":"),

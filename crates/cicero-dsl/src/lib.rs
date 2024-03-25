@@ -10,7 +10,7 @@
  */
 
 // FIXME
-#![allow(dead_code, unused_imports, unused_variables, clippy::manual_try_fold)]
+#![allow(dead_code)]
 
 pub mod data;
 #[cfg(feature = "render")]

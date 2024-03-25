@@ -11,15 +11,13 @@
 
 use std::path::Path;
 
-use super::context::{Context, VarEnv};
+use self::cicero::compile_types;
+use self::template::compile_template;
 use super::scenario::Scenario;
 use crate::types::ScenarioMeta;
 
 pub mod cicero;
 pub mod template;
-
-use self::cicero::compile_types;
-use self::template::compile_template;
 
 fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
     toml::from_str(input).map_err(|e| e.to_string())
@@ -27,7 +25,7 @@ fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
 
 pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
     let path = dir.as_ref();
-    let meta = std::fs::read_to_string(path.join("meta.yaml")).map_err(|e| e.to_string())?;
+    let meta = std::fs::read_to_string(path.join("meta.toml")).map_err(|e| e.to_string())?;
     let types = std::fs::read_to_string(path.join("types.cicero")).map_err(|e| e.to_string())?;
     let template =
         std::fs::read_to_string(path.join("template.tex.j2")).map_err(|e| e.to_string())?;
@@ -36,5 +34,5 @@ pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
     let (var_env, methods_map) = compile_types(&types)?;
     let template = compile_template(&template, &var_env)?;
 
-    Ok(Scenario::new(meta, template, methods_map)?)
+    Scenario::new(meta, template, methods_map)
 }

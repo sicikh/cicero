@@ -9,11 +9,6 @@
  * except according to those terms.
  */
 
-mod ast;
-mod grammar;
-mod lexer;
-mod resolver;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -22,17 +17,23 @@ use resolver::resolve;
 
 use crate::render::context::{Methods, VarEnv};
 
+mod ast;
+mod grammar;
+mod lexer;
+mod resolver;
+
 pub fn compile_types(source: &str) -> Result<(VarEnv, HashMap<String, Arc<Methods>>), String> {
     let module = parse_module(source)?;
     let var_env = resolve(module)?;
     // TODO:
-    Ok(var_env, HashMap::new())
+    Ok((var_env, HashMap::new()))
 }
 
 #[cfg(test)]
 mod tests {
     use super::grammar::parse_module;
     use super::resolver::resolve;
+
     // FIXME: comments is empty, but it parses
     #[test]
     fn basic_test() {
@@ -50,7 +51,7 @@ mod tests {
         let p: Various
         "#;
         let module = parse_module(src).unwrap();
-        let module = resolve(module).unwrap();
+        let _module = resolve(module).unwrap();
         // TODO: write test, but it works for now...
         // println!("{:#?}", module);
     }

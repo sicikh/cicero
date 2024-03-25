@@ -13,7 +13,6 @@ use types::context::VarEnv;
 
 use super::ast;
 use crate::render::scenario as types;
-use crate::types::Var;
 
 pub fn resolve_template(
     template: ast::Template,

@@ -17,7 +17,7 @@ use super::*;
 pub enum Expr {}
 
 impl Expr {
-    pub fn evaluate(&self, data: &Data) -> Result<String, String> {
+    pub fn evaluate(&self, _data: Data) -> Result<String, String> {
         todo!()
     }
 }

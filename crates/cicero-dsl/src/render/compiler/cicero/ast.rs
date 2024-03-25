@@ -9,8 +9,6 @@
  * except according to those terms.
  */
 
-use std::ops::Add;
-
 use crate::types::MarkdownString;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -74,7 +72,8 @@ pub struct Field {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Type {
     pub name: String,
-    pub required: bool,
+    pub is_array: bool,
+    pub is_required: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

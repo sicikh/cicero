@@ -9,7 +9,6 @@
  * except according to those terms.
  */
 
-use std::collections::HashMap;
 use std::hash::Hash;
 
 use indexmap::IndexMap;
@@ -27,17 +26,6 @@ pub struct ScenarioMeta {
     pub name: String,
     pub description: MarkdownString,
     pub category: String,
-}
-
-impl ScenarioMeta {
-    pub fn new(id: u64, name: String, description: MarkdownString, category: String) -> Self {
-        Self {
-            id,
-            name,
-            description,
-            category,
-        }
-    }
 }
 
 impl PartialEq for ScenarioMeta {
@@ -68,9 +56,6 @@ pub struct ScenarioStep {
     /// Variables, that are needed to be filled to continue the
     /// scenario.
     pub variables: Vec<Var>,
-    /// Is step of the first phase of the scenario, when the render is not
-    /// ready.
-    pub is_first_phase: bool,
 }
 
 impl PartialEq for ScenarioStep {
@@ -80,17 +65,11 @@ impl PartialEq for ScenarioStep {
 }
 
 impl ScenarioStep {
-    pub fn new(
-        name: String,
-        header: Option<MarkdownString>,
-        variables: Vec<Var>,
-        is_first_phase: bool,
-    ) -> Self {
+    pub fn new(name: String, header: Option<MarkdownString>, variables: Vec<Var>) -> Self {
         Self {
             name,
             header,
             variables,
-            is_first_phase,
         }
     }
 }
@@ -141,18 +120,6 @@ impl PartialEq for Enum {
 }
 
 impl Enum {
-    pub fn new(
-        name: String,
-        comment: Option<MarkdownString>,
-        variants: IndexMap<String, EnumVariant>,
-    ) -> Self {
-        Self {
-            name,
-            comment,
-            variants,
-        }
-    }
-
     /// Returns false if any of the variants has fields.
     pub fn is_simple(&self) -> bool {
         self.variants.values().all(|variant| variant.is_simple())
@@ -173,14 +140,6 @@ impl PartialEq for EnumVariant {
 }
 
 impl EnumVariant {
-    pub fn new(name: String, comment: MarkdownString, field: Option<Entity>) -> Self {
-        Self {
-            name,
-            comment,
-            field,
-        }
-    }
-
     /// Returns false if the variant has field.
     pub fn is_simple(&self) -> bool {
         self.field.is_none()
@@ -202,20 +161,6 @@ impl PartialEq for Struct {
 }
 
 impl Struct {
-    pub fn new(
-        name: String,
-        comment: Option<MarkdownString>,
-        fields: Fields,
-        parent: Option<Box<Struct>>,
-    ) -> Self {
-        Self {
-            name,
-            comment,
-            fields,
-            parent,
-        }
-    }
-
     pub fn get_field(&self, name: &str) -> Option<&Field> {
         self.parent
             .as_deref()
@@ -240,23 +185,11 @@ impl PartialEq for Field {
     }
 }
 
-impl Field {
-    pub fn new(comment: MarkdownString, entity: Entity) -> Self {
-        Self { comment, entity }
-    }
-}
-
 /// A single type of the scenario.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Entity {
     pub ty: EntityType,
     pub is_required: bool,
-}
-
-impl Entity {
-    pub fn new(ty: EntityType, is_required: bool) -> Self {
-        Self { ty, is_required }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -268,4 +201,5 @@ pub enum EntityType {
     Place,
     Enum(Enum),
     Struct(Struct),
+    Array(Box<EntityType>),
 }
