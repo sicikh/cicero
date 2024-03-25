@@ -18,8 +18,8 @@ use crate::widgets::*;
 pub fn Maga() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
-        <Layout>
+        <LayoutNav>
             <h1>gr</h1>
-        </Layout>
+        </LayoutNav>
     }
 }

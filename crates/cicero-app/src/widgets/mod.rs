@@ -9,7 +9,15 @@
  * except according to those terms.
  */
 
-mod layout;
+mod choice_a_dogovor;
+mod choice_a_election_dogovor;
+mod layout_choice_dogovor;
+mod layout_nav;
 mod navbar;
-pub use self::layout::*;
+mod right_side;
+pub use self::choice_a_dogovor::*;
+pub use self::choice_a_election_dogovor::*;
+pub use self::layout_choice_dogovor::*;
+pub use self::layout_nav::*;
 pub use self::navbar::*;
+pub use self::right_side::*;
