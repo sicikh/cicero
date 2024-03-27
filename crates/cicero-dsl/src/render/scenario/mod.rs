@@ -10,14 +10,16 @@
  */
 
 use std::collections::HashMap;
+use std::path::Path;
+use std::process::Command;
 
-use context::Context;
-use minijinja::Environment;
-
+use self::error::{Result, ScenarioError};
+use super::context::Context;
 use crate::data;
+use crate::render::compiler::cicero::check_data_validity;
 use crate::types::{self, ScenarioMeta};
 
-pub mod context;
+pub mod error;
 
 /// A single running scenario.
 ///
@@ -35,18 +37,18 @@ pub struct Scenario {
     // NB: invariant: template.steps > 0
     /// The template, which is used to render the scenario.
     pub(crate) template: Template,
-    // NB: invariant: current_step < template.steps.len()
+    // NB: invariant: current_step < template.steps.len() && current_step <= filled_steps()
     /// The current step of the scenario.
     pub(crate) current_step: usize,
 }
 
 impl Scenario {
-    pub fn new(meta: ScenarioMeta, template: Template) -> Result<Self, String> {
+    pub fn new(meta: ScenarioMeta, template: Template) -> Option<Self> {
         if template.steps.is_empty() {
-            return Err("Template has no steps".to_string());
+            return None;
         }
 
-        Ok(Scenario {
+        Some(Self {
             meta,
             context: Context::new(),
             template,
@@ -54,109 +56,163 @@ impl Scenario {
         })
     }
 
+    #[inline(always)]
     pub fn current_step(&self) -> usize {
         self.current_step
     }
 
+    #[inline(always)]
+    pub fn filled_steps(&self) -> usize {
+        self.context.layers()
+    }
+
+    #[inline(always)]
+    pub fn template(&self) -> &Template {
+        &self.template
+    }
+
+    #[inline(always)]
+    fn has_step_data(&self, step: usize) -> bool {
+        step < self.filled_steps()
+    }
+
+    #[inline(always)]
     pub fn meta(&self) -> &ScenarioMeta {
         &self.meta
     }
 
     /// Returns `false` if we can continue scenario.
+    #[inline(always)]
     pub fn is_ended(&self) -> bool {
-        self.current_step >= self.template.steps.len()
+        debug_assert!(self.current_step < self.template.steps.len());
+
+        self.current_step == self.template.steps.len() - 1
     }
 
     /// Returns types needed for the current step.
+    #[inline(always)]
     pub fn current_step_types(&self) -> &[types::Var] {
         &self.template.steps[self.current_step].variables
     }
 
-    fn is_at_first_step(&self) -> bool {
-        self.current_step == 0
-    }
-
-    pub fn template_at_step(&self, step: usize) -> String {
-        let mut rendered = self.template.beginning_clause.clone();
-
-        // FIXME: only for test passing before refactor
-        let step = &self.template.steps[step.saturating_sub(1)];
-
-        rendered.push_str(&step.body);
-
-        rendered.push_str(&self.template.ending_clause);
-
-        rendered
-    }
-
-    // TODO: refactor
-    pub fn next_step(&mut self, data: HashMap<String, data::Var>) -> Result<usize, String> {
-        if self.is_ended() {
-            return Err("Scenario is ended".to_string());
+    #[inline(always)]
+    pub fn step_to(&mut self, step: usize) -> Result<()> {
+        if step >= self.template.steps.len() {
+            return Err(ScenarioError::StepOutOfBounds(step));
         }
 
-        check_data_validity(&data, self.current_step_types())?;
-
-        self.context.insert_layer(data);
-
-        self.current_step += 1;
-
-        Ok(self.current_step)
-    }
-
-    pub fn step_back(&mut self) -> Result<usize, String> {
-        if self.is_at_first_step() {
-            return Err("Scenario is at the beginning".to_string());
+        // FIXME: check
+        if step > self.filled_steps() {
+            return Err(ScenarioError::StepNotFilled(step));
         }
 
-        self.context.drop_layer();
+        self.current_step = step;
 
-        self.current_step -= 1;
-
-        Ok(self.current_step)
+        Ok(())
     }
 
-    #[inline(always)]
-    pub fn has_step_data(&self, step: usize) -> bool {
-        self.context.has_layer(step)
+    pub fn insert_data(&mut self, data: HashMap<String, data::Var>) -> Result<()> {
+        check_data_validity(&data, self.current_step_types())
+            .map_err(|_| ScenarioError::StepNotValid(self.current_step))?;
+
+        if self.current_step == self.filled_steps() {
+            self.context.insert_layer(data)
+        } else {
+            self.context
+                .insert(self.current_step, data)
+                .expect("Invariants not satisfied.");
+        }
+
+        Ok(())
     }
 
-    #[inline(always)]
-    pub fn has_current_step_data(&self) -> bool {
-        self.has_step_data(self.current_step)
-    }
+    pub fn render(&self) -> Result<String> {
+        if !self.has_step_data(self.current_step) {
+            return Err(ScenarioError::StepNotFilled(self.current_step));
+        }
 
-    pub fn render_current_step(&self) -> Result<String, String> {
-        let source = &self.current_step_template();
+        let source = self
+            .template
+            .at_step(self.current_step)
+            .expect("Invariants not satisfied.");
 
-        let mut env = Environment::new();
-        env.add_template("template", source)
-            .map_err(|e| e.to_string())?;
-        let template = env.get_template("template").map_err(|e| e.to_string())?;
+        let mut env = minijinja::Environment::new();
+        env.add_template("template", source.as_str())?;
+        let template = env.get_template("template")?;
 
-        let rendered = template
-            .render(minijinja::Value::from_struct_object(self.context.clone()))
-            .map_err(|e| e.to_string())?;
-
+        let rendered = template.render::<minijinja::Value>(self.context.clone().into())?;
         Ok(rendered)
     }
 
-    pub fn current_step_template(&self) -> String {
-        self.template_at_step(self.current_step)
-    }
-
-    pub fn full_step_template(&self) -> String {
-        let mut rendered = self.template.beginning_clause.clone();
-
-        for i in 0..self.current_step {
-            let step = &self.template.steps[i];
-
-            rendered.push_str(&step.body);
+    pub fn full_render(&self) -> Result<String> {
+        if !self.has_step_data(self.current_step) {
+            return Err(ScenarioError::StepNotFilled(self.current_step));
         }
 
-        rendered.push_str(&self.template.ending_clause);
+        let source = self
+            .template
+            .up_to_step(self.current_step)
+            .expect("Invariants not satisfied.");
 
-        rendered
+        let mut env = minijinja::Environment::new();
+        env.add_template("template", source.as_str())?;
+        let template = env.get_template("template")?;
+
+        let rendered = template.render::<minijinja::Value>(self.context.clone().into())?;
+        Ok(rendered)
+    }
+
+    pub fn render_pdf(&self) -> Result<()> {
+        let rendered = self.render()?;
+
+        self.render_pdf_inner(rendered.as_str())
+    }
+
+    pub fn full_render_pdf(&self) -> Result<()> {
+        let rendered = self.full_render()?;
+
+        self.render_pdf_inner(rendered.as_str())
+    }
+
+    fn render_pdf_inner(&self, rendered: &str) -> Result<()> {
+        let path = Path::new("./rendered.tex");
+
+        std::fs::write(path, rendered).map_err(ScenarioError::FileWriteError)?;
+
+        Command::new("tectonic")
+            .args(["-X", "compile", "rendered.tex"])
+            .spawn()
+            .map_err(ScenarioError::TectonicError)?;
+
+        Ok(())
+    }
+
+    pub fn render_docx(&self) -> Result<()> {
+        let rendered = self.render()?;
+
+        self.render_docx_inner(rendered.as_str())
+    }
+
+    pub fn full_render_docx(&self) -> Result<()> {
+        let rendered = self.full_render()?;
+
+        self.render_docx_inner(rendered.as_str())
+    }
+
+    fn render_docx_inner(&self, rendered: &str) -> Result<()> {
+        let path = Path::new("./rendered.tex");
+
+        std::fs::write(path, rendered).map_err(ScenarioError::FileWriteError)?;
+
+        Command::new("pandoc")
+            .arg("rendered.tex")
+            .args(["-o", "rendered.docx"])
+            .args(["--from", "latex"])
+            .arg("--reference-doc=reference.docx")
+            .spawn()
+            .map_err(ScenarioError::PandocError)?;
+
+        Ok(())
     }
 }
 
@@ -176,6 +232,32 @@ pub struct Template {
     pub ending_clause: String,
 }
 
+impl Template {
+    /// Renders the template at the given step.
+    pub fn at_step(&self, step: usize) -> Option<String> {
+        let mut rendered = self.beginning_clause.clone();
+
+        rendered.push_str(self.steps.get(step)?.body.as_str());
+
+        rendered.push_str(self.ending_clause.as_str());
+
+        Some(rendered)
+    }
+
+    /// Renders the template up to the given step included.
+    pub fn up_to_step(&self, step: usize) -> Option<String> {
+        let mut rendered = self.beginning_clause.clone();
+
+        for i in 0..step {
+            rendered.push_str(self.steps.get(i)?.body.as_str());
+        }
+
+        rendered.push_str(self.ending_clause.as_str());
+
+        Some(rendered)
+    }
+}
+
 /// A single step of the template, containing instructions for the template
 /// engine.
 ///
@@ -190,47 +272,4 @@ pub struct Step {
     pub variables: Vec<types::Var>,
     /// The body of the step, containing instructions to the template engine.
     pub body: String,
-}
-
-/// Checks the validity of the data.
-fn check_data_validity(
-    data: &HashMap<String, data::Var>,
-    vars: &[types::Var],
-) -> Result<(), String> {
-    // Required variables are present in the data
-    for var in vars.iter().filter(|&var| var.ty.is_required) {
-        match (var, data.get(var.name.as_str())) {
-            (
-                types::Var {
-                    ty: entity, name, ..
-                },
-                Some(data_var),
-            ) => {
-                if !data_var.data.is_type(&entity.ty) {
-                    return Err(format!(
-                        "Variable `{}` is present, but has a different type",
-                        name
-                    ));
-                }
-            },
-            (types::Var { name, .. }, None) => {
-                return Err(format!("Variable `{}` is required, but not present", name));
-            },
-        }
-    }
-
-    let vars: HashMap<&str, &types::Var> =
-        vars.iter().map(|var| (var.name.as_str(), var)).collect();
-
-    // All variables in the data are defined
-    for data_var in data.values() {
-        if !vars.contains_key(data_var.name.as_str()) {
-            return Err(format!(
-                "Variable `{}` is present, but not defined",
-                data_var.name
-            ));
-        }
-    }
-
-    Ok(())
 }

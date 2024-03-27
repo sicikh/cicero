@@ -367,13 +367,13 @@ dependencies = [
 name = "cicero-dsl"
 version = "0.1.0"
 dependencies = [
- "cfg-if",
  "chumsky",
  "indexmap",
  "logos",
  "minijinja",
  "serde",
  "tempfile",
+ "thiserror",
  "toml",
 ]
 

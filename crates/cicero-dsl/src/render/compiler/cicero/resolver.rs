@@ -14,7 +14,8 @@ use std::collections::{HashMap, HashSet};
 use indexmap::IndexMap;
 
 use super::ast::{self, Type, TypeDef};
-use crate::render::context::VarEnv;
+use crate::context::VarEnv;
+use crate::data;
 use crate::types::{self, Entity, EntityType};
 
 type TypeDefs = HashMap<String, TypeDef>;
@@ -256,6 +257,49 @@ fn find_var_dups(vars: Vec<ast::Variable>) -> Result<VarDefs, String> {
             Some(_) => Err(var_key),
         }
     })
+}
+
+/// Checks the validity of the data.
+pub fn check_data_validity(
+    data: &HashMap<String, data::Var>,
+    vars: &[types::Var],
+) -> Result<(), String> {
+    // Required variables are present in the data
+    for var in vars.iter().filter(|&var| var.ty.is_required) {
+        match (var, data.get(var.name.as_str())) {
+            (
+                types::Var {
+                    ty: entity, name, ..
+                },
+                Some(data_var),
+            ) => {
+                if !data_var.data.is_type(&entity.ty) {
+                    return Err(format!(
+                        "Variable `{}` is present, but has a different type",
+                        name
+                    ));
+                }
+            },
+            (types::Var { name, .. }, None) => {
+                return Err(format!("Variable `{}` is required, but not present", name));
+            },
+        }
+    }
+
+    let vars: HashMap<&str, &types::Var> =
+        vars.iter().map(|var| (var.name.as_str(), var)).collect();
+
+    // All variables in the data are defined
+    for data_var in data.values() {
+        if !vars.contains_key(data_var.name.as_str()) {
+            return Err(format!(
+                "Variable `{}` is present, but not defined",
+                data_var.name
+            ));
+        }
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]

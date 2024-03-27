@@ -37,5 +37,5 @@ pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
     let var_env = compile_types(&types)?;
     let template = compile_template(&template, &var_env)?;
 
-    Scenario::new(meta, template)
+    Ok(Scenario::new(meta, template).expect("Already checked validity."))
 }

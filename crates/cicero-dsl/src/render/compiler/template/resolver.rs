@@ -9,9 +9,8 @@
  * except according to those terms.
  */
 
-use types::context::VarEnv;
-
 use super::ast;
+use crate::render::context::VarEnv;
 use crate::render::scenario as types;
 
 pub fn resolve_template(

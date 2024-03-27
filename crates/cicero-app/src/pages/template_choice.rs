@@ -42,10 +42,7 @@ pub fn TemplateChoice() -> impl IntoView {
         <LayoutNav>
 
             <div id="main_body" class="md: flex flex-row h-full bg-[#EEEEEE]">
-                <div
-                    id="left_side"
-                    class="md:flex flex-col border-r-[7px] border-[#8C7456] w-1/2 basis-1/2"
-                >
+                <div id="left_side" class="md:flex flex-col border-r-[7px] border-[#8C7456] w-1/2 basis-1/2">
                     <section id="search" class="w-full h-[73px] relative bg-[#EEEEEE]">
                         <div class="justify-between items-center h-[37px] mt-[18px] mb-[18px] ml-[25px] mr-[25px] relative">
                             <input
@@ -57,24 +54,15 @@ pub fn TemplateChoice() -> impl IntoView {
                             <i class="bx bx-search items-center pt-[8px] pl-[7px] text-[#8C7456] text-[25px] absolute"></i>
                         </div>
                     </section>
-                    <section
-                        id="choice"
-                        class="flex flex-row justify-start w-full h-[40px] relative bg-[#EEEEEE]"
-                    >
+                    <section id="choice" class="flex flex-row justify-start w-full h-[40px] relative bg-[#EEEEEE]">
                         <button class="rounded-tr-[10px] border-t-[3px] border-r-[3px] border-b-[3px] w-[115px] border-[#8C7456] items-center text-center">
-                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
-                                Документы
-                            </div>
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">Документы</div>
                         </button>
                         <button class="rounded-t-[10px] border-[3px] border-[#8C7456] w-[160px] items-center text-center">
-                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
-                                Учетная политика
-                            </div>
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">Учетная политика</div>
                         </button>
                         <button class="rounded-t-[10px] border-[3px] border-[#8C7456] w-[130px] items-center text-center">
-                            <div class="text-[#8C7456] hover:text-[#BFA07A]">
-                                Мои проекты
-                            </div>
+                            <div class="text-[#8C7456] hover:text-[#BFA07A]">Мои проекты</div>
                         </button>
                         <button class="rounded-tl-[10px] flex-1 border-t-[3px] border-l-[3px] border-b-[3px] border-[#8C7456] items-center text-center">
                             <div class="text-[#8C7456] hover:text-[#BFA07A]"></div>

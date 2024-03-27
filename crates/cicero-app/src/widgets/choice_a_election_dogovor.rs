@@ -15,9 +15,7 @@ pub fn ChoiceAElectionDogovor() -> impl IntoView {
             </div>
             <div class="min-h-[35px] w-full text-start">
                 <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">
-                        Договоры в сфере корпоративного плана
-                    </a>
+                    <a href="#">Договоры в сфере корпоративного плана</a>
                 </button>
             </div>
             <div class="min-h-[35px] w-full text-start">

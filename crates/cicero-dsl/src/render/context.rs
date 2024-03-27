@@ -22,31 +22,47 @@ pub type VarEnv = HashMap<String, types::Var>;
 
 #[derive(Debug, Clone, Default)]
 pub struct Context {
-    data_env: Vec<Arc<HashMap<String, data::Var>>>,
+    layers: Vec<Arc<HashMap<String, data::Var>>>,
 }
 
 impl Context {
     pub fn new() -> Self {
-        Self { data_env: vec![] }
+        Self { layers: vec![] }
+    }
+
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            layers: Vec::with_capacity(capacity),
+        }
     }
 
     pub fn get_var(&self, var_name: &str) -> Option<&data::Var> {
-        self.data_env.iter().rev().find_map(|env| env.get(var_name))
+        self.layers.iter().rev().find_map(|env| env.get(var_name))
     }
 
     /// Insert data into a new layer.
     pub fn insert_layer(&mut self, data: HashMap<String, data::Var>) {
-        self.data_env.push(Arc::new(data));
+        self.layers.push(Arc::new(data));
+    }
+
+    pub fn insert(&mut self, layer: usize, data: HashMap<String, data::Var>) -> Option<()> {
+        *self.layers.get_mut(layer)? = Arc::new(data);
+        Some(())
+    }
+
+    #[inline(always)]
+    pub fn layers(&self) -> usize {
+        self.layers.len()
     }
 
     #[inline(always)]
     pub fn has_layer(&self, layer: usize) -> bool {
-        self.data_env.len() > layer
+        self.layers.len() > layer
     }
 
     #[inline(always)]
     pub fn drop_layer(&mut self) -> Option<Arc<HashMap<String, data::Var>>> {
-        self.data_env.pop()
+        self.layers.pop()
     }
 }
 
@@ -58,7 +74,7 @@ impl StructObject for Context {
     }
 
     fn fields(&self) -> Vec<Arc<str>> {
-        self.data_env
+        self.layers
             .iter()
             .flat_map(|env| env.keys().map(|var_name| Arc::from(var_name.as_str())))
             .collect()
@@ -191,6 +207,12 @@ impl SeqObject for data::Array {
     }
 }
 
+impl From<Context> for Value {
+    fn from(value: Context) -> Self {
+        Value::from_struct_object(value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use minijinja::Environment;
@@ -217,8 +239,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
-            ..Default::default()
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -247,8 +268,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
-            ..Default::default()
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -274,8 +294,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
-            ..Default::default()
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -295,8 +314,7 @@ mod tests {
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
-            ..Default::default()
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), user)]))],
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -333,11 +351,10 @@ Hello, World!
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
                 name: "user".to_string(),
                 data: Data::Enum(user_enum),
             })]))],
-            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -360,11 +377,10 @@ Hello, World!
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
                 name: "user".to_string(),
                 data: Data::Enum(user_enum),
             })]))],
-            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();
@@ -378,11 +394,10 @@ Hello, World!
         };
 
         let context = Context {
-            data_env: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
+            layers: vec![Arc::new(HashMap::from([("user".to_string(), data::Var {
                 name: "user".to_string(),
                 data: Data::Enum(user_enum),
             })]))],
-            ..Default::default()
         };
 
         let result = template.render(Value::from_struct_object(context)).unwrap();

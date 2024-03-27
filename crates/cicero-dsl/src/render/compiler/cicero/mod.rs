@@ -9,6 +9,8 @@
  * except according to those terms.
  */
 
+pub use resolver::check_data_validity;
+
 use self::grammar::parse_module;
 use self::resolver::resolve;
 use crate::render::context::VarEnv;

@@ -9,10 +9,13 @@
  * except according to those terms.
  */
 
-// FIXME
-#![allow(dead_code)]
+#![feature(assert_matches)]
+
+#[cfg(feature = "render")]
+pub use render::*;
 
 pub mod data;
 #[cfg(feature = "render")]
-pub mod render;
+mod render;
+
 pub mod types;

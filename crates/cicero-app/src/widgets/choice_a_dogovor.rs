@@ -20,16 +20,12 @@ pub fn ChoiceADogovor() -> impl IntoView {
             </div>
             <div class="min-h-[35px] w-full items-start">
                 <button class="items-start text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">
-                        Договор купли-продажи транспортного средства
-                    </a>
+                    <a href="#">Договор купли-продажи транспортного средства</a>
                 </button>
             </div>
             <div class="min-h-[35px] w-full items-start">
                 <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">
-                        Договор купли-продажи земельного участка
-                    </a>
+                    <a href="#">Договор купли-продажи земельного участка</a>
                 </button>
             </div>
             <div class="min-h-[35px] w-full items-start">

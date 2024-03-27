@@ -17,21 +17,6 @@ pub struct Module {
     pub variables: Vec<Variable>,
 }
 
-impl Module {
-    pub fn extend(&mut self, other: Module) {
-        self.type_defs.extend(other.type_defs);
-        self.variables.extend(other.variables);
-    }
-
-    pub fn extend_type_def(&mut self, type_defs: Vec<TypeDef>) {
-        self.type_defs.extend(type_defs);
-    }
-
-    pub fn extend_variables(&mut self, variables: Vec<Variable>) {
-        self.variables.extend(variables);
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDef {
     Struct(Struct),
