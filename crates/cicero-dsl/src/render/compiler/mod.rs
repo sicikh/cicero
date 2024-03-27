@@ -25,6 +25,9 @@ fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
 
 pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
     let path = dir.as_ref();
+    if !path.join("reference.docx").exists() {
+        return Err("reference.docx doesn't exist".to_string());
+    }
     let meta = std::fs::read_to_string(path.join("meta.toml")).map_err(|e| e.to_string())?;
     let types = std::fs::read_to_string(path.join("types.cicero")).map_err(|e| e.to_string())?;
     let template =
