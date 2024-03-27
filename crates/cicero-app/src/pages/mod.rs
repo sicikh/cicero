@@ -12,6 +12,7 @@
 mod contact;
 mod mains;
 mod template_choice;
+mod Template_Choice;
 pub use self::contact::*;
 pub use self::mains::*;
 pub use self::template_choice::*;

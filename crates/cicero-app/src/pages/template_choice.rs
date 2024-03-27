@@ -10,6 +10,7 @@
  */
 
 use std::collections::HashMap;
+use std::hash::Hash;
 
 use cicero_dsl::types::ScenarioMeta;
 use leptos::*;
@@ -19,6 +20,12 @@ use crate::widgets::*;
 
 #[component]
 pub fn TemplateChoice() -> impl IntoView {
+    //let (scenario, dildo) = create_signal(vec![new(){
+    //    25;
+    //   "dog".to_string();
+    //}]);
+    // Creates a reactive value to update the button
+
     let metas = vec![ScenarioMeta {
         id: 0,
         name: "Test".to_string(),
@@ -33,11 +40,13 @@ pub fn TemplateChoice() -> impl IntoView {
                 .or_insert(vec![meta]);
             map
         });
-    //let (scenario, dildo) = create_signal(vec![new(){
-    //    25;
-    //   "dog".to_string();
-    //}]);
-    // Creates a reactive value to update the button
+
+    let scenarios = categories.get(&"Testing".to_string()).unwrap();
+    let scenarios_names: Vec<&str> = scenarios
+        .clone()
+        .iter()
+        .map(|meta| meta.name.as_str())
+        .collect();
     view! {
         <LayoutNav>
 
@@ -69,8 +78,8 @@ pub fn TemplateChoice() -> impl IntoView {
                         </button>
                     </section>
                     <LayoutChoiceDogovor>
-                        <ChoiceAElectionDogovor/>
                         <ChoiceADogovor/>
+                        <ChoiceAElectionDogovor/>
                     </LayoutChoiceDogovor>
                 </div>
                 // посмотрим     // <div id="balka_ebanay" class="md:flex w-[14px] h-full bg-[#8C7456]"></div>
