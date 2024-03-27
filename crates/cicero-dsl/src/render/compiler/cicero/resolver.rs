@@ -28,7 +28,6 @@ const STD_TYPES: &[(&str, EntityType)] = &[
     ("Place", EntityType::Place),
 ];
 
-// TODO: separate methods
 pub fn resolve(module: ast::Module) -> Result<VarEnv, String> {
     let ast::Module {
         type_defs,
@@ -66,7 +65,6 @@ pub fn resolve(module: ast::Module) -> Result<VarEnv, String> {
     Ok(vars)
 }
 
-// TODO: methods
 fn resolve_type(
     ty: &Type,
     type_defs: &TypeDefs,
@@ -110,7 +108,6 @@ fn resolve_type(
                 name,
                 fields,
                 parent,
-                methods: _,
             } = s;
 
             let parent = {
@@ -181,7 +178,6 @@ fn resolve_type(
                 name,
                 comment,
                 variants,
-                methods: _,
             } = e;
 
             let variants = variants
@@ -350,7 +346,6 @@ mod tests {
                 comment: None,
                 fields: vec![],
                 parent: Some("A".to_string()),
-                methods: vec![],
             })],
             variables: vec![ast::Variable {
                 name: "a".to_string(),
@@ -376,14 +371,12 @@ mod tests {
                     comment: None,
                     fields: vec![],
                     parent: None,
-                    methods: vec![],
                 }),
                 TypeDef::Struct(ast::Struct {
                     name: "A".to_string(),
                     comment: None,
                     fields: vec![],
                     parent: None,
-                    methods: vec![],
                 }),
             ],
             variables: vec![],
@@ -431,7 +424,6 @@ mod tests {
                 comment: None,
                 fields: vec![],
                 parent: None,
-                methods: vec![],
             })],
             variables: vec![],
         };
@@ -468,7 +460,6 @@ mod tests {
                         },
                     ],
                     parent: None,
-                    methods: vec![],
                 }),
                 TypeDef::Enum(ast::Enum {
                     comment: Some("Person kind".to_string()),
@@ -493,7 +484,6 @@ mod tests {
                             }),
                         },
                     ],
-                    methods: vec![],
                 }),
                 TypeDef::Struct(ast::Struct {
                     comment: Some("Newbie info".to_string()),
@@ -508,7 +498,6 @@ mod tests {
                             is_required: true,
                         },
                     }],
-                    methods: vec![],
                 }),
             ],
             variables: vec![ast::Variable {

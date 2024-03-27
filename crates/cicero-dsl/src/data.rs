@@ -12,20 +12,10 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use cfg_if::cfg_if;
 use serde::{Deserialize, Serialize};
 
-cfg_if!(
-    if #[cfg(feature = "render")] {
-        use std::sync::Arc;
-
-        use crate::types::{self, EntityType};
-
-        pub mod expr;
-        pub use expr::Expr;
-        pub type Methods = HashMap<String, Expr>;
-    }
-);
+#[cfg(feature = "render")]
+use crate::types::{self, EntityType};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Var {
@@ -82,9 +72,6 @@ impl Display for Data {
 pub struct Struct {
     pub name: String,
     pub fields: HashMap<String, Data>,
-    #[cfg(feature = "render")]
-    #[serde(skip)]
-    pub methods: Option<Arc<Methods>>,
 }
 
 impl Struct {
@@ -118,9 +105,6 @@ pub struct Enum {
     pub name: String,
     pub discriminant: String,
     pub field: Option<Box<Data>>,
-    #[cfg(feature = "render")]
-    #[serde(skip)]
-    pub methods: Option<Arc<Methods>>,
 }
 
 impl Enum {

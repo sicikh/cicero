@@ -41,20 +41,14 @@ pub struct Scenario {
 }
 
 impl Scenario {
-    pub fn new(
-        meta: ScenarioMeta,
-        template: Template,
-        methods: HashMap<String, std::sync::Arc<HashMap<String, data::Expr>>>,
-    ) -> Result<Self, String> {
+    pub fn new(meta: ScenarioMeta, template: Template) -> Result<Self, String> {
         if template.steps.is_empty() {
             return Err("Template has no steps".to_string());
         }
 
-        let context = Context::new(methods);
-
         Ok(Scenario {
             meta,
-            context,
+            context: Context::new(),
             template,
             current_step: 0,
         })

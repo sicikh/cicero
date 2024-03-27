@@ -64,25 +64,20 @@ fn ident_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
     ident.labelled("identifier")
 }
 
-/// struct ::= [ comment ] 'struct' ident [ ':' ident ] '{' fields methods '}'
+/// struct ::= [ comment ] 'struct' ident [ ':' ident ] '{' fields '}'
 fn struct_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Struct, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     comment_parser()
         .or_not()
         .then_ignore(just(Token::STRUCT))
         .then(ident_parser().then(just(Token::Colon).ignore_then(ident_parser()).or_not()))
-        .then(
-            fields_parser()
-                .then(methods_parser())
-                .delimited_by(just(Token::LBrace), just(Token::RBrace)),
-        )
-        .map(|((comment, (name, parent)), (fields, methods))| {
+        .then(fields_parser().delimited_by(just(Token::LBrace), just(Token::RBrace)))
+        .map(|((comment, (name, parent)), fields)| {
             Struct {
                 comment,
                 name,
                 parent,
                 fields,
-                methods,
             }
         })
 }
@@ -120,30 +115,8 @@ fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|comments| comments.join("").trim().to_string())
 }
 
-/// methods ::= ( method )*
-fn methods_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
-) -> impl Parser<'a, I, Vec<Method>, extra::Err<Rich<'a, Token<'a>>>> + Clone {
-    method_parser().repeated().collect()
-}
-
-/// 'fn' ident '{ expr '}'
-fn method_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
-) -> impl Parser<'a, I, Method, extra::Err<Rich<'a, Token<'a>>>> + Clone {
-    just(Token::FN)
-        .ignore_then(ident_parser())
-        .then(expr_parser().delimited_by(just(Token::LBrace), just(Token::RBrace)))
-        .map(|(name, body)| Method { name, body })
-}
-
-// TODO
-/// expr ::=
-fn expr_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
-) -> impl Parser<'a, I, Expr, extra::Err<Rich<'a, Token<'a>>>> + Clone {
-    just(Token::Asterisk).map(|_| Expr::Todo)
-}
-
 /// enum ::= comment 'enum' ident '{' enum_variant [ ',' enum_variant ]* [ ',' ]
-/// methods '}'
+/// '}'
 fn enum_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Enum, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     comment_parser()
@@ -155,15 +128,13 @@ fn enum_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
                 .separated_by(just(Token::Comma))
                 .allow_trailing()
                 .collect::<Vec<_>>()
-                .then(methods_parser())
                 .delimited_by(just(Token::LBrace), just(Token::RBrace)),
         )
-        .map(|((comment, name), (variants, methods))| {
+        .map(|((comment, name), variants)| {
             Enum {
                 name,
                 comment,
                 variants,
-                methods,
             }
         })
 }
@@ -345,7 +316,6 @@ mod tests {
                     }),
                 },
             ],
-            methods: vec![],
         };
 
         assert_eq!(ast, test);
@@ -407,7 +377,6 @@ mod tests {
                             },
                         },
                     ],
-                    methods: vec![],
                 }),
                 TypeDef::Enum(Enum {
                     comment: Some("Enum comment".to_string()),
@@ -437,7 +406,6 @@ mod tests {
                             }),
                         },
                     ],
-                    methods: vec![],
                 }),
             ],
             variables: vec![Variable {
@@ -508,7 +476,6 @@ mod tests {
                         },
                     ],
                     parent: None,
-                    methods: vec![],
                 }),
                 TypeDef::Enum(Enum {
                     comment: Some("Person kind".to_string()),
@@ -533,7 +500,6 @@ mod tests {
                             }),
                         },
                     ],
-                    methods: vec![],
                 }),
                 TypeDef::Struct(Struct {
                     comment: Some("Newbie info".to_string()),
@@ -548,7 +514,6 @@ mod tests {
                             is_required: true,
                         },
                     }],
-                    methods: vec![],
                 }),
             ],
             variables: vec![Variable {

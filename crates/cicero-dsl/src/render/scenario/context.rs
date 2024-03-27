@@ -19,20 +19,15 @@ use crate::data::{self, Data};
 use crate::types::{self};
 
 pub type VarEnv = HashMap<String, types::Var>;
-pub type Methods = HashMap<String, data::Expr>;
 
 #[derive(Debug, Clone, Default)]
 pub struct Context {
     data_env: Vec<Arc<HashMap<String, data::Var>>>,
-    methods: HashMap<String, Arc<Methods>>,
 }
 
 impl Context {
-    pub fn new(methods: HashMap<String, Arc<Methods>>) -> Self {
-        Self {
-            data_env: vec![],
-            methods,
-        }
+    pub fn new() -> Self {
+        Self { data_env: vec![] }
     }
 
     pub fn get_var(&self, var_name: &str) -> Option<&data::Var> {
@@ -40,13 +35,7 @@ impl Context {
     }
 
     /// Insert data into a new layer.
-    ///
-    /// Data should not contain methods, as they are added from the context.
-    pub fn insert_layer(&mut self, mut data: HashMap<String, data::Var>) {
-        for var in data.values_mut() {
-            insert_methods(&mut var.data, &self.methods);
-        }
-
+    pub fn insert_layer(&mut self, data: HashMap<String, data::Var>) {
         self.data_env.push(Arc::new(data));
     }
 
@@ -125,61 +114,6 @@ impl Object for data::Struct {
     fn kind(&self) -> ObjectKind<'_> {
         ObjectKind::Struct(self)
     }
-
-    fn call_method(
-        &self,
-        _state: &State,
-        name: &str,
-        args: &[Value],
-    ) -> Result<Value, minijinja::Error> {
-        if !args.is_empty() {
-            return Err(minijinja::Error::new(
-                minijinja::ErrorKind::TooManyArguments,
-                "Methods does not accept arguments",
-            ));
-        }
-
-        match self.methods.as_ref().and_then(|inner| inner.get(name)) {
-            Some(expr) => {
-                match expr.evaluate(Data::Struct(self.clone())) {
-                    Ok(value) => Ok(Value::from(value)),
-                    Err(err) => {
-                        Err(minijinja::Error::new(
-                            minijinja::ErrorKind::InvalidOperation,
-                            format!("Method failed: {}", err),
-                        ))
-                    },
-                }
-            },
-            None => {
-                Err(minijinja::Error::new(
-                    minijinja::ErrorKind::UnknownMethod,
-                    "Method not found",
-                ))
-            },
-        }
-    }
-}
-
-#[allow(clippy::map_clone)] // to show that we are cloning the Arc
-fn insert_methods(data: &mut Data, methods: &HashMap<String, Arc<Methods>>) {
-    match data {
-        Data::Struct(structure) => {
-            structure.methods = methods.get(&structure.name).map(Arc::clone);
-
-            for field in structure.fields.values_mut() {
-                insert_methods(field, methods);
-            }
-        },
-        Data::Enum(enumeration) => {
-            enumeration.methods = methods.get(&enumeration.name).map(Arc::clone);
-
-            if let Some(field) = enumeration.field.as_mut() {
-                insert_methods(field, methods);
-            }
-        },
-        _ => {},
-    }
 }
 
 impl StructObject for data::Enum {
@@ -193,6 +127,14 @@ impl StructObject for data::Enum {
         } else {
             None
         }
+    }
+
+    fn fields(&self) -> Vec<Arc<str>> {
+        vec![Arc::from(self.discriminant.as_str())]
+    }
+
+    fn field_count(&self) -> usize {
+        1
     }
 }
 
@@ -230,25 +172,10 @@ impl Object for data::Enum {
             };
         }
 
-        match self.methods.as_ref().and_then(|inner| inner.get(name)) {
-            Some(expr) => {
-                match expr.evaluate(Data::Enum(self.clone())) {
-                    Ok(value) => Ok(Value::from(value)),
-                    Err(err) => {
-                        Err(minijinja::Error::new(
-                            minijinja::ErrorKind::InvalidOperation,
-                            format!("Method failed: {}", err),
-                        ))
-                    },
-                }
-            },
-            None => {
-                Err(minijinja::Error::new(
-                    minijinja::ErrorKind::UnknownMethod,
-                    "Method not found",
-                ))
-            },
-        }
+        Err(minijinja::Error::new(
+            minijinja::ErrorKind::UnknownMethod,
+            "Method not found",
+        ))
     }
 }
 
@@ -283,7 +210,6 @@ mod tests {
                 fields.insert("name".to_string(), Data::String("Lawyer".to_string()));
                 fields
             },
-            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -314,7 +240,6 @@ mod tests {
             name: "User".to_string(),
             discriminant: "Name".to_string(),
             field: Some(Box::new(Data::String("Lawyer".to_string()))),
-            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -342,7 +267,6 @@ mod tests {
             name: "User".to_string(),
             discriminant: "is_admin".to_string(),
             field: None,
-            methods: None,
         };
         let user = data::Var {
             name: "user".to_string(),
@@ -400,14 +324,12 @@ Hello, World!
                 fields.insert("name".to_string(), Data::String("David".to_string()));
                 fields
             },
-            methods: None,
         };
 
         let user_enum = data::Enum {
             name: "User".to_string(),
             discriminant: "Lawyer".to_string(),
             field: Some(Box::new(Data::Struct(person_struct))),
-            methods: None,
         };
 
         let context = Context {
@@ -429,14 +351,12 @@ Hello, World!
                 fields.insert("name".to_string(), Data::String("John".to_string()));
                 fields
             },
-            methods: None,
         };
 
         let user_enum = data::Enum {
             name: "User".to_string(),
             discriminant: "Newbie".to_string(),
             field: Some(Box::new(Data::Struct(person_struct))),
-            methods: None,
         };
 
         let context = Context {
@@ -455,7 +375,6 @@ Hello, World!
             name: "User".to_string(),
             discriminant: "None".to_string(),
             field: None,
-            methods: None,
         };
 
         let context = Context {

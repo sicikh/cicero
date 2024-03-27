@@ -62,7 +62,6 @@ ending"#;
             name: "user".to_string(),
             data: data::Data::Struct(data::Struct {
                 name: "User".to_string(),
-                methods: None,
                 fields: {
                     let mut fields = HashMap::new();
                     fields.insert("name".to_string(), data::Data::String("Lawyer".to_string()));

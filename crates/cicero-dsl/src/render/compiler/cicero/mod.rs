@@ -9,24 +9,20 @@
  * except according to those terms.
  */
 
-use std::collections::HashMap;
-use std::sync::Arc;
-
 use grammar::parse_module;
 use resolver::resolve;
 
-use crate::render::context::{Methods, VarEnv};
+use crate::render::context::VarEnv;
 
 mod ast;
 mod grammar;
 mod lexer;
 mod resolver;
 
-pub fn compile_types(source: &str) -> Result<(VarEnv, HashMap<String, Arc<Methods>>), String> {
+pub fn compile_types(source: &str) -> Result<VarEnv, String> {
     let module = parse_module(source)?;
     let var_env = resolve(module)?;
-    // TODO:
-    Ok((var_env, HashMap::new()))
+    Ok(var_env)
 }
 
 #[cfg(test)]

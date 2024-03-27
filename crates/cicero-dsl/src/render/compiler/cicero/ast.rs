@@ -53,13 +53,6 @@ pub struct Struct {
     pub comment: Option<MarkdownString>,
     pub fields: Vec<Field>,
     pub parent: Option<String>,
-    pub methods: Vec<Method>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Method {
-    pub name: String,
-    pub body: Expr,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -81,7 +74,6 @@ pub struct Enum {
     pub name: String,
     pub comment: Option<MarkdownString>,
     pub variants: Vec<EnumVariant>,
-    pub methods: Vec<Method>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -96,9 +88,4 @@ pub struct Variable {
     pub name: String,
     pub comment: MarkdownString,
     pub ty: Type,
-}
-// TODO
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Expr {
-    Todo,
 }

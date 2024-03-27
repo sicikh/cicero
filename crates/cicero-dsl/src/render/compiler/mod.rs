@@ -31,8 +31,8 @@ pub fn compile_scenario(dir: impl AsRef<Path>) -> Result<Scenario, String> {
         std::fs::read_to_string(path.join("template.tex.j2")).map_err(|e| e.to_string())?;
 
     let meta = parse_meta(&meta)?;
-    let (var_env, methods_map) = compile_types(&types)?;
+    let var_env = compile_types(&types)?;
     let template = compile_template(&template, &var_env)?;
 
-    Scenario::new(meta, template, methods_map)
+    Scenario::new(meta, template)
 }

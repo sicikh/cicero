@@ -81,14 +81,10 @@ pub enum Token<'src> {
     #[regex(r"///[^\n\r]*(?:\*\)|[\n\r])")]
     DocComment(&'src str),
     // ==== KEYWORDS ====
-    #[regex("fn")]
-    FN,
     #[regex("struct")]
     STRUCT,
     #[regex("enum")]
     ENUM,
-    #[regex("match")]
-    MATCH,
     #[regex("let")]
     LET,
     // ==== CONTROL TOKENS ====
@@ -128,10 +124,8 @@ impl<'src> Display for Token<'src> {
             Token::Period => write!(f, "."),
             Token::QuestionMark => write!(f, "?"),
             Token::DocComment(doc) => write!(f, "/// {doc}"),
-            Token::FN => write!(f, "fn"),
             Token::STRUCT => write!(f, "struct"),
             Token::ENUM => write!(f, "enum"),
-            Token::MATCH => write!(f, "match"),
             Token::LET => write!(f, "let"),
             Token::Whitespace => write!(f, " "),
             Token::Comment => write!(f, "--"),
