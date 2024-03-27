@@ -111,6 +111,7 @@ fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
     comment
         .labelled("comment")
         .repeated()
+        .at_least(1)
         .collect::<Vec<_>>()
         .map(|comments| comments.join("").trim().to_string())
 }
@@ -269,7 +270,6 @@ mod tests {
                     },
                 },
             ],
-            methods: vec![],
         };
 
         assert_eq!(ast, test);
@@ -528,5 +528,13 @@ mod tests {
         };
 
         assert_eq!(ast, test);
+    }
+
+    #[test]
+    fn empty_docs() {
+        let source = "let var: String;";
+
+        let res = parse_module(source);
+        assert!(res.is_err());
     }
 }

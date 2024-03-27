@@ -271,7 +271,6 @@ mod tests {
                     comment: None,
                     fields: vec![],
                     parent: None,
-                    methods: vec![],
                 }),
                 TypeDef::Struct(ast::Struct {
                     name: "B".to_string(),
@@ -286,7 +285,6 @@ mod tests {
                         },
                     }],
                     parent: Some("A".to_string()),
-                    methods: vec![],
                 }),
             ],
             variables: vec![ast::Variable {

@@ -9,9 +9,8 @@
  * except according to those terms.
  */
 
-use grammar::parse_module;
-use resolver::resolve;
-
+use self::grammar::parse_module;
+use self::resolver::resolve;
 use crate::render::context::VarEnv;
 
 mod ast;
@@ -23,32 +22,4 @@ pub fn compile_types(source: &str) -> Result<VarEnv, String> {
     let module = parse_module(source)?;
     let var_env = resolve(module)?;
     Ok(var_env)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::grammar::parse_module;
-    use super::resolver::resolve;
-
-    // FIXME: comments is empty, but it parses
-    #[test]
-    fn basic_test() {
-        let src = r#"
-        struct Person { name: String }
-        struct PersonWithSurname: Person { surname: String }
-        struct PersonWithDate: Person { date: String }
-        enum Various {
-            Person(Person),
-            PersonWithSurname(PersonWithSurname),
-            PersonWithDate(PersonWithDate),
-            Nothing,
-        }
-
-        let p: Various
-        "#;
-        let module = parse_module(src).unwrap();
-        let _module = resolve(module).unwrap();
-        // TODO: write test, but it works for now...
-        // println!("{:#?}", module);
-    }
 }

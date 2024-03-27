@@ -80,17 +80,16 @@ impl Struct {
         self.name == type_struct.name
             // all data fields are present in the type
             && self.fields.iter().all(|(field_name, data_field)| {
-                type_struct.fields
-                    .get(field_name)
-                    .map_or(false, |type_field| data_field.is_type(&type_field.entity.ty))
-            })
+            type_struct.fields
+                .get(field_name)
+                .map_or(false, |type_field| data_field.is_type(&type_field.entity.ty))
+        })
             // all required type fields are present in the data
-            && type_struct.fields.iter().filter(|&(_, type_field)| type_field.entity.is_required).all(|
-            (field_name, type_field)| {
-                self.fields
-                    .get(field_name)
-                    .map_or(false, |data_field| data_field.is_type(&type_field.entity.ty))
-            })
+            && type_struct.fields.iter().filter(|&(_, type_field)| type_field.entity.is_required).all(|(field_name, type_field)| {
+            self.fields
+                .get(field_name)
+                .map_or(false, |data_field| data_field.is_type(&type_field.entity.ty))
+        })
     }
 }
 
