@@ -31,35 +31,6 @@ pub fn ChoiceADogovor() -> impl IntoView {
             id="choice_a_dogovor"
             class="flex flex-col min-h-[145px] w-[280px] bg-[#8C7456] items-start text-start rounded-[10px] p-[10px] gap-[15px]"
         >
-<<<<<<< HEAD
-            <div class="min-h-[35px] w-full text-left">
-                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">Договор поставки</a>
-                </button>
-            </div>
-            <div class="min-h-[35px] w-full items-start">
-                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">Рамочный договор поставки</a>
-                </button>
-            </div>
-            <div class="min-h-[35px] w-full items-start">
-                <button class="items-start text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">Договор купли-продажи транспортного средства</a>
-                </button>
-            </div>
-            <div class="min-h-[35px] w-full items-start">
-                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">Договор купли-продажи земельного участка</a>
-                </button>
-            </div>
-            <div class="min-h-[35px] w-full items-start">
-                <button class="text-[#EEEEEE] text-[20px] font-light rounded-[10px] min-h-[35px] w-full hover:bg-[#544027]">
-                    <a href="#">
-                        Договор купли-продажи нежилого недвижимого участка
-                    </a>
-                </button>
-            </div>
-=======
             {scenarios_category
                 .into_iter()
                 .map(|category| {
@@ -72,7 +43,6 @@ pub fn ChoiceADogovor() -> impl IntoView {
                     }
                 })
                 .collect_view()}
->>>>>>> c3e8c97 (Made a display of contract selection, but WIP)
         </div>
     }
 }
