@@ -9,10 +9,12 @@
  * except according to those terms.
  */
 
+mod Template_Choice;
 mod contact;
 mod mains;
+mod step_template;
 mod template_choice;
-mod Template_Choice;
 pub use self::contact::*;
 pub use self::mains::*;
+pub use self::step_template::*;
 pub use self::template_choice::*;

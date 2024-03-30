@@ -59,6 +59,7 @@ pub fn App() -> impl IntoView {
                     <Route path="/Contact" view=Contact/>
                     <Route path="/Login" view=Login/>
                     <Route path="/Register" view=Register/>
+                    <Route path="/StepTemplate" view=StepTemplate/>
                 </Routes>
             </main>
         </Router>
