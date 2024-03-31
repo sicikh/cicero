@@ -17,6 +17,9 @@ leptos_meta.workspace = true
 leptos_axum = { workspace = true, optional = true }
 http.workspace = true
 thiserror.workspace = true
+indexmap.workspace = true
+log = "0.4.1"
+web-sys = "0.3"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]

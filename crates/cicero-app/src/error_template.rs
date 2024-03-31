@@ -65,7 +65,7 @@ pub fn ErrorTemplate(
     }
 
     view! {
-        <ErrorBoundary fallback=|errors| view!{ <ErrorTemplate errors=errors/>}>
+        <ErrorBoundary fallback=|errors| view! { <ErrorTemplate errors=errors/> }>
             <h1>{if errors.len() > 1 { "Errors" } else { "Error" }}</h1>
             <For
                 // a function that returns the items we're iterating over; a signal is fine
@@ -82,6 +82,7 @@ pub fn ErrorTemplate(
                     }
                 }
             />
+
         </ErrorBoundary>
     }
 }

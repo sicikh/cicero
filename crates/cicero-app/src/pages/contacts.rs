@@ -15,11 +15,14 @@ use leptos_meta::*;
 use crate::widgets::*;
 
 #[component]
-pub fn Maga() -> impl IntoView {
-    // Creates a reactive value to update the button
+pub fn Contacts() -> impl IntoView {
     view! {
-        <LayoutNav>
-            <h1>gr</h1>
-        </LayoutNav>
+        <Layout>
+            <div>
+                <h1>13</h1>
+                <h1>43</h1>
+                <h1>43</h1>
+            </div>
+        </Layout>
     }
 }

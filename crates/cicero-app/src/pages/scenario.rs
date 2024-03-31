@@ -4,9 +4,9 @@ use leptos_meta::*;
 use crate::widgets::*;
 
 #[component]
-pub fn StepTemplate() -> impl IntoView {
+pub fn Scenario() -> impl IntoView {
     view! {
-        <LayoutNav>
+        <Layout>
             <section
                 id="step"
                 class="pl-[15px] pr-[15px] pt-[15px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"
@@ -29,6 +29,6 @@ pub fn StepTemplate() -> impl IntoView {
             </section>
             <section></section>
             <section></section>
-        </LayoutNav>
+        </Layout>
     }
 }

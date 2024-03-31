@@ -9,13 +9,12 @@
  * except according to those terms.
  */
 
-mod choice_a_dogovor;
-mod layout_choice_dogovor;
-mod layout_nav;
-mod navbar;
-mod right_side;
-pub use self::choice_a_dogovor::*;
-pub use self::layout_choice_dogovor::*;
-pub use self::layout_nav::*;
-pub use self::navbar::*;
-pub use self::right_side::*;
+mod scenarios_overview;
+mod layout;
+mod scenario_description;
+mod search_bar;
+
+pub use self::scenarios_overview::*;
+pub use self::layout::*;
+pub use self::scenario_description::*;
+pub use self::search_bar::*;

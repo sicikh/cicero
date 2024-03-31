@@ -1,22 +1,14 @@
-/*
- * Copyright (C) 2024 Kirill Lukashev <kirill.lukashev.sic@gmail.com>,
- * Gleb Krylov <gleb_cry@mail.ru>
- *
- * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
- * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
- * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
- * option. This file may not be copied, modified, or distributed
- * except according to those terms.
- */
-
 use leptos::*;
 use leptos_meta::*;
 
 #[component]
-pub fn NavBar() -> impl IntoView {
+pub fn Header() -> impl IntoView {
     view! {
         <header class="bg-[#8C7456] h-[180px]">
-            <nav id="nav-bar" class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]">
+            <nav
+                id="nav-bar"
+                class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]"
+            >
                 <div id="logo" class="md:flex items-start text-center">
                     <a href="/">
                         <p class="text-white text-[40px] mt-[60px] mb-[60px]">Cicero</p>
@@ -36,7 +28,7 @@ pub fn NavBar() -> impl IntoView {
                             id="nav-bar-kit"
                             class="text-white text-center items-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
                         >
-                            <a href="TemplateChoice" style="text-center">
+                            <a href="scenario" style="text-center">
                                 Конструктор
                             </a>
                         </li>
@@ -44,7 +36,7 @@ pub fn NavBar() -> impl IntoView {
                             id="nav-bar-contact"
                             class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
                         >
-                            <a href="Contact" style="text-center">
+                            <a href="contacts" style="text-center">
                                 Контакты
                             </a>
                         </li>

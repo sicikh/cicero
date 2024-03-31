@@ -356,11 +356,14 @@ version = "0.1.0"
 dependencies = [
  "cicero-dsl",
  "http 1.1.0",
+ "indexmap",
  "leptos",
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "log",
  "thiserror",
+ "web-sys",
 ]
 
 [[package]]
