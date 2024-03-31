@@ -1,3 +1,4 @@
+use cicero_dsl::types::ScenarioMeta;
 use leptos::*;
 use leptos_meta::*;
 

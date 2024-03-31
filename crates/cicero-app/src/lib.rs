@@ -55,6 +55,7 @@ pub fn App() -> impl IntoView {
             <main class="h-screen">
                 <Routes>
                     <Route path="/scenario" view=ScenarioChoice/>
+                    <Route path="/scenario/:id" view=Scenario/>
                     <Route path="/" view=MainPage/>
                     <Route path="/contacts" view=Contacts/>
                     <Route path="/login" view=Login/>

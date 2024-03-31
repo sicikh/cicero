@@ -1,6 +1,7 @@
 use cicero_dsl::types::ScenarioMeta;
 use leptos::*;
 use leptos_meta::*;
+use leptos_router::A;
 
 #[component]
 pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) -> impl IntoView {
@@ -33,9 +34,11 @@ pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) 
                                     </div>
                                 </div>
                                 <div class="items-center pl-[35px] pr-[35px]">
-                                    <button class="bg-[#BFA07A] w-full items-center rounded-[37px] text-[#EEEEEE] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
-                                        Создать договор
-                                    </button>
+                                    <A href=scenario.id.to_string()>
+                                        <button class="bg-[#BFA07A] w-full items-center rounded-[37px] text-[#EEEEEE] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
+                                            Создать договор
+                                        </button>
+                                    </A>
                                 </div>
                             </section>
                             <section
