@@ -13,6 +13,14 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
+[profile.server-dev]
+inherits = "dev"
+
+[profile.dev]
+opt-level = 1
+[profile.dev.package."*"]
+opt-level = 3
+
 [workspace.package]
 homepage = "https://cicero-project.org/"
 repository = "https://github.com/sicikh/cicero"
@@ -68,6 +76,7 @@ watch = false
 env = "DEV"
 bin-features = []
 bin-default-features = false
+bin-profile-dev = "server-dev"
 lib-features = []
 lib-default-features = false
 lib-profile-release = "wasm-release"
