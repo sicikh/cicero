@@ -79,7 +79,6 @@ impl Struct {
     pub fn is_type(&self, type_struct: &types::Struct) -> bool {
         // all required type fields are present in the data
         // all data fields are present in the type
-
         self.name == type_struct.name
             && self.fields.iter().all(|(field_name, data_field)| {
                 type_struct
