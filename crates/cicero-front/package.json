@@ -12,5 +12,8 @@
   "license": "MIT OR Apache-2.0",
   "dependencies": {
     "tailwindcss": "^3.3.2"
+  },
+  "devDependencies": {
+    "tailwind-scrollbar": "^3.1.0"
   }
 }
