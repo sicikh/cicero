@@ -22,24 +22,26 @@ use crate::widgets::*;
 
 #[server(GetScenarios, "/api", "Url", "get-scenarios")]
 pub async fn get_scenarios() -> Result<IndexMap<String, Vec<ScenarioMeta>>, ServerFnError> {
-    let metas = vec![ScenarioMeta {
-        id: 0,
-        name: "Test".to_string(),
-        description: "Test".to_string(),
-        category: "Testing".to_string(),
-    }, ScenarioMeta
-     {
-        id: 1,
-        name: "Test2".to_string(),
-        description: "Test2".to_string(),
-        category: "Testing2".to_string()
-     }];
+    let metas = vec![
+        ScenarioMeta {
+            id: 0,
+            name: "Test".to_string(),
+            description: "Test".to_string(),
+            category: "Testing".to_string(),
+        },
+        ScenarioMeta {
+            id: 1,
+            name: "Test2".to_string(),
+            description: "Test2".to_string(),
+            category: "Testing2".to_string(),
+        },
+    ];
     let map = metas.into_iter().fold(IndexMap::new(), |mut map, meta| {
-                map.entry(meta.category.clone())
-                    .and_modify(|entry: &mut Vec<ScenarioMeta>| entry.push(meta.clone()))
-                    .or_insert(vec![meta]);
-                map
-            });
+        map.entry(meta.category.clone())
+            .and_modify(|entry: &mut Vec<ScenarioMeta>| entry.push(meta.clone()))
+            .or_insert(vec![meta]);
+        map
+    });
 
     Ok(map)
 }
