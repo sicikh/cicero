@@ -9,6 +9,6 @@ mod header;
 pub fn Layout(children: Children) -> impl IntoView {
     view! {
         <Header/>
-        {children()}
+        <main class="flex-auto">{children()}</main>
     }
 }

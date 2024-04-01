@@ -42,7 +42,6 @@ pub fn App() -> impl IntoView {
             rel="stylesheet"
         />
         <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
-
         // sets the document title
         <Title text="Welcome to Leptos"/>
 
@@ -52,16 +51,14 @@ pub fn App() -> impl IntoView {
             outside_errors.insert_with_default_key(AppError::NotFound);
             view! { <ErrorTemplate outside_errors/> }.into_view()
         }>
-            <main class="h-screen">
-                <Routes>
-                    <Route path="/scenario" view=ScenarioChoice/>
-                    <Route path="/scenario/:id" view=Scenario/>
-                    <Route path="/" view=MainPage/>
-                    <Route path="/contacts" view=Contacts/>
-                    <Route path="/login" view=Login/>
-                    <Route path="/register" view=Register/>
-                </Routes>
-            </main>
+            <Routes>
+                <Route path="/scenario" view=ScenarioChoice/>
+                <Route path="/scenario/:id" view=Scenario/>
+                <Route path="/" view=MainPage/>
+                <Route path="/contacts" view=Contacts/>
+                <Route path="/login" view=Login/>
+                <Route path="/register" view=Register/>
+            </Routes>
         </Router>
     }
 }

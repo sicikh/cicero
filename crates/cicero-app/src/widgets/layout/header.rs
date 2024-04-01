@@ -28,7 +28,7 @@ pub fn Header() -> impl IntoView {
                             id="nav-bar-kit"
                             class="text-white text-center items-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
                         >
-                            <a href="scenario" style="text-center">
+                            <a href="/scenario" style="text-center">
                                 Конструктор
                             </a>
                         </li>
@@ -36,7 +36,7 @@ pub fn Header() -> impl IntoView {
                             id="nav-bar-contact"
                             class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
                         >
-                            <a href="contacts" style="text-center">
+                            <a href="/contacts" style="text-center">
                                 Контакты
                             </a>
                         </li>
