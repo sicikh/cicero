@@ -55,11 +55,8 @@ pub fn ScenarioChoice() -> impl IntoView {
 
     view! {
         <Layout>
-            <div id="main_body" class="md: flex flex-row h-full bg-[#EEEEEE]">
-                <div
-                    id="left_side"
-                    class="md:flex flex-col border-r-[7px] border-[#8C7456] w-1/2 basis-1/2"
-                >
+            <div id="main_body" class="flex flex-row h-full bg-[#EEEEEE]">
+                <div id="left_side" class="md:flex flex-col flex-1 border-r-[7px] border-[#8C7456]">
                     <SearchBar filter/>
                     <Suspense fallback=move || view! { <p>"Loading..."</p> }>
                         <ErrorBoundary fallback=move |_| {

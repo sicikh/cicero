@@ -31,7 +31,7 @@ pub fn Scenario() -> impl IntoView {
                 </section>
                 <section
                     id="input_data"
-                    class="w-1/2 h-full bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
+                    class="flex flex-col flex-1 h-full bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
                 >
                     <section
                         id="warning"
@@ -44,7 +44,7 @@ pub fn Scenario() -> impl IntoView {
                             Cмотрите ст.13 Конституции РФ
                         </div>
                     </section>
-                    <section class="flex flex-col w-full scrollbar-thumb-[#8C7456] scrollbar-thumb-h-[40px] scrollbar-track-[#eeeeee] hover:scrollbar-thumb-[#9c805d] active:scrollbar-thumb-[#9c805d]/50 scrollbar h-[91%] scrollbar-w-[40px] overflow-y-scroll">
+                    <section class="flex flex-col w-full scrollbar-thumb-[#8C7456] scrollbar-thumb-h-[40px] scrollbar-track-[#eeeeee] hover:scrollbar-thumb-[#9c805d] active:scrollbar-thumb-[#9c805d]/50 scrollbar h-[90%] scrollbar-w-[40px] overflow-y-scroll">
                         <section class="flex flex-col text-[#8c7456] w-full h-full px-[15px] py-[30px]">
                             <div class="flex flex-col gap-[10px] mb-[20px]">
                                 <div class="font-bold">
@@ -97,7 +97,7 @@ pub fn Scenario() -> impl IntoView {
                 </section>
                 <section
                     id="watch_template"
-                    class="w-1/2 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]"
+                    class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]"
                 >
                     <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                         Предварительный просмотр документа

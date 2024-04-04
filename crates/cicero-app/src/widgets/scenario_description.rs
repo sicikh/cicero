@@ -8,7 +8,7 @@ pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) 
     view! {
         <div
             id="right_side"
-            class="md:flex flex-col md:items-center border-l-[7px] border-[#8C7456] w-1/2 basis-1/2"
+            class="flex flex-col flex-1 md:items-center border-l-[7px] border-[#8C7456]"
         >
 
             {move || {

@@ -16,6 +16,9 @@
 
 @layer base {
     html {
-        @apply flex flex-col min-h-[100vh];
+        @apply h-[100%];
+    }
+    body {
+        @apply flex flex-col h-[100%] bg-[#eeeeee] w-[100%];
     }
 }
