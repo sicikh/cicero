@@ -1,11 +1,52 @@
-use cicero_dsl::types::ScenarioMeta;
+use std::collections::HashMap;
+use std::hash::Hash;
+
+use cicero_dsl::data;
+use cicero_dsl::types::*;
+use indexmap::IndexMap;
+
 use leptos::*;
 use leptos_meta::*;
 
+
 use crate::widgets::*;
+
+#[server(GetSteps, "/api", "Url", "get-steps")]
+pub async fn get_steps() -> Result<IndexMap<String, Vec<ScenarioStep>>, ServerFnError> {
+    let metas = vec![
+        ScenarioStep {
+            name: "Step1".to_string(),
+            header: Some("step_1".to_string()),
+            variables : vec![Var{
+                name : "UltraDick".to_string(),
+                comment: "UltraDick1".to_string(),
+                ty : Entity{ty:EntityType::String,is_required:true}}],
+        },
+        ScenarioStep {
+            name: "Step2".to_string(),
+            header: Some("step_2".to_string()),
+            variables : vec![Var{
+                name : "UltraDick1".to_string(),
+                comment: "UltraDick2".to_string(),
+                ty : Entity{ty:EntityType::String,is_required:true}}],
+        },
+    ];
+    let map = metas.into_iter().fold(IndexMap::new(), |mut map, meta| {
+        map.entry(meta.name.clone())
+            .and_modify(|entry: &mut Vec<ScenarioStep>| entry.push(meta.clone()))
+            .or_insert(vec![meta]);
+        map
+    });
+
+    Ok(map)
+}
+
 
 #[component]
 pub fn Scenario() -> impl IntoView {
+
+    let steps = Resource::once(get_steps);
+
     view! {
         <Layout>
             <section id="all_page" class="h-full w-full flex flex-row">
@@ -13,21 +54,19 @@ pub fn Scenario() -> impl IntoView {
                     id="step"
                     class="pl-[15px] pr-[15px] pt-[15px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"
                 >
-                    <button class="hover:bg-[#8C7456] rounded-[10px] h-[40px] w-[100px]">
-                        <div class="text-[24px] text-[#EEEEEE]">Шаг 1</div>
-                    </button>
-                    <button class="hover:bg-[#8C7456] rounded-[10px] h-[40px] w-[100px]">
-                        <div class="text-[24px] text-[#EEEEEE]">Шаг 2</div>
-                    </button>
-                    <button class="hover:bg-[#8C7456] rounded-[10px] h-[40px] w-[100px]">
-                        <div class="text-[24px] text-[#EEEEEE]">Шаг 3</div>
-                    </button>
-                    <button class="hover:bg-[#8C7456] rounded-[10px] h-[40px] w-[100px]">
-                        <div class="text-[24px] text-[#EEEEEE]">Шаг 4</div>
-                    </button>
-                    <button class="hover:bg-[#8C7456] rounded-[10px] h-[40px] w-[100px]">
-                        <div class="text-[24px] text-[#EEEEEE]">Шаг 5</div>
-                    </button>
+                    {move || {
+                        steps()
+                            .map(move |vari| {
+                                match vari {
+                                    Ok(steps) => {
+                                        let (steps, set_steps) = create_signal(steps);
+                                        view! { <AllSteps steps/> }
+                                    }
+                                    Err(e) => view! { <p>"Error happened"</p> }.into_view(),
+                                }
+                            })
+                    }}
+
                 </section>
                 <section
                     id="input_data"
@@ -77,11 +116,26 @@ pub fn Scenario() -> impl IntoView {
                                     Введите массив данных:
                                 </div>
                                 <div class="pl-[10px] flex flex-row p-[5px]">
-                                    <button class="bg-[#eeeeee] w-[40px] h-[40px] border-3 border-[#8c7456] rounded-[50%]">
-                                        <i class="bx bx-plus text-[#8c7456] text-[30px]"></i>
+                                    <button class="bg-[#eeeeee] w-[40px] h-[40px] border-[3px] border-[#8c7456] rounded-[50%]">
+                                        <i class="bx bx-plus text-[#8c7456] pl-[1px] pt-[2px] text-[30px]"></i>
                                     </button>
                                 </div>
 
+                            </div>
+                        </section>
+                        <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
+                            <div class="flex flex-col gap-[10px] mb-[20px]">
+                                <div class="font-bold">
+                                    Введите адрес покупателя:
+                                </div>
+                                <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
+                                    <input
+                                        class="bg-[#eeeeee] appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-[#eeeeee] focus:border-[#8c7456]"
+                                        type="text"
+                                        placeholder="Адрес"
+                                        required
+                                    />
+                                </div>
                             </div>
                         </section>
                     </section>

@@ -9,11 +9,13 @@
  * except according to those terms.
  */
 
+mod all_step;
 mod layout;
 mod scenario_description;
 mod scenarios_overview;
 mod search_bar;
 
+pub use self::all_step::*;
 pub use self::layout::*;
 pub use self::scenario_description::*;
 pub use self::scenarios_overview::*;
