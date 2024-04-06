@@ -7,7 +7,7 @@ use indexmap::IndexMap;
 
 use leptos::*;
 use leptos_meta::*;
-
+use leptos_router::A;
 
 use crate::widgets::*;
 
@@ -43,10 +43,9 @@ pub async fn get_steps() -> Result<IndexMap<String, Vec<ScenarioStep>>, ServerFn
 
 
 #[component]
-pub fn Scenario() -> impl IntoView {
-
+pub fn ScenarioStep() -> impl IntoView {
+    let selected_step: RwSignal<Option<ScenarioStep>> = create_rw_signal(None);
     let steps = Resource::once(get_steps);
-
     view! {
         <Layout>
             <section id="all_page" class="h-full w-full flex flex-row">
@@ -60,7 +59,9 @@ pub fn Scenario() -> impl IntoView {
                                 match vari {
                                     Ok(steps) => {
                                         let (steps, set_steps) = create_signal(steps);
-                                        view! { <AllSteps steps/> }
+                                        view! {
+                                            <AllSteps steps selected_step=selected_step.read_only()/>
+                                        }
                                     }
                                     Err(e) => view! { <p>"Error happened"</p> }.into_view(),
                                 }
