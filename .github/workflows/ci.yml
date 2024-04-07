@@ -52,7 +52,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
       - name: Install Pandoc
-        uses: pandoc/actions/setup
+        uses: pandoc/actions/setup@main
         with:
           version: 3.1
       - name: Install Tectonic
