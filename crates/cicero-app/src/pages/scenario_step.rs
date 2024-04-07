@@ -59,9 +59,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                 match vari {
                                     Ok(steps) => {
                                         let (steps, set_steps) = create_signal(steps);
-                                        view! {
-                                            <AllSteps steps selected_step=selected_step.read_only()/>
-                                        }
+                                        view! { <AllSteps steps selected_step=selected_step.read_only()/> }
                                     }
                                     Err(e) => view! { <p>"Error happened"</p> }.into_view(),
                                 }
@@ -88,9 +86,7 @@ pub fn ScenarioStep() -> impl IntoView {
 
                         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
                             <div class="flex flex-col gap-[10px] mb-[20px]">
-                                <div class="font-bold">
-                                    Введите данные покупателя:
-                                </div>
+                                <div class="font-bold">Введите данные покупателя:</div>
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
                                     Имя:
                                     <input
@@ -113,9 +109,7 @@ pub fn ScenarioStep() -> impl IntoView {
                         </section>
                         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
                             <div class="flex flex-row mb-[20px]">
-                                <div class="font-bold pt-[10px]">
-                                    Введите массив данных:
-                                </div>
+                                <div class="font-bold pt-[10px]">Введите массив данных:</div>
                                 <div class="pl-[10px] flex flex-row p-[5px]">
                                     <button class="bg-[#eeeeee] w-[40px] h-[40px] border-[3px] border-[#8c7456] rounded-[50%]">
                                         <i class="bx bx-plus text-[#8c7456] pl-[1px] pt-[2px] text-[30px]"></i>
@@ -126,9 +120,7 @@ pub fn ScenarioStep() -> impl IntoView {
                         </section>
                         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
                             <div class="flex flex-col gap-[10px] mb-[20px]">
-                                <div class="font-bold">
-                                    Введите адрес покупателя:
-                                </div>
+                                <div class="font-bold">Введите адрес покупателя:</div>
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
                                     <input
                                         class="bg-[#eeeeee] appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-[#eeeeee] focus:border-[#8c7456]"

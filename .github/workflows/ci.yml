@@ -28,7 +28,7 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: Run cargo clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   check:
     name: Check workspace for compile-ability

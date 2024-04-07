@@ -108,9 +108,7 @@ pub fn ScenariosOverview(
                                 .flatten()
                                 .filter(|&scenario| {
                                     filter
-                                        .with(|inner| {
-                                            scenario.name.to_lowercase().contains(&inner.to_lowercase())
-                                        })
+                                        .with(|inner| { scenario.name.to_lowercase().contains(&inner.to_lowercase()) })
                                 })
                                 .map(|scenario| {
                                     view! {

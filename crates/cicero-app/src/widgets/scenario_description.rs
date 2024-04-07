@@ -6,10 +6,7 @@ use leptos_router::A;
 #[component]
 pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) -> impl IntoView {
     view! {
-        <div
-            id="right_side"
-            class="flex flex-col flex-1 md:items-center border-l-[7px] border-[#8C7456]"
-        >
+        <div id="right_side" class="flex flex-col flex-1 md:items-center border-l-[7px] border-[#8C7456]">
 
             {move || {
                 match selected_scenario() {
@@ -23,15 +20,10 @@ pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) 
                     }
                     Some(scenario) => {
                         view! {
-                            <section
-                                id="create_template"
-                                class="grid grid-cols-1 w-full h-[220px] bg-[#EEEEEE]"
-                            >
+                            <section id="create_template" class="grid grid-cols-1 w-full h-[220px] bg-[#EEEEEE]">
                                 <div class="ml-[27px] mt-[12px] gap-[25px]">
                                     <div class="text-[40px] font-light">{scenario.name}</div>
-                                    <div class="text-[20px] font-light">
-                                        Актуально на:
-                                    </div>
+                                    <div class="text-[20px] font-light">Актуально на:</div>
                                 </div>
                                 <div class="items-center pl-[35px] pr-[35px]">
                                     <A href=scenario.id.to_string()>
@@ -57,10 +49,7 @@ pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) 
                                     </div>
                                 </button>
                             </section>
-                            <section
-                                id="description"
-                                class="mt-[15px] ml-[5px] mr-[5px] text-[#8C7456]"
-                            >
+                            <section id="description" class="mt-[15px] ml-[5px] mr-[5px] text-[#8C7456]">
                                 {scenario.description}
                             </section>
                         }
