@@ -363,6 +363,7 @@ dependencies = [
  "leptos_router",
  "log",
  "thiserror",
+ "tokio",
  "web-sys",
 ]
 

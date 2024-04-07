@@ -28,6 +28,7 @@ pub mod error;
 ///
 /// The scenario is a state machine, which is driven by the `current_step`
 /// field.
+#[derive(Debug, Clone)]
 pub struct Scenario {
     /// Scenario metadata, which is stored in the individual file.
     pub(crate) meta: ScenarioMeta,
@@ -223,6 +224,7 @@ impl Scenario {
 ///
 /// Template has a beginning and ending clauses, which are added to the step
 /// body to properly render it.
+#[derive(Debug, Clone)]
 pub struct Template {
     /// The beginning clause of the template.
     pub beginning_clause: String,
@@ -263,6 +265,7 @@ impl Template {
 ///
 /// A step may be a first phase step, which is used to initialize the scenario,
 /// i. e. without producing any visual output.
+#[derive(Debug, Clone)]
 pub struct Step {
     /// The name of the step.
     pub name: String,

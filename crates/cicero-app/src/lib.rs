@@ -27,6 +27,8 @@ mod pages;
 use self::pages::*;
 mod widgets;
 use self::widgets::*;
+mod shared;
+use self::shared::*;
 
 #[component]
 pub fn App() -> impl IntoView {
