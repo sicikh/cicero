@@ -4,7 +4,6 @@ use std::hash::Hash;
 use cicero_dsl::data;
 use cicero_dsl::types::*;
 use indexmap::IndexMap;
-
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::A;
@@ -17,18 +16,26 @@ pub async fn get_steps() -> Result<IndexMap<String, Vec<ScenarioStep>>, ServerFn
         ScenarioStep {
             name: "Step1".to_string(),
             header: Some("step_1".to_string()),
-            variables : vec![Var{
-                name : "UltraDick".to_string(),
+            variables: vec![Var {
+                name: "UltraDick".to_string(),
                 comment: "UltraDick1".to_string(),
-                ty : Entity{ty:EntityType::String,is_required:true}}],
+                ty: Entity {
+                    ty: EntityType::String,
+                    is_required: true,
+                },
+            }],
         },
         ScenarioStep {
             name: "Step2".to_string(),
             header: Some("step_2".to_string()),
-            variables : vec![Var{
-                name : "UltraDick1".to_string(),
+            variables: vec![Var {
+                name: "UltraDick1".to_string(),
                 comment: "UltraDick2".to_string(),
-                ty : Entity{ty:EntityType::String,is_required:true}}],
+                ty: Entity {
+                    ty: EntityType::String,
+                    is_required: true,
+                },
+            }],
         },
     ];
     let map = metas.into_iter().fold(IndexMap::new(), |mut map, meta| {
@@ -40,7 +47,6 @@ pub async fn get_steps() -> Result<IndexMap<String, Vec<ScenarioStep>>, ServerFn
 
     Ok(map)
 }
-
 
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
