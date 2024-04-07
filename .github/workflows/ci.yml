@@ -10,31 +10,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
       - name: Enforce formatting
         run: cargo fmt --all --check
 
-  clippy:
+  lint:
     name: Lint workspace with clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Linting
+      - name: Run cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
   check:
     name: Check workspace for compile-ability
     runs-on: ubuntu-latest
-    needs: [ fmt, clippy ]
+    needs: [ fmt, lint ]
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
       - name: Run cargo check
         run: cargo check --workspace --all-features --all-targets
@@ -45,13 +48,15 @@ jobs:
     needs: [ check ]
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
-      # FIXME:
-      # - uses: pandoc/actions/setup
-        # with:
-          # version: 3.1.12.3
-      - uses: wtfjoke/setup-tectonic@v3
+      - name: Install Pandoc
+        uses: pandoc/actions/setup
+        with:
+          version: 3.1
+      - name: Install Tectonic
+        uses: wtfjoke/setup-tectonic@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tectonic-version: 0.15.0
@@ -64,12 +69,15 @@ jobs:
     needs: [ check ]
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Install Rust nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
         with:
           targets: "wasm32-unknown-unknown"
       - uses: Swatinem/rust-cache@v2
       - name: Build
+        working-directory: ./crates/cicero-front
         run: |
+          npm install
           cargo install cargo-leptos
           cargo leptos build 
 
