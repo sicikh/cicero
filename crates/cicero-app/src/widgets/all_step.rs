@@ -19,7 +19,7 @@ pub fn AllSteps(
                     let keys = key.keys().cloned().collect::<Vec<_>>();
                     keys.into_iter()
                         .map(|name_step| {
-                            let link = format!("/{}", name_step);
+                            let link = format!("{}", name_step);
                             view! {
                                 <A href=link.clone()>
                                     <button

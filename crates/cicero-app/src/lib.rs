@@ -56,7 +56,7 @@ pub fn App() -> impl IntoView {
             <Routes>
                 <Route path="/scenario" view=ScenarioChoice/>
                 <Route path="/scenario/:id" view=ScenarioStep/>
-                <Route path="/scenario/:id/:step" view=ScenarioStep/>
+                <Route path="/scenario/:id/:link" view=ScenarioStep/>
                 <Route path="/" view=MainPage/>
                 <Route path="/contacts" view=Contacts/>
                 <Route path="/login" view=Login/>
@@ -70,7 +70,10 @@ pub fn App() -> impl IntoView {
 fn Login() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
-        <div id="wrapper" class="md:flex md:justify-center md:items-center min-h-screen bg-[#8C7456]">
+        <div
+            id="wrapper"
+            class="md:flex md:justify-center md:items-center min-h-screen bg-[#8C7456]"
+        >
             <form
                 action=""
                 class="w-[420px] bg-transparent border-solid border-2 border-[#ffffff33] backdrop-blur-[20px] text-[#EEEEEE] rounded-[10px] pt-[30px] pb-[30px] pl-[40px] pr-[40px]"
@@ -96,7 +99,10 @@ fn Login() -> impl IntoView {
                     />
                     <i class="bx bxs-lock-alt absolute right-[20px] text-[20px] top-[50%] -translate-y-1/2"></i>
                 </div>
-                <div id="remember-forgot" class="md:flex justify-between text-[15px] mt-[15px] mb-[15px] mr-0 ml-0 ">
+                <div
+                    id="remember-forgot"
+                    class="md:flex justify-between text-[15px] mt-[15px] mb-[15px] mr-0 ml-0 "
+                >
                     <label class="accent-[#EEEEEE]">
                         <input type="checkbox" class="mr-[3px] ml-[1px]"/>
                         Запомнить пароль
@@ -128,7 +134,10 @@ fn Login() -> impl IntoView {
 fn Register() -> impl IntoView {
     // Creates a reactive value to update the button
     view! {
-        <div id="wrapper" class="md:flex md:justify-center md:items-center min-h-screen bg-[#8C7456]">
+        <div
+            id="wrapper"
+            class="md:flex md:justify-center md:items-center min-h-screen bg-[#8C7456]"
+        >
 
             <form
                 action=""
@@ -185,7 +194,10 @@ fn Register() -> impl IntoView {
                     />
                     <i class="bx bxs-lock-alt absolute right-[20px] text-[20px] top-[50%] -translate-y-1/2"></i>
                 </div>
-                <div id="remember-forgot" class="md:flex justify-end text-[15px] mt-[15px] mb-[15px] mr-0 ml-0 ">
+                <div
+                    id="remember-forgot"
+                    class="md:flex justify-end text-[15px] mt-[15px] mb-[15px] mr-0 ml-0 "
+                >
                     <a href="#" class="hover:underline">
                         Забыли пароль?
                     </a>
@@ -199,7 +211,8 @@ fn Register() -> impl IntoView {
                 </button>
                 <div id="Register_link" class="text-[15px] text-center mt-[15px]">
                     <p>
-                        Есть аккаунт? <a href="Login" class="font-semibold hover:underline ml-[5px]">
+                        Есть аккаунт?
+                        <a href="Login" class="font-semibold hover:underline ml-[5px]">
                             Войти
                         </a>
                     </p>
