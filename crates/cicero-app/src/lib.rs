@@ -56,7 +56,7 @@ pub fn App() -> impl IntoView {
             <Routes>
                 <Route path="/scenario" view=ScenarioChoice/>
                 <Route path="/scenario/:id" view=ScenarioStep/>
-                <Route path="/scenario/:id/:link" view=ScenarioStep/>
+                <Route path="/scenario/:id/:step" view=ScenarioStep/>
                 <Route path="/" view=MainPage/>
                 <Route path="/contacts" view=Contacts/>
                 <Route path="/login" view=Login/>

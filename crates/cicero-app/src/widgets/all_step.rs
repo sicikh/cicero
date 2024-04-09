@@ -10,8 +10,10 @@ use leptos_router::A;
 #[component]
 pub fn AllSteps(
     #[prop(into)] steps: Signal<IndexMap<String, Vec<ScenarioStep>>>,
-    selected_step: ReadSignal<Option<ScenarioStep>>,
+    selected_steps: WriteSignal<Option<ScenarioStep>>,
 ) -> impl IntoView {
+    let selected_step: RwSignal<String> =
+        create_rw_signal(steps.with(|sel| sel.keys().next().unwrap().clone()));
     view! {
         {move || {
             steps
@@ -21,18 +23,27 @@ pub fn AllSteps(
                         .map(|name_step| {
                             let link = format!("{}", name_step);
                             view! {
-                                <A href=link.clone()>
-                                    <button
-                                        class="hover:bg-[#696764] rounded-[10px] h-[40px] w-[100px]"
-                                        on:click=move |mv| {
-                                            let button: web_sys::HtmlButtonElement = event_target(&mv);
-                                            let name = button.inner_text();
-                                        }
-                                    >
+                                // <A href=link.clone()>
+                                <button
+                                    class="hover:bg-[#696764] rounded-[10px] h-[40px] w-[100px]"
+                                    on:click=move |mv| {
+                                        let button: web_sys::HtmlButtonElement = event_target(&mv);
+                                        let name = button.inner_text();
+                                        let step = steps
+                                            .with(|inner| {
+                                                inner
+                                                    .get(&selected_step())
+                                                    .unwrap()
+                                                    .iter()
+                                                    .find(|&step| step.name == name)
+                                                    .cloned()
+                                            });
+                                        selected_steps.set(step);
+                                    }
+                                >
 
-                                        <div class="text-[24px] text-[#EEEEEE]">{name_step}</div>
-                                    </button>
-                                </A>
+                                    <div class="text-[24px] text-[#EEEEEE]">{name_step}</div>
+                                </button>
                             }
                         })
                         .collect::<Vec<_>>()
