@@ -56,15 +56,12 @@ pub fn ScenarioStep() -> impl IntoView {
                                     <section id="all_page" class="h-full w-full flex flex-row">
                                         <section
                                             id="step"
-                                        >
                                             class="pl-[15px] pr-[15px] pt-[15px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"
+                                        >
                                             <AllSteps steps_names step_index/>
                                         </section>
                                         <InputDataStep current_step step_index/>
-                                            id="watch_template"
-                                        <section
-                                            class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]"
-                                        >
+                                        <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
                                             <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                                                 Предварительный просмотр документа
                                             </div>
