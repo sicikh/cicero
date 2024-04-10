@@ -25,7 +25,7 @@ pub fn InputDataStep(
                                 view! {
                                     <section
                                         id="warning"
-                                        class="h-[80px] bg-[#cccccc] border-b-[3px] py-[15px] px-[15px] items-start flex flex-col border-[#8C7456]"
+                                        class="min-h-[80px] bg-[#cccccc] border-b-[3px] py-[15px] px-[15px] pb-[25px] gap-[2px] items-start flex flex-col border-[#8C7456]"
                                     >
                                         <div class="text-[15px] text-[#8C7456] items-center">
                                             <HtmlRender html_string/>
@@ -36,7 +36,7 @@ pub fn InputDataStep(
                             })
                     }}
 
-                    <section class="flex flex-col w-full h-full scrollbar-thumb-[#8C7456] scrollbar-thumb-h-[40px] scrollbar-track-[#eeeeee] hover:scrollbar-thumb-[#9c805d] active:scrollbar-thumb-[#9c805d]/50 scrollbar-h-[90%] scrollbar-w-[40px] overflow-y-scroll">
+                    <section class="flex flex-col py-[10px] w-full h-full scrollbar-thumb-[#8C7456] scrollbar-thumb-h-[40px] scrollbar-track-[#eeeeee] hover:scrollbar-thumb-[#9c805d] active:scrollbar-thumb-[#9c805d]/50 scrollbar-h-[90%] scrollbar-w-[40px] overflow-y-scroll">
                         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
                             <div class="flex flex-col gap-[10px] mb-[20px]">
                                 <div class="font-bold">
@@ -86,6 +86,41 @@ pub fn InputDataStep(
                                         placeholder="Адрес"
                                         required
                                     />
+                                </div>
+                            </div>
+                        </section>
+                        <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
+                            <div class="flex flex-col gap-[10px] mb-[20px]">
+                                <div class="font-bold">Вы пидорас?:</div>
+                                <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
+                                    <p>
+                                        <input class="mr-[5px]" type="radio" id="var1" name="take"/>
+
+                                        <label for="var1">Да</label>
+                                        <div class="pl-[18px] flex flex-row gap-x-[5px] items-center">
+                                            Возраст :
+                                            <input
+                                                class="bg-[#eeeeee] appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-[#eeeeee] focus:border-[#8c7456]"
+                                                type="text"
+                                                placeholder="Возраст"
+                                                required
+                                            />
+                                        </div>
+
+                                    </p>
+                                </div>
+                                <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
+                                    <p>
+                                        <input class="mr-[5px]" type="radio" id="var2" name="take"/>
+                                        <label for="var2">Нет</label>
+
+                                    </p>
+                                </div>
+                                <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
+                                    <p>
+                                        <input class="mr-[5px]" type="radio" id="var3" name="take"/>
+                                        <label for="var3">Я 100% педик</label>
+                                    </p>
                                 </div>
                             </div>
                         </section>

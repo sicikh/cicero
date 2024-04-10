@@ -44,7 +44,7 @@ pub fn AllSteps(
                 .map(|(i, name)| {
                     view! {
                         <button
-                            class="hover:bg-[#696764] rounded-[10px] h-[40px] w-[100px]"
+                            class="hover:bg-[#8C7456] rounded-[10px] p-[3px] min-h-[40px] max-w-[120px]"
                             on:click=move |mv| {
                                 let button: web_sys::HtmlButtonElement = event_target(&mv);
                                 let name = button.inner_text();
@@ -56,7 +56,7 @@ pub fn AllSteps(
                             }
                         >
 
-                            <div class="text-[24px] text-[#EEEEEE]">{name.clone()}</div>
+                            <div class="text-[18px] text-[#EEEEEE] font-bold">{name.clone()}</div>
                         </button>
                     }
                 })
