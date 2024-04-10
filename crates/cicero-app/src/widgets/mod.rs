@@ -10,18 +10,18 @@
  */
 
 mod all_step;
+mod html_render;
 mod input_data_step;
 mod layout;
-mod html_render;
 mod scenario_description;
 mod scenarios_overview;
 mod search_bar;
 mod struct_input;
 
 pub use self::all_step::*;
+pub use self::html_render::*;
 pub use self::input_data_step::*;
 pub use self::layout::*;
-pub use self::html_render::*;
 pub use self::scenario_description::*;
 pub use self::scenarios_overview::*;
 pub use self::search_bar::*;

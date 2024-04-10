@@ -49,9 +49,7 @@ pub fn AllSteps(
                                 let button: web_sys::HtmlButtonElement = event_target(&mv);
                                 let name = button.inner_text();
                                 let selected = steps_names
-                                    .with(|inner| {
-                                        inner.iter().position(|step| *step == name).unwrap()
-                                    });
+                                    .with(|inner| { inner.iter().position(|step| *step == name).unwrap() });
                                 step_index.set(selected);
                             }
                         >

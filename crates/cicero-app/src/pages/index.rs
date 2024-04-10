@@ -40,10 +40,7 @@ pub fn MainPage() -> impl IntoView {
 
                         <div class="w-full mx-[25px] flex flex-wrap items-center">
                             <div class="flex w-full md:w-1/2 justify-center md:justify-start text-white font-extrabold">
-                                <a
-                                    class="text-[#8C7456] no-underline hover:text-[#8C7456] hover:no-underline"
-                                    href="#"
-                                >
+                                <a class="text-[#8C7456] no-underline hover:text-[#8C7456] hover:no-underline" href="#">
                                     <span class="text-base text-gray-200 text-[30px]">Cicero</span>
                                 </a>
                             </div>

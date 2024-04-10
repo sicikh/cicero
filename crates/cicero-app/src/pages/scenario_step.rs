@@ -12,7 +12,10 @@ use crate::widgets::*;
 
 #[server(GetStepsNames, "/api", "Url", "get-steps-names")]
 pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
-    let names = vec!["Преамбула", "Основная часть договора"].into_iter().map(String::from).collect();
+    let names = vec!["Преамбула", "Основная часть договора"]
+        .into_iter()
+        .map(String::from)
+        .collect();
 
     Ok(names)
 }
