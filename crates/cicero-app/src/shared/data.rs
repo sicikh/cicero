@@ -9,9 +9,17 @@
  * except according to those terms.
  */
 
-#[cfg(feature = "ssr")]
-mod server;
-#[cfg(feature = "ssr")]
-pub use server::*;
+use indexmap::IndexMap;
+use leptos::*;
 
-pub mod data;
+#[derive(Clone)]
+pub enum Data {
+    Struct(RwSignal<Struct>),
+    String(RwSignal<String>),
+}
+
+#[derive(Clone)]
+pub struct Struct {
+    pub name: String,
+    pub fields: IndexMap<String, RwSignal<Data>>,
+}

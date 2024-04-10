@@ -21,7 +21,7 @@ pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
 pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
     let step = ScenarioStep {
         name: "Преамбула".to_string(),
-        header: Some("Комментарий **жирное начертание**, *курсив*, [ссылка](https://vk.com).".to_string()),
+        header: Some("<p>Комментарий <strong>жирное начертание</strong>, <i>курсив</i></p>, <p>[ссылка](https://vk.com).</p>\n".to_string()),
         variables: vec![Var {
             name: "person_name".to_string(),
             comment: "Введите имя пользователя".to_string(),

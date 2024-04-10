@@ -9,7 +9,7 @@
  * except according to those terms.
  */
 
-use crate::types::MarkdownString;
+use crate::types::HtmlString;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Module {
@@ -35,7 +35,7 @@ impl TypeDef {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Struct {
     pub name: String,
-    pub comment: Option<MarkdownString>,
+    pub comment: Option<HtmlString>,
     pub fields: Vec<Field>,
     pub parent: Option<String>,
 }
@@ -43,7 +43,7 @@ pub struct Struct {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Field {
     pub name: String,
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     pub ty: Type,
 }
 
@@ -57,20 +57,20 @@ pub struct Type {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Enum {
     pub name: String,
-    pub comment: Option<MarkdownString>,
+    pub comment: Option<HtmlString>,
     pub variants: Vec<EnumVariant>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumVariant {
     pub name: String,
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     pub field: Option<Type>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Variable {
     pub name: String,
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     pub ty: Type,
 }

@@ -10,7 +10,14 @@ license.workspace = true
 edition.workspace = true
 
 [features]
-render = ["dep:minijinja", "dep:chumsky", "dep:logos", "dep:toml", "dep:thiserror"]
+render = [
+    "dep:minijinja",
+    "dep:chumsky",
+    "dep:logos",
+    "dep:toml",
+    "dep:thiserror",
+    "dep:pulldown-cmark",
+]
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
@@ -26,6 +33,7 @@ chumsky = { version = "1.0.0-alpha.6", features = [
 logos = { version = "0.14.0", optional = true }
 toml = { version = "0.8.12", optional = true }
 thiserror = { workspace = true, optional = true }
+pulldown-cmark = { version = "0.10.2", optional = true }
 
 [dev-dependencies]
 tempfile.workspace = true

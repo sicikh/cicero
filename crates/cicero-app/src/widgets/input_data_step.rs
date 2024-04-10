@@ -4,6 +4,8 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::{Form, A};
 
+use crate::widgets::HtmlRender;
+
 #[component]
 pub fn InputDataStep(
     #[prop(into)] current_step: Signal<ScenarioStep>,
@@ -16,17 +18,24 @@ pub fn InputDataStep(
         >
             {move || {
                 view! {
-                    <section
-                        id="warning"
-                        class="h-[80px] bg-[#cccccc] border-b-[3px] py-[15px] px-[15px] items-start flex flex-col border-[#8C7456]"
-                    >
-                        <div class="text-[15px] text-[#8C7456] items-center">
-                            Осторожно! Это описание шага, которого может не быть
-                        </div>
-                        <div class="text-[15px] text-[#8C7456] items-center">
-                            Cмотрите ст.13 Конституции РФ
-                        </div>
-                    </section>
+                    {move || {
+                        current_step
+                            .with(|step| step.header.clone())
+                            .map(|html_string| {
+                                view! {
+                                    <section
+                                        id="warning"
+                                        class="h-[80px] bg-[#cccccc] border-b-[3px] py-[15px] px-[15px] items-start flex flex-col border-[#8C7456]"
+                                    >
+                                        <div class="text-[15px] text-[#8C7456] items-center">
+                                            <HtmlRender html_string/>
+                                        </div>
+                                    </section>
+                                }
+                                    .into_view()
+                            })
+                    }}
+
                     <section class="flex flex-col w-full h-full scrollbar-thumb-[#8C7456] scrollbar-thumb-h-[40px] scrollbar-track-[#eeeeee] hover:scrollbar-thumb-[#9c805d] active:scrollbar-thumb-[#9c805d]/50 scrollbar-h-[90%] scrollbar-w-[40px] overflow-y-scroll">
                         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
                             <div class="flex flex-col gap-[10px] mb-[20px]">

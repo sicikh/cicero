@@ -9,9 +9,10 @@
  * except according to those terms.
  */
 
-#[cfg(feature = "ssr")]
-mod server;
-#[cfg(feature = "ssr")]
-pub use server::*;
+use cicero_dsl::types::HtmlString;
+use leptos::*;
 
-pub mod data;
+#[component]
+pub fn HtmlRender(html_string: HtmlString) -> impl IntoView {
+    view! { <div></div> }.inner_html(html_string)
+}

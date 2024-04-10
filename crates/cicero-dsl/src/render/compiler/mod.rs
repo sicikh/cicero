@@ -19,6 +19,13 @@ use crate::types::ScenarioMeta;
 pub mod cicero;
 pub mod template;
 
+fn parse_markdown(markdown: &str) -> String {
+    let parser = pulldown_cmark::Parser::new(markdown);
+    let mut html = String::new();
+    pulldown_cmark::html::push_html(&mut html, parser);
+    html
+}
+
 fn parse_meta(input: &str) -> Result<ScenarioMeta, String> {
     toml::from_str(input).map_err(|e| e.to_string())
 }

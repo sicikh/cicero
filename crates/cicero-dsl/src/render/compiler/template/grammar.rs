@@ -10,6 +10,7 @@
  */
 
 use super::ast::*;
+use crate::compiler::parse_markdown;
 
 // TODO: find more suitable way to parse templates
 #[allow(clippy::manual_strip)]
@@ -80,6 +81,16 @@ pub fn parse_template(input: &str) -> Result<Template, String> {
         steps.push(step);
     }
 
+    steps = steps
+        .into_iter()
+        .map(|mut step| {
+            if let Some(comment) = &mut step.comment {
+                *comment = parse_markdown(comment);
+            }
+            step
+        })
+        .collect();
+
     Ok(Template {
         beginning_clause,
         steps,
@@ -117,7 +128,7 @@ end clause"#;
             steps: vec![
                 Step {
                     name: "step1".to_string(),
-                    comment: Some("Description\n\nanother line\n".to_string()),
+                    comment: Some("<p>Description</p>\n<p>another line</p>\n".to_string()),
                     variables: vec!["var1".to_string(), "var2".to_string()],
                     body: "step1 body {{ var2 }}\n\n".to_string(),
                 },
@@ -129,7 +140,7 @@ end clause"#;
                 },
                 Step {
                     name: "step3".to_string(),
-                    comment: Some("Description\n".to_string()),
+                    comment: Some("<p>Description</p>\n".to_string()),
                     variables: vec!["var4".to_string()],
                     body: "\n".to_string(),
                 },

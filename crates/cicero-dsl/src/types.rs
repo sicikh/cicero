@@ -14,7 +14,7 @@ use std::hash::Hash;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-pub type MarkdownString = String;
+pub type HtmlString = String;
 
 /// Fields of a struct.
 pub type Fields = IndexMap<String, Field>;
@@ -24,7 +24,7 @@ pub type Fields = IndexMap<String, Field>;
 pub struct ScenarioMeta {
     pub id: u64,
     pub name: String,
-    pub description: MarkdownString,
+    pub description: HtmlString,
     pub category: String,
 }
 
@@ -52,7 +52,7 @@ pub struct ScenarioStep {
     ///
     /// Usually it contains legal information, references to the law and
     /// warnings to the user.
-    pub header: Option<MarkdownString>,
+    pub header: Option<HtmlString>,
     /// Variables, that are needed to be filled to continue the
     /// scenario.
     pub variables: Vec<Var>,
@@ -65,7 +65,7 @@ impl PartialEq for ScenarioStep {
 }
 
 impl ScenarioStep {
-    pub fn new(name: String, header: Option<MarkdownString>, variables: Vec<Var>) -> Self {
+    pub fn new(name: String, header: Option<HtmlString>, variables: Vec<Var>) -> Self {
         Self {
             name,
             header,
@@ -80,7 +80,7 @@ pub struct Var {
     /// Name of the variable.
     pub name: String,
     /// Comment, that should be displayed on top of the data entry field.
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     /// Type of the variable.
     pub ty: Entity,
 }
@@ -100,7 +100,7 @@ impl Hash for Var {
 }
 
 impl Var {
-    pub fn new(name: String, comment: MarkdownString, ty: Entity) -> Self {
+    pub fn new(name: String, comment: HtmlString, ty: Entity) -> Self {
         Self { name, comment, ty }
     }
 }
@@ -109,7 +109,7 @@ impl Var {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Enum {
     pub name: String,
-    pub comment: Option<MarkdownString>,
+    pub comment: Option<HtmlString>,
     pub variants: IndexMap<String, EnumVariant>,
 }
 
@@ -129,7 +129,7 @@ impl Enum {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnumVariant {
     pub name: String,
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     pub field: Option<Entity>,
 }
 
@@ -149,7 +149,7 @@ impl EnumVariant {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Struct {
     pub name: String,
-    pub comment: Option<MarkdownString>,
+    pub comment: Option<HtmlString>,
     pub fields: Fields,
     pub parent: Option<Box<Struct>>,
 }
@@ -175,7 +175,7 @@ impl Struct {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Field {
-    pub comment: MarkdownString,
+    pub comment: HtmlString,
     pub entity: Entity,
 }
 

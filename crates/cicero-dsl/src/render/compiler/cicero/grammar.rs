@@ -15,7 +15,8 @@ use logos::Logos;
 
 use super::ast::*;
 use super::lexer::Token;
-use crate::types::MarkdownString;
+use crate::compiler::parse_markdown;
+use crate::types::HtmlString;
 
 // FIXME: create normal Error type. For now String is enough
 pub fn parse_module(input: &str) -> Result<Module, String> {
@@ -103,7 +104,7 @@ fn field_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 
 /// comment ::= ( '/// ' [^\n\r] )*
 fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
-) -> impl Parser<'a, I, MarkdownString, extra::Err<Rich<'a, Token<'a>>>> + Copy {
+) -> impl Parser<'a, I, HtmlString, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     let comment = select! {
         Token::DocComment(doc) => doc.replace("/// ", "").replace("///", ""),
     };
@@ -114,6 +115,7 @@ fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .at_least(1)
         .collect::<Vec<_>>()
         .map(|comments| comments.join("").trim().to_string())
+        .map(|markdown| parse_markdown(&markdown))
 }
 
 /// enum ::= comment 'enum' ident '{' enum_variant [ ',' enum_variant ]* [ ',' ]
@@ -238,7 +240,7 @@ mod tests {
         /// Struct comment
         struct Person: Parent {
             -- some comment
-            /// Field comment
+            /// Field [comment](https://vk.com)
             ///
             /// More **comments**
             field: String?,
@@ -247,13 +249,14 @@ mod tests {
         }"#;
         let ast = struct_parser().parse(wrap_lexer(src)).unwrap();
         let test = Struct {
-            comment: Some("Struct comment".to_string()),
+            comment: Some("<p>Struct comment</p>\n".to_string()),
             name: "Person".to_string(),
             parent: Some("Parent".to_string()),
             fields: vec![
                 Field {
                     name: "field".to_string(),
-                    comment: "Field comment\n\nMore **comments**".to_string(),
+                    comment: "<p>Field <a href=\"https://vk.com\">comment</a></p>\n<p>More <strong>comments</strong></p>\n"
+                        .to_string(),
                     ty: Type {
                         name: "String".to_string(),
                         is_array: false,
@@ -262,7 +265,7 @@ mod tests {
                 },
                 Field {
                     name: "field2".to_string(),
-                    comment: "Field2 comment".to_string(),
+                    comment: "<p>Field2 comment</p>\n".to_string(),
                     ty: Type {
                         name: "String".to_string(),
                         is_array: false,
@@ -289,12 +292,12 @@ mod tests {
         }"#;
         let ast = enum_parser().parse(wrap_lexer(src)).unwrap();
         let test = Enum {
-            comment: Some("Enum comment".to_string()),
+            comment: Some("<p>Enum comment</p>\n".to_string()),
             name: "Color".to_string(),
             variants: vec![
                 EnumVariant {
                     name: "Red".to_string(),
-                    comment: "Variant comment".to_string(),
+                    comment: "<p>Variant comment</p>\n".to_string(),
                     field: Some(Type {
                         name: "String".to_string(),
                         is_array: false,
@@ -303,12 +306,12 @@ mod tests {
                 },
                 EnumVariant {
                     name: "Green".to_string(),
-                    comment: "Another comment".to_string(),
+                    comment: "<p>Another comment</p>\n".to_string(),
                     field: None,
                 },
                 EnumVariant {
                     name: "Blue".to_string(),
-                    comment: "Blue comment".to_string(),
+                    comment: "<p>Blue comment</p>\n".to_string(),
                     field: Some(Type {
                         name: "String".to_string(),
                         is_array: false,
@@ -327,7 +330,7 @@ mod tests {
         /// Struct comment
         struct Person: Parent {
             -- some comment
-            /// Field comment
+            /// Field [comment](https://vk.com)
             ///
             /// More **comments**
             field: String?,
@@ -354,13 +357,13 @@ mod tests {
         let test = Module {
             type_defs: vec![
                 TypeDef::Struct(Struct {
-                    comment: Some("Struct comment".to_string()),
+                    comment: Some("<p>Struct comment</p>\n".to_string()),
                     name: "Person".to_string(),
                     parent: Some("Parent".to_string()),
                     fields: vec![
                         Field {
                             name: "field".to_string(),
-                            comment: "Field comment\n\nMore **comments**".to_string(),
+                            comment: "<p>Field <a href=\"https://vk.com\">comment</a></p>\n<p>More <strong>comments</strong></p>\n".to_string(),
                             ty: Type {
                                 name: "String".to_string(),
                                 is_array: false,
@@ -369,7 +372,7 @@ mod tests {
                         },
                         Field {
                             name: "field2".to_string(),
-                            comment: "Field2 comment".to_string(),
+                            comment: "<p>Field2 comment</p>\n".to_string(),
                             ty: Type {
                                 name: "String".to_string(),
                                 is_array: false,
@@ -379,12 +382,12 @@ mod tests {
                     ],
                 }),
                 TypeDef::Enum(Enum {
-                    comment: Some("Enum comment".to_string()),
+                    comment: Some("<p>Enum comment</p>\n".to_string()),
                     name: "Color".to_string(),
                     variants: vec![
                         EnumVariant {
                             name: "Red".to_string(),
-                            comment: "Variant comment".to_string(),
+                            comment: "<p>Variant comment</p>\n".to_string(),
                             field: Some(Type {
                                 name: "String".to_string(),
                                 is_array: false,
@@ -393,12 +396,12 @@ mod tests {
                         },
                         EnumVariant {
                             name: "Green".to_string(),
-                            comment: "Another comment".to_string(),
+                            comment: "<p>Another comment</p>\n".to_string(),
                             field: None,
                         },
                         EnumVariant {
                             name: "Blue".to_string(),
-                            comment: "Blue comment".to_string(),
+                            comment: "<p>Blue comment</p>\n".to_string(),
                             field: Some(Type {
                                 name: "String".to_string(),
                                 is_array: false,
@@ -410,7 +413,7 @@ mod tests {
             ],
             variables: vec![Variable {
                 name: "var".to_string(),
-                comment: "Variable comment".to_string(),
+                comment: "<p>Variable comment</p>\n".to_string(),
                 ty: Type {
                     name: "Person".to_string(),
                     is_array: false,
@@ -454,11 +457,11 @@ mod tests {
             type_defs: vec![
                 TypeDef::Struct(Struct {
                     name: "Person".to_string(),
-                    comment: Some("Person".to_string()),
+                    comment: Some("<p>Person</p>\n".to_string()),
                     fields: vec![
                         Field {
                             name: "kind".to_string(),
-                            comment: "Person kind".to_string(),
+                            comment: "<p>Person kind</p>\n".to_string(),
                             ty: Type {
                                 name: "PersonKind".to_string(),
                                 is_array: false,
@@ -467,7 +470,7 @@ mod tests {
                         },
                         Field {
                             name: "field".to_string(),
-                            comment: "Field with array".to_string(),
+                            comment: "<p>Field with array</p>\n".to_string(),
                             ty: Type {
                                 name: "String".to_string(),
                                 is_array: true,
@@ -478,12 +481,12 @@ mod tests {
                     parent: None,
                 }),
                 TypeDef::Enum(Enum {
-                    comment: Some("Person kind".to_string()),
+                    comment: Some("<p>Person kind</p>\n".to_string()),
                     name: "PersonKind".to_string(),
                     variants: vec![
                         EnumVariant {
                             name: "Newbie".to_string(),
-                            comment: "Newbie".to_string(),
+                            comment: "<p>Newbie</p>\n".to_string(),
                             field: Some(Type {
                                 name: "NewbieInfo".to_string(),
                                 is_array: false,
@@ -492,7 +495,7 @@ mod tests {
                         },
                         EnumVariant {
                             name: "Lawyer".to_string(),
-                            comment: "Lawyer with a names".to_string(),
+                            comment: "<p>Lawyer with a names</p>\n".to_string(),
                             field: Some(Type {
                                 name: "String".to_string(),
                                 is_array: true,
@@ -502,12 +505,12 @@ mod tests {
                     ],
                 }),
                 TypeDef::Struct(Struct {
-                    comment: Some("Newbie info".to_string()),
+                    comment: Some("<p>Newbie info</p>\n".to_string()),
                     name: "NewbieInfo".to_string(),
                     parent: None,
                     fields: vec![Field {
                         name: "field".to_string(),
-                        comment: "Newbie names".to_string(),
+                        comment: "<p>Newbie names</p>\n".to_string(),
                         ty: Type {
                             name: "String".to_string(),
                             is_array: true,
@@ -518,7 +521,7 @@ mod tests {
             ],
             variables: vec![Variable {
                 name: "var".to_string(),
-                comment: "Variable comment".to_string(),
+                comment: "<p>Variable comment</p>\n".to_string(),
                 ty: Type {
                     name: "Person".to_string(),
                     is_array: true,
