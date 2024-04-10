@@ -17,7 +17,7 @@ use self::error::{Result, ScenarioError};
 use super::context::Context;
 use crate::data;
 use crate::render::compiler::cicero::check_data_validity;
-use crate::types::{self, ScenarioMeta};
+use crate::types::{self, ScenarioMeta, ScenarioStep};
 
 pub mod error;
 
@@ -88,6 +88,42 @@ impl Scenario {
         debug_assert!(self.current_step < self.template.steps.len());
 
         self.current_step == self.template.steps.len() - 1
+    }
+
+    // TODO: find more appropriate name
+    #[inline(always)]
+    pub fn scenario_step(&self) -> ScenarioStep {
+        let curr_step = &self.template.steps[self.current_step];
+        ScenarioStep {
+            name: curr_step.name.clone(),
+            header: curr_step.comment.clone(),
+            variables: self.current_step_types().to_vec(),
+        }
+    }
+
+    // TODO: find more appropriate name
+    #[inline(always)]
+    pub fn scenario_steps(&self) -> Vec<ScenarioStep> {
+        self.template
+            .steps
+            .iter()
+            .map(|step| {
+                ScenarioStep {
+                    name: step.name.clone(),
+                    header: step.comment.clone(),
+                    variables: step.variables.clone(),
+                }
+            })
+            .collect()
+    }
+
+    #[inline(always)]
+    pub fn steps_names(&self) -> Vec<String> {
+        self.template
+            .steps
+            .iter()
+            .map(|step| step.name.clone())
+            .collect()
     }
 
     /// Returns types needed for the current step.
