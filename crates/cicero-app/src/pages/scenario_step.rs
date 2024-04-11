@@ -29,17 +29,34 @@ pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
         use_context::<Env>().ok_or_else(|| ServerFnError::ServerError("Env is missing".to_string()))
     }
 
-    let env: Env = env()?;
-    println!("Env: {:?}", env);
-
+    // let env = env()?;
+    // println!("Env: {:?}", env);
+    let passport_struct = Struct {
+        name: "Passport".to_string(),
+        comment: Some("<p>Комментарий паспорта</p>".to_string()),
+        fields: {
+            let mut fields = IndexMap::new();
+            fields.insert("series".to_string(), Field { comment: "<p>Серия:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+            fields.insert("number".to_string(), Field { comment: "<p>Номер:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+            fields
+        },
+        parent: None,
+    };
     let step = ScenarioStep {
         name: "Преамбула".to_string(),
-        header: Some("<p>Комментарий <strong>жирное начертание</strong>, <i>курсив</i></p>, <p>[ссылка](https://vk.com).</p>\n".to_string()),
+        header: Some("<p>Комментарий <strong>жирное начертание</strong>, <i>курсив</i>,</p>\n<p><a href=\"https://vk.com\">ссылка</a>.</p>\n".to_string()),
         variables: vec![Var {
-            name: "person_name".to_string(),
-            comment: "Введите имя пользователя".to_string(),
+            name: "person".to_string(),
+            comment: "<p>Введите данные пользователя:</p>".to_string(),
             ty: Entity {
-                ty: EntityType::String,
+                ty: EntityType::Struct(Struct { name: "Person".to_string(), comment: Some("<p>Комментарий структуры:</p>".to_string()), fields: {
+                    let mut fields = IndexMap::new();
+                    fields.insert("name".to_string(), Field { comment: "<p>Имя:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+                    fields.insert("surname".to_string(), Field { comment: "<p>Фамилия:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+                    fields.insert("patronym".to_string(), Field { comment: "<p>Отчество:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: false } });
+                    fields.insert("passport".to_string(), Field { comment: "<p>Паспорт:</p>".to_string(), entity: Entity { ty: EntityType::Struct(passport_struct), is_required: false } });
+                    fields
+                }, parent: None }),
                 is_required: true,
             },
         }],

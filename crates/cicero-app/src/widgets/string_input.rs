@@ -1,4 +1,5 @@
 use leptos::*;
+use regex::Regex;
 
 #[component]
 pub fn StringInput(
@@ -6,6 +7,12 @@ pub fn StringInput(
     is_required: bool,
     data: RwSignal<String>,
 ) -> impl IntoView {
+    let regex = Regex::new(r"<[^>]*>").unwrap();
+    let placeholder = regex
+        .replace_all(&placeholder, "")
+        .trim_end_matches(':')
+        .to_string();
+
     view! {
         <input
             class="bg-[#eeeeee] appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-[#eeeeee] focus:border-[#8c7456]"

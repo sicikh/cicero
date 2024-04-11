@@ -377,6 +377,7 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "log",
+ "regex",
  "thiserror",
  "tokio",
  "web-sys",
