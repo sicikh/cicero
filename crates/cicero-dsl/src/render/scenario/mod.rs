@@ -10,7 +10,8 @@
  */
 
 use std::collections::HashMap;
-use std::path::Path;
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use self::error::{Result, ScenarioError};
@@ -199,53 +200,71 @@ impl Scenario {
         Ok(rendered)
     }
 
-    pub fn render_pdf(&self) -> Result<()> {
+    pub fn render_pdf(&self, dir: impl AsRef<Path>) -> Result<PathBuf> {
         let rendered = self.render()?;
 
-        self.render_pdf_inner(rendered.as_str())
+        self.render_pdf_inner(rendered.as_str(), dir)
     }
 
-    pub fn full_render_pdf(&self) -> Result<()> {
+    pub fn full_render_pdf(&self, dir: impl AsRef<Path>) -> Result<PathBuf> {
         let rendered = self.full_render()?;
 
-        self.render_pdf_inner(rendered.as_str())
+        self.render_pdf_inner(rendered.as_str(), dir)
     }
 
-    fn render_pdf_inner(&self, rendered: &str) -> Result<()> {
-        let path = Path::new("./rendered.tex");
-
-        std::fs::write(path, rendered).map_err(ScenarioError::FileWriteError)?;
+    fn render_pdf_inner(&self, rendered: &str, dir: impl AsRef<Path>) -> Result<PathBuf> {
+        let mut path = dir.as_ref().to_path_buf();
+        path.push("rendered.tex");
+        std::fs::write(&path, rendered).map_err(ScenarioError::FileWriteError)?;
 
         Command::new("tectonic")
-            .args(["-X", "compile", "rendered.tex"])
+            .args([OsStr::new("-X"), OsStr::new("compile"), path.as_os_str()])
             .spawn()
             .map_err(ScenarioError::TectonicError)?;
 
-        Ok(())
+        Ok(path.with_extension("pdf"))
     }
 
-    pub fn render_docx(&self) -> Result<()> {
+    pub fn render_docx(
+        &self,
+        dir: impl AsRef<Path>,
+        reference_path: impl AsRef<Path>,
+    ) -> Result<()> {
         let rendered = self.render()?;
 
-        self.render_docx_inner(rendered.as_str())
+        self.render_docx_inner(rendered.as_str(), dir, reference_path)
     }
 
-    pub fn full_render_docx(&self) -> Result<()> {
+    pub fn full_render_docx(
+        &self,
+        dir: impl AsRef<Path>,
+        reference_path: impl AsRef<Path>,
+    ) -> Result<()> {
         let rendered = self.full_render()?;
 
-        self.render_docx_inner(rendered.as_str())
+        self.render_docx_inner(rendered.as_str(), dir, reference_path)
     }
 
-    fn render_docx_inner(&self, rendered: &str) -> Result<()> {
-        let path = Path::new("./rendered.tex");
-
-        std::fs::write(path, rendered).map_err(ScenarioError::FileWriteError)?;
-
+    fn render_docx_inner(
+        &self,
+        rendered: &str,
+        dir: impl AsRef<Path>,
+        reference_path: impl AsRef<Path>,
+    ) -> Result<()> {
+        let mut path = dir.as_ref().to_path_buf();
+        path.push("rendered.tex");
+        let mut output_path = path.clone();
+        output_path.set_extension("docx");
+        std::fs::write(&path, rendered).map_err(ScenarioError::FileWriteError)?;
+        // TODO: верные пути, понимать, откуда мы запускаемся
         Command::new("pandoc")
-            .arg("rendered.tex")
-            .args(["-o", "rendered.docx"])
+            .arg(path.as_os_str())
+            .args([OsStr::new("-o"), output_path.as_os_str()])
             .args(["--from", "latex"])
-            .arg("--reference-doc=reference.docx")
+            .args([
+                OsStr::new("--reference-doc"),
+                reference_path.as_ref().as_os_str(),
+            ])
             .spawn()
             .map_err(ScenarioError::PandocError)?;
 
