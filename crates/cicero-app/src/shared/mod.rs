@@ -14,4 +14,5 @@ mod server;
 #[cfg(feature = "ssr")]
 pub use server::*;
 
+pub mod api;
 pub mod data;

@@ -21,6 +21,8 @@ thiserror.workspace = true
 indexmap.workspace = true
 log = "0.4.1"
 web-sys = "0.3"
+cfg-if.workspace = true
+axum = { workspace = true, optional = true }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
@@ -31,6 +33,7 @@ ssr = [
     "dep:leptos_axum",
     "cicero-dsl/render",
     "tokio",
+    "axum",
 ]
 
 [lints]

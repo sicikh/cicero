@@ -15,8 +15,7 @@ use std::sync::Arc;
 use cicero_dsl::scenario::Scenario;
 use tokio::sync::{Mutex, RwLock};
 
-pub type UserId = u64;
-pub type ScenarioId = u64;
+use super::api::*;
 
 // TODO-0:
 
@@ -27,6 +26,8 @@ pub struct Env {
     pub loaded_scenarios: Arc<HashMap<ScenarioId, Scenario>>,
     /// Active scenarios for each user.
     pub active_scenarios: Arc<RwLock<HashMap<UserId, Vec<Scenario>>>>,
+    /// Active users (guests).
+    pub active_users: Arc<RwLock<HashMap<UserId, UserPassword>>>,
 }
 
 impl Env {
@@ -34,6 +35,7 @@ impl Env {
         Self {
             loaded_scenarios: Arc::new(loaded_scenarios),
             active_scenarios: Arc::new(RwLock::new(HashMap::new())),
+            active_users: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 

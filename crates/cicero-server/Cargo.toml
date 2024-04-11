@@ -12,7 +12,7 @@ edition.workspace = true
 [dependencies]
 cicero-dsl = { workspace = true }
 cicero-app = { workspace = true, features = ["ssr"] }
-axum = "0.7.4"
+axum = { workspace = true, features = ["macros"] }
 leptos = { workspace = true, features = ["ssr"] }
 leptos_meta = { workspace = true, features = ["ssr"] }
 leptos_router = { workspace = true, features = ["ssr"] }

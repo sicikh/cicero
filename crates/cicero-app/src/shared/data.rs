@@ -13,7 +13,7 @@ use cicero_dsl::{data as dsl, types};
 use indexmap::IndexMap;
 use leptos::*;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Data {
     Struct(RwSignal<Struct>),
     String(RwSignal<String>),
@@ -21,10 +21,16 @@ pub enum Data {
     Array(RwSignal<Array>),
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Struct {
     pub name: String,
     pub fields: IndexMap<String, RwSignal<Data>>,
+}
+
+impl PartialEq for Struct {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl From<dsl::Struct> for Struct {
@@ -53,11 +59,17 @@ impl From<Struct> for dsl::Struct {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Enum {
     pub name: String,
     pub discriminant: String,
     pub field: Option<RwSignal<Data>>,
+}
+
+impl PartialEq for Enum {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.discriminant == other.discriminant
+    }
 }
 
 impl From<dsl::Enum> for Enum {
@@ -80,7 +92,7 @@ impl From<Enum> for dsl::Enum {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Array {
     pub inner: Vec<RwSignal<Data>>,
 }
@@ -156,7 +168,7 @@ pub fn data_from_entity(entity_type: &types::EntityType) -> Data {
                     .map(|entity| RwSignal::new(data_from_entity(&entity.ty))),
             }))
         },
-        types::EntityType::Array(array) => Data::Array(RwSignal::new(Array { inner: vec![] })),
+        types::EntityType::Array(_) => Data::Array(RwSignal::new(Array { inner: vec![] })),
         types::EntityType::Integer => todo!(),
         types::EntityType::PhoneNumber => todo!(),
         types::EntityType::Date => todo!(),

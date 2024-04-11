@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use cicero_dsl::data;
+use cicero_dsl::data as dsl;
 use cicero_dsl::types::*;
 use indexmap::IndexMap;
 use leptos::*;
@@ -9,6 +9,7 @@ use leptos_meta::*;
 use leptos_router::A;
 
 use crate::widgets::*;
+use crate::shared::api::{ScenarioId, UserId, UserPassword};
 
 #[server(GetStepsNames, "/api", "Url", "get-steps-names")]
 pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
@@ -22,6 +23,15 @@ pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
 
 #[server(GetScenarioStep, "/api", "Url", "get-scenario-step")]
 pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
+    use crate::shared::Env;
+
+    fn env() -> Result<Env, ServerFnError> {
+        use_context::<Env>().ok_or_else(|| ServerFnError::ServerError("Env is missing".to_string()))
+    }
+
+    let env: Env = env()?;
+    println!("Env: {:?}", env);
+
     let step = ScenarioStep {
         name: "Преамбула".to_string(),
         header: Some("<p>Комментарий <strong>жирное начертание</strong>, <i>курсив</i></p>, <p>[ссылка](https://vk.com).</p>\n".to_string()),
@@ -36,6 +46,20 @@ pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
     };
 
     Ok(step)
+}
+
+#[server(StartOrContinueScenario, "/api", "Url", "start-or-continue-scenario")]
+pub async fn start_or_continue_scenario(user_id: UserId, user_password: UserPassword, scenario_id: ScenarioId) -> Result<(ScenarioStep, Option<dsl::Data>), ServerFnError> {
+    todo!()
+}
+
+#[server(ResetScenarioStep, "/api", "Url", "reset-scenario-step")]
+pub async fn reset_scenario(user_id: UserId, user_password: UserPassword, scenario_id: ScenarioId) -> Result<ScenarioStep, ServerFnError> {
+    use axum::extract::State;
+    use crate::shared::Env;
+    use leptos_axum::*;
+
+    todo!()
 }
 
 #[component]
@@ -63,7 +87,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                         >
                                             <AllSteps steps_names step_index/>
                                         </section>
-                                        <InputDataStep current_step step_index/>
+                                        <StepInput current_step step_index/>
                                         <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
                                             <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                                                 Предварительный просмотр документа
