@@ -8,8 +8,8 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::A;
 
-use crate::widgets::*;
 use crate::shared::api::{ScenarioId, UserId, UserPassword};
+use crate::widgets::*;
 
 #[server(GetStepsNames, "/api", "Url", "get-steps-names")]
 pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
@@ -49,15 +49,24 @@ pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
 }
 
 #[server(StartOrContinueScenario, "/api", "Url", "start-or-continue-scenario")]
-pub async fn start_or_continue_scenario(user_id: UserId, user_password: UserPassword, scenario_id: ScenarioId) -> Result<(ScenarioStep, Option<dsl::Data>), ServerFnError> {
+pub async fn start_or_continue_scenario(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+) -> Result<(ScenarioStep, Option<dsl::Data>), ServerFnError> {
     todo!()
 }
 
 #[server(ResetScenarioStep, "/api", "Url", "reset-scenario-step")]
-pub async fn reset_scenario(user_id: UserId, user_password: UserPassword, scenario_id: ScenarioId) -> Result<ScenarioStep, ServerFnError> {
+pub async fn reset_scenario(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+) -> Result<ScenarioStep, ServerFnError> {
     use axum::extract::State;
-    use crate::shared::Env;
     use leptos_axum::*;
+
+    use crate::shared::Env;
 
     todo!()
 }
