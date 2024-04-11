@@ -13,6 +13,7 @@ use super::ast::*;
 use crate::compiler::parse_markdown;
 
 // TODO: find more suitable way to parse templates
+// FIXME: handle \r
 #[allow(clippy::manual_strip)]
 pub fn parse_template(input: &str) -> Result<Template, String> {
     let beginning_clause_end = input

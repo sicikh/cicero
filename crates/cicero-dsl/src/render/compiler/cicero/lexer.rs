@@ -89,7 +89,7 @@ pub enum Token<'src> {
     LET,
     // ==== CONTROL TOKENS ====
     // Are not included in the logos (!) lexer output
-    #[regex(r"[ \t\n\f]+", logos::skip)]
+    #[regex(r"[ \t\r\n\f]+", logos::skip)]
     Whitespace,
     #[regex(r"--[^\r\n]*(\r\n|\n)?", logos::skip)]
     Comment,
