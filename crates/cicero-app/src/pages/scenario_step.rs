@@ -142,7 +142,8 @@ pub async fn render_scenario_step(
     urls.ok_or_else(|| ServerFnError::ServerError("Could not render scenario step".to_string()))
 }
 
-// TODO: Maybe use streaming instead of returning url. Find a way to do this in Leptos.
+// TODO: Maybe use streaming instead of returning url. Find a way to do this in
+// Leptos.
 #[server(FullRenderScenarioPdf, "/api", "Url", "full-render-scenario-pdf")]
 pub async fn full_render_scenario_pdf(
     user_id: UserId,
@@ -159,7 +160,10 @@ pub async fn full_render_scenario_pdf(
         ));
     }
 
-    let url = env.full_render_pdf(user_id, scenario_id).await.map(|path| path.to_string_lossy().to_string());
+    let url = env
+        .full_render_pdf(user_id, scenario_id)
+        .await
+        .map(|path| path.to_string_lossy().to_string());
 
     url.ok_or_else(|| ServerFnError::ServerError("Could not render scenario".to_string()))
 }
@@ -180,7 +184,10 @@ pub async fn full_render_scenario_docx(
         ));
     }
 
-    let url = env.full_render_docx(user_id, scenario_id).await.map(|path| path.to_string_lossy().to_string());
+    let url = env
+        .full_render_docx(user_id, scenario_id)
+        .await
+        .map(|path| path.to_string_lossy().to_string());
 
     url.ok_or_else(|| ServerFnError::ServerError("Could not render scenario".to_string()))
 }

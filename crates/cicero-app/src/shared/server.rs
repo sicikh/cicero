@@ -206,14 +206,17 @@ impl Env {
         let mut scenario_data_path = PathBuf::from("data");
         scenario_data_path.push(format!("{user_id}"));
         scenario_data_path.push(format!("{scenario_id}"));
-        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
-
+        tokio::fs::create_dir_all(&scenario_data_path)
+            .await
+            .unwrap();
 
         let mut data_path = scenario_data_path.clone();
         data_path.push(format!("{step_id}"));
-        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+        tokio::fs::create_dir_all(&scenario_data_path)
+            .await
+            .unwrap();
         data_path.push("page");
-        
+
         let rendered_pdf_path =
             tokio::task::spawn_blocking(move || scenario.render_pdf(scenario_data_path))
                 .await
@@ -264,7 +267,9 @@ impl Env {
         let mut scenario_data_path = PathBuf::from("data");
         scenario_data_path.push(format!("{user_id}"));
         scenario_data_path.push(format!("{scenario_id}"));
-        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+        tokio::fs::create_dir_all(&scenario_data_path)
+            .await
+            .unwrap();
 
         tokio::task::spawn_blocking(move || scenario.full_render_pdf(scenario_data_path))
             .await
@@ -288,7 +293,9 @@ impl Env {
         let mut scenario_data_path = PathBuf::from("data");
         scenario_data_path.push(format!("{user_id}"));
         scenario_data_path.push(format!("{scenario_id}"));
-        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+        tokio::fs::create_dir_all(&scenario_data_path)
+            .await
+            .unwrap();
 
         let mut docx_path = scenario_data_path.clone();
         docx_path.push("rendered.docx");
