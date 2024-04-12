@@ -12,6 +12,7 @@
 mod all_step;
 mod entity_input;
 mod enum_input;
+mod html_enum_render;
 mod html_render;
 mod layout;
 mod scenario_description;
@@ -24,6 +25,7 @@ mod struct_input;
 pub use self::all_step::*;
 pub use self::entity_input::*;
 pub use self::enum_input::*;
+pub use self::html_enum_render::*;
 pub use self::html_render::*;
 pub use self::layout::*;
 pub use self::scenario_description::*;

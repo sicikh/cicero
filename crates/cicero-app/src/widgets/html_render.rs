@@ -16,3 +16,4 @@ use leptos::*;
 pub fn HtmlRender(html_string: HtmlString) -> impl IntoView {
     view! { <div></div> }.inner_html(html_string)
 }
+

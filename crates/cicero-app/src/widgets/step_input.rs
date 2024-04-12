@@ -54,6 +54,7 @@ pub fn StepInput(
                                                     entity=var.ty.clone()
                                                     placeholder="".to_string()
                                                     data
+                                                    recursion_level=0
                                                 />
                                             </div>
                                         </div>

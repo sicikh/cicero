@@ -38,6 +38,7 @@ pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
             let mut fields = IndexMap::new();
             fields.insert("series".to_string(), Field { comment: "<p>Серия:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
             fields.insert("number".to_string(), Field { comment: "<p>Номер:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+            fields.insert("bobr".to_string(), Field { comment: "<p>Бобр:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
             fields
         },
         parent: None,
