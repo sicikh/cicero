@@ -9,12 +9,10 @@
  * except according to those terms.
  */
 
-mod contacts;
 mod index;
 mod scenario_choice;
 mod scenario_step;
 
-pub use self::contacts::*;
 pub use self::index::*;
 pub use self::scenario_choice::*;
 pub use self::scenario_step::*;

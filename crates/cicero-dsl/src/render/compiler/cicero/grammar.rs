@@ -118,8 +118,8 @@ fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|markdown| parse_markdown(&markdown))
 }
 
-/// enum ::= comment 'enum' ident '{' enum_variant [ ',' enum_variant ]* [ ',' ]
-/// '}'
+/// enum ::= [ comment ] 'enum' ident '{' enum_variant [ ',' enum_variant ]* [
+/// ',' ] '}'
 fn enum_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Enum, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     comment_parser()

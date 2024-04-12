@@ -51,7 +51,12 @@ impl Context {
     }
 
     #[inline(always)]
-    pub fn layers(&self) -> usize {
+    pub fn layers(&self) -> &[Arc<HashMap<String, data::Var>>] {
+        &self.layers
+    }
+
+    #[inline(always)]
+    pub fn layers_len(&self) -> usize {
         self.layers.len()
     }
 

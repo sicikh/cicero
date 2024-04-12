@@ -9,10 +9,7 @@
  * except according to those terms.
  */
 
-#[cfg(feature = "ssr")]
-mod server;
-#[cfg(feature = "ssr")]
-pub use server::*;
-
 pub mod api;
 pub mod data;
+#[cfg(feature = "ssr")]
+pub mod server;

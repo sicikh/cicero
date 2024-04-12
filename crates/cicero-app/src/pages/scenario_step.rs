@@ -1,15 +1,24 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
+use cfg_if::cfg_if;
 use cicero_dsl::data as dsl;
 use cicero_dsl::types::*;
 use indexmap::IndexMap;
 use leptos::*;
 use leptos_meta::*;
+use leptos_router::use_navigate;
+use leptos_router::use_params_map;
 use leptos_router::A;
 
 use crate::shared::api::{ScenarioId, UserId, UserPassword};
 use crate::widgets::*;
+
+cfg_if!(
+    if #[cfg(feature = "ssr")] {
+        use crate::shared::server::Env;
+    }
+);
 
 #[server(GetStepsNames, "/api", "Url", "get-steps-names")]
 pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
@@ -23,14 +32,6 @@ pub async fn get_steps_names() -> Result<Vec<String>, ServerFnError> {
 
 #[server(GetScenarioStep, "/api", "Url", "get-scenario-step")]
 pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
-    use crate::shared::Env;
-
-    fn env() -> Result<Env, ServerFnError> {
-        use_context::<Env>().ok_or_else(|| ServerFnError::ServerError("Env is missing".to_string()))
-    }
-
-    // let env = env()?;
-    // println!("Env: {:?}", env);
     let passport_struct = Struct {
         name: "Passport".to_string(),
         comment: Some("<p>Комментарий паспорта</p>".to_string()),
@@ -71,26 +72,34 @@ pub async fn start_or_continue_scenario(
     user_id: UserId,
     user_password: UserPassword,
     scenario_id: ScenarioId,
-) -> Result<(ScenarioStep, Option<dsl::Data>), ServerFnError> {
-    todo!()
-}
+) -> Result<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>), ServerFnError> {
+    use leptos_axum::redirect;
+    
+    let env = Env::from_context()?;
 
-#[server(ResetScenarioStep, "/api", "Url", "reset-scenario-step")]
-pub async fn reset_scenario(
-    user_id: UserId,
-    user_password: UserPassword,
-    scenario_id: ScenarioId,
-) -> Result<ScenarioStep, ServerFnError> {
-    use axum::extract::State;
-    use leptos_axum::*;
+    let is_logged_in = env.login_user(user_id, user_password).await;
 
-    use crate::shared::Env;
+    if !is_logged_in {
+        return Err(ServerFnError::ServerError("Invalid user id or password".to_string()));
+    }
 
-    todo!()
+    let data = env.start_or_continue_scenario(user_id, scenario_id).await;
+
+    data.ok_or_else(|| ServerFnError::ServerError("Could not start scenario".to_string()))
 }
 
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
+    let params = use_params_map();
+    let scenario_id: Result<usize, _> = params.with(|params| params.get("id").cloned().unwrap()).parse();
+    let step_id: Result<usize, _> = params.with(|params| params.get("step").cloned().unwrap()).parse();
+
+    let navigate = use_navigate();
+    match (scenario_id, step_id) {
+        (Ok(scenario_id), Err(_)) => navigate(format!("/scenario/{scenario_id}/0").as_str(), Default::default()),
+        _ => navigate("/", Default::default()),
+    }
+
     let step_index: RwSignal<usize> = create_rw_signal(0);
     let current_step = create_resource(step_index, move |_| async { get_scenario_step().await });
     let steps_names = Resource::once(get_steps_names);

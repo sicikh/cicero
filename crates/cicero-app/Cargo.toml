@@ -24,6 +24,7 @@ web-sys = "0.3"
 cfg-if.workspace = true
 axum = { workspace = true, optional = true }
 regex = "1.10.4"
+rand = { version = "0.8.5", optional = true }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
@@ -32,6 +33,7 @@ ssr = [
     "leptos_meta/ssr",
     "leptos_router/ssr",
     "dep:leptos_axum",
+    "dep:rand",
     "cicero-dsl/render",
     "tokio",
     "axum",

@@ -64,8 +64,18 @@ impl Scenario {
     }
 
     #[inline(always)]
+    pub fn step_data(&self, step: usize) -> Option<HashMap<String, data::Var>> {
+        self.context.layers().get(step).map(|data| (**data).clone())
+    }
+
+    #[inline(always)]
+    pub fn current_step_data(&self) -> Option<HashMap<String, data::Var>> {
+        self.step_data(self.current_step)
+    }
+
+    #[inline(always)]
     pub fn filled_steps(&self) -> usize {
-        self.context.layers()
+        self.context.layers_len()
     }
 
     #[inline(always)]

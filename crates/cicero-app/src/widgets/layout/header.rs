@@ -11,7 +11,7 @@ pub fn Header() -> impl IntoView {
             >
                 <div id="logo" class="md:flex items-start text-center">
                     <a href="/">
-                        <p class="text-white text-[40px] mt-[60px] mb-[60px]">Cicero</p>
+                        <p class="text-white text-[40px] mt-[60px] mb-[60px]">"Cicero"</p>
                     </a>
                 </div>
                 <div class="text-inter text-center pl-36 font-light" id="nav-bar-container-elem">
@@ -21,7 +21,7 @@ pub fn Header() -> impl IntoView {
                                 id="nav-bar-main"
                                 class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px] "
                             >
-                                Главная
+                                "Главная"
                             </li>
                         </a>
                         <a href="/scenario" style="text-center">
@@ -29,15 +29,7 @@ pub fn Header() -> impl IntoView {
                                 id="nav-bar-kit"
                                 class="text-white text-center items-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
                             >
-                                Конструктор
-                            </li>
-                        </a>
-                        <a href="/contacts" style="text-center">
-                            <li
-                                id="nav-bar-contact"
-                                class="text-white text-center text-[24px] w-[180px] h-[40px] hover:bg-[#BFA07A] bg-[length:180px_40px] rounded-[10px]"
-                            >
-                                Контакты
+                                "Конструктор"
                             </li>
                         </a>
                     </ul>

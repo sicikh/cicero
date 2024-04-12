@@ -12,16 +12,46 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
+use cfg_if::cfg_if;
 use cicero_dsl::data;
 use cicero_dsl::types::ScenarioMeta;
 use indexmap::IndexMap;
 use leptos::*;
 use leptos_meta::*;
 
+use crate::api::{UserId, UserPassword};
 use crate::widgets::*;
 
+cfg_if!(
+    if #[cfg(feature = "ssr")] {
+        use crate::shared::server::Env;
+    }
+);
+
+#[server(Register, "/api", "Url", "register")]
+pub async fn register() -> Result<(UserId, UserPassword), ServerFnError> {
+    let env = Env::from_context()?;
+
+    let user_data = env.register_user().await;
+
+    Ok(user_data)
+}
+
+#[server(Login, "/api", "Url", "login")]
+pub async fn login(user_id: UserId, user_password: UserPassword) -> Result<bool, ServerFnError> {
+    let env = Env::from_context()?;
+
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    Ok(is_logged_in)
+}
+
 #[server(GetScenarios, "/api", "Url", "get-scenarios")]
-pub async fn get_scenarios() -> Result<IndexMap<String, Vec<ScenarioMeta>>, ServerFnError> {
+pub async fn get_scenarios_metas() -> Result<IndexMap<String, Vec<ScenarioMeta>>, ServerFnError> {
+    let env = Env::from_context()?;
+
+    // let metas = (*env.scenarios_metas).clone();
+
     let metas = vec![
         ScenarioMeta {
             id: 0,
@@ -51,9 +81,10 @@ pub fn ScenarioChoice() -> impl IntoView {
     let selected_scenario: RwSignal<Option<ScenarioMeta>> = create_rw_signal(None);
     let filter: RwSignal<String> = create_rw_signal(String::new());
 
-    let scenarios = Resource::once(get_scenarios);
+    let scenarios = Resource::once(get_scenarios_metas);
 
     view! {
+        <Title text="Выбор шаблона"/>
         <Layout>
             <div id="main_body" class="flex flex-row h-full bg-[#EEEEEE]">
                 <div id="left_side" class="md:flex flex-col flex-1 border-r-[7px] border-[#8C7456]">
