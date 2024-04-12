@@ -7,9 +7,7 @@ use cicero_dsl::types::*;
 use indexmap::IndexMap;
 use leptos::*;
 use leptos_meta::*;
-use leptos_router::use_navigate;
-use leptos_router::use_params_map;
-use leptos_router::A;
+use leptos_router::{use_navigate, use_params_map, A};
 
 use crate::shared::api::{ScenarioId, UserId, UserPassword};
 use crate::widgets::*;
@@ -37,9 +35,27 @@ pub async fn get_scenario_step() -> Result<ScenarioStep, ServerFnError> {
         comment: Some("<p>Комментарий паспорта</p>".to_string()),
         fields: {
             let mut fields = IndexMap::new();
-            fields.insert("series".to_string(), Field { comment: "<p>Серия:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
-            fields.insert("number".to_string(), Field { comment: "<p>Номер:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
-            fields.insert("bobr".to_string(), Field { comment: "<p>Бобр:</p>".to_string(), entity: Entity { ty: EntityType::String, is_required: true } });
+            fields.insert("series".to_string(), Field {
+                comment: "<p>Серия:</p>".to_string(),
+                entity: Entity {
+                    ty: EntityType::String,
+                    is_required: true,
+                },
+            });
+            fields.insert("number".to_string(), Field {
+                comment: "<p>Номер:</p>".to_string(),
+                entity: Entity {
+                    ty: EntityType::String,
+                    is_required: true,
+                },
+            });
+            fields.insert("bobr".to_string(), Field {
+                comment: "<p>Бобр:</p>".to_string(),
+                entity: Entity {
+                    ty: EntityType::String,
+                    is_required: true,
+                },
+            });
             fields
         },
         parent: None,
@@ -74,13 +90,15 @@ pub async fn start_or_continue_scenario(
     scenario_id: ScenarioId,
 ) -> Result<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>), ServerFnError> {
     use leptos_axum::redirect;
-    
+
     let env = Env::from_context()?;
 
     let is_logged_in = env.login_user(user_id, user_password).await;
 
     if !is_logged_in {
-        return Err(ServerFnError::ServerError("Invalid user id or password".to_string()));
+        return Err(ServerFnError::ServerError(
+            "Invalid user id or password".to_string(),
+        ));
     }
 
     let data = env.start_or_continue_scenario(user_id, scenario_id).await;
@@ -91,12 +109,21 @@ pub async fn start_or_continue_scenario(
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
     let params = use_params_map();
-    let scenario_id: Result<usize, _> = params.with(|params| params.get("id").cloned().unwrap()).parse();
-    let step_id: Result<usize, _> = params.with(|params| params.get("step").cloned().unwrap()).parse();
+    let scenario_id: Result<usize, _> = params
+        .with(|params| params.get("id").cloned().unwrap())
+        .parse();
+    let step_id: Result<usize, _> = params
+        .with(|params| params.get("step").cloned().unwrap())
+        .parse();
 
     let navigate = use_navigate();
     match (scenario_id, step_id) {
-        (Ok(scenario_id), Err(_)) => navigate(format!("/scenario/{scenario_id}/0").as_str(), Default::default()),
+        (Ok(scenario_id), Err(_)) => {
+            navigate(
+                format!("/scenario/{scenario_id}/0").as_str(),
+                Default::default(),
+            )
+        },
         _ => navigate("/", Default::default()),
     }
 

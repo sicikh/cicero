@@ -1,6 +1,7 @@
 use cicero_dsl::types;
 use leptos::*;
 
+use crate::data::data_from_entity;
 use crate::shared::data;
 use crate::widgets::{EntityInput, HtmlEnumRender, HtmlRender};
 
@@ -24,27 +25,42 @@ pub fn EnumInput(
                                     <HtmlRender html_string=comment/>
                                 </div>
                             }
+                                .into_view()
                         });
                     let variants = enumeration
                         .variants
                         .clone()
                         .into_values()
-                        .zip(data().field)
-                        .map(|(enum_var, data_var)| {
+                        .map(|enum_var| {
                             view! {
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
                                     <p>
                                         <HtmlEnumRender html_string=enum_var.name.clone()/>
                                     </p>
                                 </div>
-                                <EntityInput
-                                    entity=type_field.entity
-                                    placeholder=type_field.comment
-                                    data=data_field
-                                    recursion_level=recursion_level + 1
-                                />
+
+                                {enum_var
+                                    .field
+                                    .map(|field| {
+                                        let data_signal = RwSignal::new(data_from_entity(&field.ty));
+                                        data.update(|data| {
+                                            data.field = Some(data_signal);
+                                        });
+                                        view! {
+                                            <EntityInput
+                                                entity=field
+                                                placeholder=enum_var.comment.clone()
+                                                data=data_signal
+                                                recursion_level=recursion_level + 1
+                                            />
+                                        }
+                                            .into_view()
+                                    })}
                             }
-                        });
+                                .into_view()
+                        })
+                        .collect_view();
+                    (header, variants)
                 }
 
             </div>

@@ -5,10 +5,7 @@ use leptos_meta::*;
 pub fn Header() -> impl IntoView {
     view! {
         <header class="bg-[#8C7456] h-[180px]">
-            <nav
-                id="nav-bar"
-                class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]"
-            >
+            <nav id="nav-bar" class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]">
                 <div id="logo" class="md:flex items-start text-center">
                     <a href="/">
                         <p class="text-white text-[40px] mt-[60px] mb-[60px]">"Cicero"</p>

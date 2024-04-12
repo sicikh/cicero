@@ -15,12 +15,12 @@ use std::ops::Index;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
-use cicero_dsl::scenario::Scenario;
 use cicero_dsl::data as dsl;
+use cicero_dsl::scenario::Scenario;
 use cicero_dsl::types::{ScenarioMeta, ScenarioStep};
 use indexmap::IndexMap;
-use tokio::sync::{Mutex, RwLock};
 use leptos::*;
+use tokio::sync::{Mutex, RwLock};
 
 use super::api::*;
 
@@ -47,9 +47,12 @@ impl Env {
 
         for scenario in loaded_scenarios.values() {
             let meta = scenario.meta();
-            metas.entry(meta.name.clone()).or_default().push(meta.clone());
+            metas
+                .entry(meta.name.clone())
+                .or_default()
+                .push(meta.clone());
         }
-        
+
         Self {
             loaded_scenarios: Arc::new(loaded_scenarios),
             scenarios_metas: Arc::new(metas),
@@ -64,24 +67,34 @@ impl Env {
         use_context::<Env>().ok_or_else(|| ServerFnError::ServerError("Env is missing".to_string()))
     }
 
-    pub async fn start_or_continue_scenario(&self, user_id: UserId, scenario_id: ScenarioId) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
+    pub async fn start_or_continue_scenario(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+    ) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
         let running_scenario = self.get_running_scenario(user_id, scenario_id).await;
 
         match running_scenario {
-            Some(data) => {
-                Some(data)
-            },
+            Some(data) => Some(data),
             None => {
-                self.start_scenario(user_id, scenario_id).await.map(|(step, steps_names)| (step, steps_names, None))
+                self.start_scenario(user_id, scenario_id)
+                    .await
+                    .map(|(step, steps_names)| (step, steps_names, None))
             },
         }
     }
 
-    async fn get_running_scenario(&self, user_id: UserId, scenario_id: ScenarioId) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
+    async fn get_running_scenario(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+    ) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
         let lock = self.active_scenarios.read().await;
 
         let running_scenario = lock.get(&user_id).and_then(|scenarios| {
-            scenarios.iter().find(|scenario| scenario.meta().id == scenario_id)
+            scenarios
+                .iter()
+                .find(|scenario| scenario.meta().id == scenario_id)
         });
 
         match running_scenario {
@@ -92,11 +105,15 @@ impl Env {
 
                 Some((step, steps_names, data))
             },
-            None => None
+            None => None,
         }
     }
 
-    async fn start_scenario(&self, user_id: UserId, scenario_id: ScenarioId) -> Option<(ScenarioStep, Vec<String>)> {
+    async fn start_scenario(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+    ) -> Option<(ScenarioStep, Vec<String>)> {
         let scenario = self.loaded_scenarios.get(&scenario_id).cloned();
 
         match scenario {
@@ -116,7 +133,9 @@ impl Env {
         let mut lock = self.active_scenarios.write().await;
         let running_scenarios = lock.entry(user_id).or_default();
 
-        let replace = running_scenarios.iter_mut().find(|scenario| scenario.meta().id == scenario.meta().id);
+        let replace = running_scenarios
+            .iter_mut()
+            .find(|scenario| scenario.meta().id == scenario.meta().id);
 
         match replace {
             Some(running_scenario) => {
@@ -124,7 +143,7 @@ impl Env {
             },
             None => {
                 running_scenarios.push(scenario);
-            }
+            },
         }
     }
 
@@ -140,7 +159,9 @@ impl Env {
 
     pub async fn login_user(&self, user_id: UserId, user_password: UserPassword) -> bool {
         // NB: as all users are guests and passwords are auto-generated, this is safe
-        self.get_user(user_id).await.map_or(false, |password| password == user_password)
+        self.get_user(user_id)
+            .await
+            .map_or(false, |password| password == user_password)
     }
 
     pub async fn register_user(&self) -> (UserId, UserPassword) {
@@ -152,7 +173,12 @@ impl Env {
             .take(64)
             .collect();
 
-        let is_replaced = self.active_users.write().await.insert(user_id, random_string.clone()).is_some();
+        let is_replaced = self
+            .active_users
+            .write()
+            .await
+            .insert(user_id, random_string.clone())
+            .is_some();
 
         if is_replaced {
             panic!("User ID collision");
