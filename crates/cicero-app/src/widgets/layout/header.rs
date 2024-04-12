@@ -5,7 +5,10 @@ use leptos_meta::*;
 pub fn Header() -> impl IntoView {
     view! {
         <header class="bg-[#8C7456] h-[180px]">
-            <nav id="nav-bar" class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]">
+            <nav
+                id="nav-bar"
+                class="md:flex md:justify-between md:items-center w-[92%] mx-auto h-[180px]"
+            >
                 <div id="logo" class="md:flex items-start text-center">
                     <a href="/">
                         <p class="text-white text-[40px] mt-[60px] mb-[60px]">Cicero</p>
@@ -37,28 +40,6 @@ pub fn Header() -> impl IntoView {
                                 Контакты
                             </li>
                         </a>
-                        <div class="text-center gap-y-[15px] grid items-end">
-                            <div class="text-center" id="button_entry">
-                                <a href="Login">
-                                    <button
-                                        id="nav-bar-but2"
-                                        class="bg-[#A69286] text-white px-5 py-2 rounded-full text-[20px] hover:bg-[#261201]"
-                                    >
-                                        Войти
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="text-center" id="button_entry1">
-                                <a href="Register">
-                                    <button
-                                        id="nav-bar-but2"
-                                        class="bg-[#A69286] text-white px-5 py-2 rounded-full text-[20px] hover:bg-[#261201]"
-                                    >
-                                        Зарегистрироваться
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
                     </ul>
                 </div>
             </nav>

@@ -18,10 +18,14 @@ use crate::widgets::*;
 pub fn Contacts() -> impl IntoView {
     view! {
         <Layout>
-            <div>
-                <h1>13</h1>
-                <h1>43</h1>
-                <h1>43</h1>
+            <div class="flex flex-col h-full">
+                <section class="flex flex-col flex-1 items-center pt-[40px] bg-[#eeeeee]">
+                    <div class="text-center px-3 lg:px-0">
+                        <h1 class="my-4 text-[74px] px-[150px] text-[#8C7456] leading-tight w-[1/2]">
+                            Контакты
+                        </h1>
+                    </div>
+                </section>
             </div>
         </Layout>
     }

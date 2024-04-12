@@ -37,11 +37,12 @@ pub fn StructInput(
                         });
                     let fields = structure
                         .fields
+                        .clone()
                         .into_values()
                         .zip(data().fields.into_values())
                         .map(|(type_field, data_field)| {
                             view! {
-                                <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
+                                <div class="pl-[20px] flex flex-row gap-x-[5px] items-center">
                                     <HtmlRender html_string=type_field.comment.clone()/>
                                     <EntityInput
                                         entity=type_field.entity
