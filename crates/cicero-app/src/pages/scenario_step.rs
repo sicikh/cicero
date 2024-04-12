@@ -106,6 +106,85 @@ pub async fn start_or_continue_scenario(
     data.ok_or_else(|| ServerFnError::ServerError("Could not start scenario".to_string()))
 }
 
+pub async fn get_scenario_data(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+) -> Result<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>), ServerFnError> {
+    todo!()
+}
+
+/// Render scenario step.
+///
+/// Returns a list of urls to the rendered images, that are available at
+/// "/static/rendered" endpoint.
+#[server(RenderScenarioStep, "/api", "Url", "render-scenario-step")]
+pub async fn render_scenario_step(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+    step_id: usize,
+) -> Result<Vec<String>, ServerFnError> {
+    let env = Env::from_context()?;
+
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    if !is_logged_in {
+        return Err(ServerFnError::ServerError(
+            "Invalid user id or password".to_string(),
+        ));
+    }
+
+    let urls = env
+        .render_scenario_step(user_id, scenario_id, step_id)
+        .await;
+
+    urls.ok_or_else(|| ServerFnError::ServerError("Could not render scenario step".to_string()))
+}
+
+// TODO: Maybe use streaming instead of returning url. Find a way to do this in Leptos.
+#[server(FullRenderScenarioPdf, "/api", "Url", "full-render-scenario-pdf")]
+pub async fn full_render_scenario_pdf(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+) -> Result<String, ServerFnError> {
+    let env = Env::from_context()?;
+
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    if !is_logged_in {
+        return Err(ServerFnError::ServerError(
+            "Invalid user id or password".to_string(),
+        ));
+    }
+
+    let url = env.full_render_pdf(user_id, scenario_id).await.map(|path| path.to_string_lossy().to_string());
+
+    url.ok_or_else(|| ServerFnError::ServerError("Could not render scenario".to_string()))
+}
+
+#[server(FullRenderScenarioDocx, "/api", "Url", "full-render-scenario-docx")]
+pub async fn full_render_scenario_docx(
+    user_id: UserId,
+    user_password: UserPassword,
+    scenario_id: ScenarioId,
+) -> Result<String, ServerFnError> {
+    let env = Env::from_context()?;
+
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    if !is_logged_in {
+        return Err(ServerFnError::ServerError(
+            "Invalid user id or password".to_string(),
+        ));
+    }
+
+    let url = env.full_render_docx(user_id, scenario_id).await.map(|path| path.to_string_lossy().to_string());
+
+    url.ok_or_else(|| ServerFnError::ServerError("Could not render scenario".to_string()))
+}
+
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
     let params = use_params_map();
@@ -118,7 +197,6 @@ pub fn ScenarioStep() -> impl IntoView {
 
     let navigate = use_navigate();
     match (&scenario_id, &step_id) {
-        // TODO:
         (Ok(_), Some(Ok(_))) | (Ok(_), None) => {},
         (Ok(scenario_id), Some(Err(_))) => {
             navigate(

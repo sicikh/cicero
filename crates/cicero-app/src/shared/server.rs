@@ -12,6 +12,7 @@
 use core::panic;
 use std::collections::HashMap;
 use std::ops::Index;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
@@ -20,6 +21,7 @@ use cicero_dsl::scenario::Scenario;
 use cicero_dsl::types::{ScenarioMeta, ScenarioStep};
 use indexmap::IndexMap;
 use leptos::*;
+use tokio::process::Command;
 use tokio::sync::{Mutex, RwLock};
 
 use super::api::*;
@@ -185,5 +187,122 @@ impl Env {
         }
 
         (user_id, random_string)
+    }
+
+    pub async fn render_scenario_step(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+        step_id: usize,
+    ) -> Option<Vec<String>> {
+        let lock = self.active_scenarios.read().await;
+
+        let scenario = lock
+            .get(&user_id)?
+            .iter()
+            .find(|scenario| scenario.meta().id == scenario_id)?
+            .clone();
+
+        let mut scenario_data_path = PathBuf::from("data");
+        scenario_data_path.push(format!("{user_id}"));
+        scenario_data_path.push(format!("{scenario_id}"));
+        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+
+
+        let mut data_path = scenario_data_path.clone();
+        data_path.push(format!("{step_id}"));
+        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+        data_path.push("page");
+        
+        let rendered_pdf_path =
+            tokio::task::spawn_blocking(move || scenario.render_pdf(scenario_data_path))
+                .await
+                .unwrap()
+                .unwrap();
+
+        Command::new("pdftoppm")
+            .arg("-jpeg")
+            .args(["-jpegopt", "quality=50", "-r 350"])
+            .arg(rendered_pdf_path)
+            .arg(data_path.as_os_str())
+            .spawn()
+            .expect("Malformed data");
+
+        // Remove "page" file prefix
+        data_path.pop();
+
+        let mut images = Vec::new();
+        for i in 1.. {
+            let mut image_path = data_path.clone();
+            image_path.push(format!("page-{i:02}.jpg"));
+
+            if !image_path.exists() {
+                break;
+            }
+
+            let image_path = image_path.to_string_lossy().to_string();
+
+            images.push(image_path);
+        }
+
+        Some(images)
+    }
+
+    pub async fn full_render_pdf(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+    ) -> Option<PathBuf> {
+        let lock = self.active_scenarios.read().await;
+
+        let scenario = lock
+            .get(&user_id)?
+            .iter()
+            .find(|scenario| scenario.meta().id == scenario_id)?
+            .clone();
+
+        let mut scenario_data_path = PathBuf::from("data");
+        scenario_data_path.push(format!("{user_id}"));
+        scenario_data_path.push(format!("{scenario_id}"));
+        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+
+        tokio::task::spawn_blocking(move || scenario.full_render_pdf(scenario_data_path))
+            .await
+            .unwrap()
+            .ok()
+    }
+
+    pub async fn full_render_docx(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+    ) -> Option<PathBuf> {
+        let lock = self.active_scenarios.read().await;
+
+        let scenario = lock
+            .get(&user_id)?
+            .iter()
+            .find(|scenario| scenario.meta().id == scenario_id)?
+            .clone();
+
+        let mut scenario_data_path = PathBuf::from("data");
+        scenario_data_path.push(format!("{user_id}"));
+        scenario_data_path.push(format!("{scenario_id}"));
+        tokio::fs::create_dir_all(&scenario_data_path).await.unwrap();
+
+        let mut docx_path = scenario_data_path.clone();
+        docx_path.push("rendered.docx");
+
+        let mut scenario_reference_path = PathBuf::from("scenarios");
+        scenario_reference_path.push(format!("{scenario_id}"));
+        scenario_reference_path.push("reference.docx");
+
+        tokio::task::spawn_blocking(move || {
+            scenario.full_render_docx(scenario_data_path, scenario_reference_path)
+        })
+        .await
+        .unwrap()
+        .ok()
+        .map(|_| docx_path)
     }
 }
