@@ -112,13 +112,15 @@ pub fn ScenarioStep() -> impl IntoView {
     let scenario_id: Result<usize, _> = params
         .with(|params| params.get("id").cloned().unwrap())
         .parse();
-    let step_id: Result<usize, _> = params
-        .with(|params| params.get("step").cloned().unwrap())
-        .parse();
+    let step_id: Option<Result<usize, _>> = params
+        .with(|params| params.get("step").cloned())
+        .map(|step| step.parse());
 
     let navigate = use_navigate();
-    match (scenario_id, step_id) {
-        (Ok(scenario_id), Err(_)) => {
+    match (&scenario_id, &step_id) {
+        // TODO:
+        (Ok(_), Some(Ok(_))) | (Ok(_), None) => {},
+        (Ok(scenario_id), Some(Err(_))) => {
             navigate(
                 format!("/scenario/{scenario_id}/0").as_str(),
                 Default::default(),
@@ -126,6 +128,8 @@ pub fn ScenarioStep() -> impl IntoView {
         },
         _ => navigate("/", Default::default()),
     }
+    let scenario_id = scenario_id.unwrap();
+    let step_id = step_id.unwrap_or(Ok(0)).unwrap();
 
     let step_index: RwSignal<usize> = create_rw_signal(0);
     let current_step = create_resource(step_index, move |_| async { get_scenario_step().await });

@@ -26,7 +26,7 @@ pub fn ScenarioDescription(selected_scenario: ReadSignal<Option<ScenarioMeta>>) 
                                     <div class="text-[20px] font-light">Актуально на:</div>
                                 </div>
                                 <div class="items-center pl-[35px] pr-[35px]">
-                                    <A href=scenario.id.to_string()>
+                                    <A href=format!("{}/0", scenario.id.to_string())>
                                         <button class="bg-[#BFA07A] w-full items-center rounded-[37px] text-[#EEEEEE] border-[#BFA07A] h-[60px] text-[32px] font-extralight">
                                             Создать договор
                                         </button>
