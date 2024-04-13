@@ -13,7 +13,7 @@ pub fn ScenariosOverview(
     #[prop(into)] filter: Signal<String>,
 ) -> impl IntoView {
     let selected_category: RwSignal<String> =
-        create_rw_signal(scenarios.with(|inner| inner.keys().next().unwrap().clone()));
+        create_rw_signal(scenarios.with_untracked(|inner| inner.keys().next().unwrap().clone()));
 
     view! {
         <section class="flex flex-row justify-evenly mt-[25px]">
@@ -108,7 +108,9 @@ pub fn ScenariosOverview(
                                 .flatten()
                                 .filter(|&scenario| {
                                     filter
-                                        .with(|inner| { scenario.name.to_lowercase().contains(&inner.to_lowercase()) })
+                                        .with(|inner| {
+                                            scenario.name.to_lowercase().contains(&inner.to_lowercase())
+                                        })
                                 })
                                 .map(|scenario| {
                                     view! {

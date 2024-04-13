@@ -28,24 +28,6 @@ cfg_if!(
     }
 );
 
-#[server(Register, "/api", "Url", "register")]
-pub async fn register() -> Result<(UserId, UserPassword), ServerFnError> {
-    let env = Env::from_context()?;
-
-    let user_data = env.register_user().await;
-
-    Ok(user_data)
-}
-
-#[server(Login, "/api", "Url", "login")]
-pub async fn login(user_id: UserId, user_password: UserPassword) -> Result<bool, ServerFnError> {
-    let env = Env::from_context()?;
-
-    let is_logged_in = env.login_user(user_id, user_password).await;
-
-    Ok(is_logged_in)
-}
-
 #[server(GetScenarios, "/api", "Url", "get-scenarios")]
 pub async fn get_scenarios_metas() -> Result<IndexMap<String, Vec<ScenarioMeta>>, ServerFnError> {
     let env = Env::from_context()?;

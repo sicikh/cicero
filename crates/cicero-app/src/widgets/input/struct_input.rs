@@ -27,13 +27,14 @@ pub fn StructInput(
         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
             <div class="flex flex-col gap-[10px] mb-[20px]">
 
-                {
+                {move || {
                     let header = structure
                         .comment
+                        .as_ref()
                         .map(|comment| {
                             view! {
                                 <div class="font-bold">
-                                    <HtmlRender html_string=comment/>
+                                    <HtmlRender html_string=comment.clone()/>
                                 </div>
                             }
                         });
@@ -61,8 +62,8 @@ pub fn StructInput(
                             }
                         })
                         .collect_view();
-                    (header, fields)
-                }
+                    (header, fields).into_view()
+                }}
 
             </div>
         </section>

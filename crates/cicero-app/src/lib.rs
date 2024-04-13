@@ -17,7 +17,6 @@
     non_snake_case
 )]
 
-use cfg_if::cfg_if;
 use error_template::{AppError, ErrorTemplate};
 use leptos::*;
 use leptos_meta::*;
@@ -25,22 +24,18 @@ use leptos_router::*;
 
 mod error_template;
 mod pages;
-use self::pages::*;
+pub mod shared;
 mod widgets;
-use self::widgets::*;
-mod shared;
-use self::shared::*;
 
-cfg_if!(
-    if #[cfg(feature = "ssr")] {
-        pub use self::shared::server;
-    }
-);
+use self::pages::*;
+use self::shared::*;
+use self::widgets::*;
 
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
+
     view! {
         <Stylesheet id="leptos" href="/pkg/cicero.css"/>
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>

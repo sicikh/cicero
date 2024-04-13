@@ -16,16 +16,16 @@ pub fn EnumInput(
         <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
             <div class="flex flex-col gap-[10px] mb-[20px]">
 
-                {
+                {move || {
                     let header = enumeration
                         .comment
+                        .as_ref()
                         .map(|comment| {
                             view! {
                                 <div class="font-bold">
-                                    <HtmlRender html_string=comment/>
+                                    <HtmlRender html_string=comment.clone()/>
                                 </div>
                             }
-                                .into_view()
                         });
                     let variants = enumeration
                         .variants
@@ -39,29 +39,33 @@ pub fn EnumInput(
                                     </p>
                                 </div>
 
-                                {enum_var
-                                    .field
-                                    .map(|field| {
-                                        let data_signal = RwSignal::new(data_from_entity(&field.ty));
-                                        data.update(|data| {
-                                            data.field = Some(data_signal);
-                                        });
-                                        view! {
-                                            <EntityInput
-                                                entity=field
-                                                placeholder=enum_var.comment.clone()
-                                                data=data_signal
-                                                recursion_level=recursion_level + 1
-                                            />
-                                        }
-                                            .into_view()
-                                    })}
+                                {move || {
+                                    enum_var
+                                        .field
+                                        .as_ref()
+                                        .map(|field| {
+                                            let data_signal = RwSignal::new(
+                                                data_from_entity(&field.ty),
+                                            );
+                                            data.clone()
+                                                .update(|data| {
+                                                    data.field = Some(data_signal);
+                                                });
+                                            view! {
+                                                <EntityInput
+                                                    entity=field.clone()
+                                                    placeholder=enum_var.comment.clone()
+                                                    data=data_signal
+                                                    recursion_level=recursion_level + 1
+                                                />
+                                            }
+                                        })
+                                }}
                             }
-                                .into_view()
                         })
                         .collect_view();
                     (header, variants)
-                }
+                }}
 
             </div>
         </section>

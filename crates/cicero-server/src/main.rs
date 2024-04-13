@@ -17,7 +17,7 @@ use axum::http::Request;
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
 use axum::Router;
-use cicero_app::server::Env;
+use cicero_app::shared::server::Env;
 use cicero_app::App;
 use cicero_dsl::compiler::compile_scenario;
 use cicero_dsl::scenario::Scenario;

@@ -17,6 +17,7 @@ use crate::widgets::*;
 #[component]
 pub fn MainPage() -> impl IntoView {
     view! {
+        <Title text="Главная"/>
         <Layout>
             <div class="flex flex-col h-full">
                 <section class="flex flex-col flex-1 items-center pt-[40px] bg-[#eeeeee]">

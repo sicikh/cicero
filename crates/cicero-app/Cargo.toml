@@ -25,6 +25,8 @@ cfg-if.workspace = true
 axum = { workspace = true, optional = true }
 regex = "1.10.4"
 rand = { version = "0.8.5", optional = true }
+serde = { workspace = true, features = ["derive"] }
+leptos-use = { version = "0.10.7", features = ["serde"] }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
@@ -32,6 +34,8 @@ ssr = [
     "leptos/ssr",
     "leptos_meta/ssr",
     "leptos_router/ssr",
+    "leptos-use/ssr",
+    "leptos-use/axum",
     "dep:leptos_axum",
     "dep:rand",
     "cicero-dsl/render",

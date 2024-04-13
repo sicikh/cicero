@@ -8,8 +8,10 @@ use indexmap::IndexMap;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::{use_navigate, use_params_map, A};
+use leptos_use::storage::use_local_storage;
+use leptos_use::utils::JsonCodec;
 
-use crate::shared::api::{ScenarioId, UserId, UserPassword};
+use crate::shared::api::{ScenarioId, UserId, UserPassword, User};
 use crate::widgets::*;
 
 cfg_if!(
@@ -192,29 +194,41 @@ pub async fn full_render_scenario_docx(
     url.ok_or_else(|| ServerFnError::ServerError("Could not render scenario".to_string()))
 }
 
+#[server(Register, "/api", "Url", "register")]
+pub async fn register() -> Result<(UserId, UserPassword), ServerFnError> {
+    let env = Env::from_context()?;
+
+    let user_data = env.register_user().await;
+
+    Ok(user_data)
+}
+
+#[server(Login, "/api", "Url", "login")]
+pub async fn login(user_id: UserId, user_password: UserPassword) -> Result<bool, ServerFnError> {
+    let env = Env::from_context()?;
+
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    Ok(is_logged_in)
+}
+
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
-    let params = use_params_map();
-    let scenario_id: Result<usize, _> = params
-        .with(|params| params.get("id").cloned().unwrap())
-        .parse();
-    let step_id: Option<Result<usize, _>> = params
-        .with(|params| params.get("step").cloned())
-        .map(|step| step.parse());
+    let login = create_server_action::<Login>();
+    let register = create_server_action::<Register>();
+    let (user, set_user, _) = use_local_storage::<User, JsonCodec>("user");
 
-    let navigate = use_navigate();
-    match (&scenario_id, &step_id) {
-        (Ok(_), Some(Ok(_))) | (Ok(_), None) => {},
-        (Ok(scenario_id), Some(Err(_))) => {
-            navigate(
-                format!("/scenario/{scenario_id}/0").as_str(),
-                Default::default(),
-            )
-        },
-        _ => navigate("/", Default::default()),
-    }
-    let scenario_id = scenario_id.unwrap();
-    let step_id = step_id.unwrap_or(Ok(0)).unwrap();
+    let params = use_params_map();
+    let scenario_id = move || { params
+        .with(|params| params.get("id").cloned())
+        .and_then(|step| step.parse::<usize>().ok())
+        .unwrap_or(0)
+    };
+    let step_id = move || { params
+        .with(|params| params.get("step").cloned())
+        .and_then(|step| step.parse::<usize>().ok())
+        .unwrap_or(0)
+    };
 
     let step_index: RwSignal<usize> = create_rw_signal(0);
     let current_step = create_resource(step_index, move |_| async { get_scenario_step().await });
@@ -225,13 +239,63 @@ pub fn ScenarioStep() -> impl IntoView {
                 <ErrorBoundary fallback=move |_| {
                     view! { <p>"Error happened"</p> }
                 }>
-
+                    // This code cost me 5 hours of debugging and I still don't know why it works and why it doesn't work.
+                    // Currently it sends from 4 to 5 requests to the server, but it should send only from 1 to 2.
+                    // Simply retrieve user from local storage, if password is empty, then register, otherwise try to login and if it fails, register.
+                    // but in reactive world my opinion is not yet been initialized!!!
                     {move || {
-                        match (steps_names(), current_step()) {
+                        let usr = if user.with_untracked(|user| user.password.is_empty()) {
+                            if register.version()() == 0 {
+                                register.dispatch(Register {})
+                            }
+                            if let Some(Ok((user_id, user_password))) = register.value()() {
+                                set_user(User {
+                                    id: user_id,
+                                    password: user_password,
+                                });
+                                Some(view! {})
+                            } else {
+                                None
+                            }
+                        } else {
+                            if login.version()() == 0 {
+                                login
+                                    .dispatch(Login {
+                                        user_id: user.with(|user| user.id),
+                                        user_password: user.with(|user| user.password.clone()),
+                                    });
+                            }
+                            if let Some(Ok(is_logged_in)) = login.value()() {
+                                if !is_logged_in {
+                                    if register.version()() == 0 {
+                                        register.dispatch(Register {})
+                                    }
+                                    if let Some(Ok((user_id, user_password))) = register.value()() {
+                                        set_user(User {
+                                            id: user_id,
+                                            password: user_password,
+                                        });
+                                        Some(view! {})
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    Some(view! {})
+                                }
+                            } else {
+                                None
+                            }
+                        };
+                        let main = match (steps_names(), current_step()) {
                             (Some(Ok(steps_names)), Some(Ok(current_step))) => {
                                 let (current_step, _) = create_signal(current_step);
                                 let (steps_names, _) = create_signal(steps_names);
                                 view! {
+                                    // This code cost me 5 hours of debugging and I still don't know why it works and why it doesn't work.
+                                    // Currently it sends from 4 to 5 requests to the server, but it should send only from 1 to 2.
+                                    // Simply retrieve user from local storage, if password is empty, then register, otherwise try to login and if it fails, register.
+                                    // but in reactive world my opinion is not yet been initialized!!!
+
                                     <section id="all_page" class="h-full w-full flex flex-row">
                                         <section
                                             id="step"
@@ -250,8 +314,19 @@ pub fn ScenarioStep() -> impl IntoView {
                                 }
                                     .into_view()
                             }
-                            (_, _) => view! { <p>"Error happened"</p> }.into_view(),
-                        }
+                            (_, _) => {
+                                view! {
+                                    // This code cost me 5 hours of debugging and I still don't know why it works and why it doesn't work.
+                                    // Currently it sends from 4 to 5 requests to the server, but it should send only from 1 to 2.
+                                    // Simply retrieve user from local storage, if password is empty, then register, otherwise try to login and if it fails, register.
+                                    // but in reactive world my opinion is not yet been initialized!!!
+
+                                    <p>"Error happened"</p>
+                                }
+                                    .into_view()
+                            }
+                        };
+                        usr.map(|_| main)
                     }}
 
                 </ErrorBoundary>
