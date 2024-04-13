@@ -14,7 +14,10 @@ pub fn StepInput(
     step_index: RwSignal<usize>,
 ) -> impl IntoView {
     view! {
-        <section id="input_data" class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]">
+        <section
+            id="input_data"
+            class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
+        >
             {move || {
                 current_step
                     .with(|step| {
