@@ -337,4 +337,25 @@ impl Env {
         .ok()
         .map(|_| docx_path)
     }
+
+    pub async fn insert_data(
+        &self,
+        user_id: UserId,
+        scenario_id: ScenarioId,
+        step_id: usize,
+        data: HashMap<String, dsl::Var>,
+    ) -> Option<usize> {
+        let lock = self.active_scenarios.write().await;
+
+        let mut scenario = lock
+            .get(&user_id)?
+            .iter()
+            .find(|scenario| scenario.meta().id == scenario_id)?
+            .clone();
+
+        scenario.step_to(step_id).ok()?;
+        scenario.insert_data(data).ok()?;
+
+        Some(scenario.pending_step())
+    }
 }
