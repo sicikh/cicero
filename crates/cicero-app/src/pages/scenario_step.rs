@@ -7,12 +7,13 @@ use cicero_dsl::types::*;
 use indexmap::IndexMap;
 use leptos::*;
 use leptos_meta::*;
-use leptos_router::NavigateOptions;
-use leptos_router::{use_navigate, use_params_map, A};
+use leptos_router::{use_navigate, use_params_map, NavigateOptions, A};
 use leptos_use::storage::use_local_storage;
+use leptos_use::use_window;
 use leptos_use::utils::JsonCodec;
+use serde::Deserialize;
 
-use crate::shared::api::{ScenarioId, UserId, UserPassword, User};
+use crate::shared::api::{ScenarioId, User, UserId, UserPassword};
 use crate::widgets::*;
 
 cfg_if!(
@@ -21,14 +22,23 @@ cfg_if!(
     }
 );
 
-// This function does too much, but this is for sake of simplicity on the client side.
+// This function does too much, but this is for sake of simplicity on the client
+// side.
 #[server(StartOrContinueScenario, "/api", "Url", "start-or-continue-scenario")]
 pub async fn start_or_continue_scenario(
     user_id: UserId,
     user_password: UserPassword,
     scenario_id: ScenarioId,
     desired_step_id: usize,
-) -> Result<(ScenarioStep, usize, Vec<String>, Option<HashMap<String, dsl::Var>>), ServerFnError> {
+) -> Result<
+    (
+        ScenarioStep,
+        usize,
+        Vec<String>,
+        Option<HashMap<String, dsl::Var>>,
+    ),
+    ServerFnError,
+> {
     let env = Env::from_context()?;
 
     let is_logged_in = env.login_user(user_id, user_password).await;
@@ -39,7 +49,9 @@ pub async fn start_or_continue_scenario(
         ));
     }
 
-    let data = env.start_or_continue_scenario(user_id, scenario_id, desired_step_id).await;
+    let data = env
+        .start_or_continue_scenario(user_id, scenario_id, desired_step_id)
+        .await;
 
     data.ok_or_else(|| ServerFnError::ServerError("Could not start scenario".to_string()))
 }
@@ -140,36 +152,102 @@ pub async fn login(user_id: UserId, user_password: UserPassword) -> Result<bool,
     Ok(is_logged_in)
 }
 
-// This code cost me 5 hours of debugging and I still don't know why it works and why it doesn't work.
-// Currently it sends from 4 to 5 requests to the server, but it should send only from 1 to 2.
-// Simply retrieve user from local storage, if password is empty, then register, otherwise try to login and if it fails, register.
-// but in reactive world my opinion is not yet been initialized!!!
+// This code cost me 5 hours of debugging and I still don't know why it works
+// and why it doesn't work. Currently it sends from 4 to 5 requests to the
+// server, but it should send only from 1 to 2. Simply retrieve user from local
+// storage, if password is empty, then register, otherwise try to login and if
+// it fails, register. but in reactive world my opinion is not yet been
+// initialized!!!
 #[component]
 pub fn ScenarioStep() -> impl IntoView {
-    let login = create_server_action::<Login>();
-    let login_version = create_rw_signal(0usize);
-    let register = create_server_action::<Register>();
-    let register_version = create_rw_signal(0usize);
-    let (user, set_user, _) = use_local_storage::<User, JsonCodec>("user");
+    let user = create_local_resource(
+        move || (),
+        move |()| {
+            async move {
+                let window = window();
+                let storage = window.local_storage().unwrap().unwrap();
+
+                let user = storage
+                    .get_item("user")
+                    .unwrap()
+                    .map(|json| serde_json::from_str::<User>(&json).unwrap());
+
+                match user {
+                    None => {
+                        let (user_id, user_password) = register().await.unwrap();
+                        storage
+                            .set_item(
+                                "user",
+                                serde_json::to_string(&User {
+                                    id: user_id,
+                                    password: user_password.clone(),
+                                })
+                                .unwrap()
+                                .as_str(),
+                            )
+                            .unwrap();
+                        (user_id, user_password.clone())
+                    },
+                    Some(user) => {
+                        let is_logged_in = login(user.id, user.password.clone()).await.unwrap();
+                        if !is_logged_in {
+                            let (user_id, user_password) = register().await.unwrap();
+                            storage
+                                .set_item(
+                                    "user",
+                                    serde_json::to_string(&User {
+                                        id: user_id,
+                                        password: user_password.clone(),
+                                    })
+                                    .unwrap()
+                                    .as_str(),
+                                )
+                                .unwrap();
+                            (user_id, user_password)
+                        } else {
+                            (user.id, user.password.clone())
+                        }
+                    },
+                }
+            }
+        },
+    )
+    .into_signal();
 
     let params = use_params_map();
-    let scenario_id = move || { params
-        .with(|params| params.get("id").cloned())
-        .and_then(|step| step.parse::<u64>().ok())
-        .unwrap_or(0)
+    let scenario_id = move || {
+        params
+            .with(|params| params.get("id").cloned())
+            .and_then(|step| step.parse::<u64>().ok())
+            .unwrap_or(0)
     };
-    let step_index = move || { params
-        .with(|params| params.get("step").cloned())
-        .and_then(|step| step.parse::<usize>().ok())
-        .unwrap_or(0)
+    let step_index = move || {
+        params
+            .with(|params| params.get("step").cloned())
+            .and_then(|step| step.parse::<usize>().ok())
+            .unwrap_or(0)
     };
 
-    let data = create_resource(move || {
-        let user = user();
-        (user.id, user.password, scenario_id(), step_index())
+    let data = create_resource(
+        move || {
+            user().map(move |(user_id, user_password)| {
+                (user_id, user_password, scenario_id(), step_index())
+            })
+        },
+        |opt| {
+            async move {
+                match opt {
+                    None => None,
+                    Some((user_id, user_password, scenario_id, step_index)) => {
+                        start_or_continue_scenario(user_id, user_password, scenario_id, step_index)
+                            .await
+                            .ok()
+                    },
+                }
+            }
+        },
+    );
 
-    }, |(user_id, user_password, scenario_id, step_index)| async move { start_or_continue_scenario(user_id, user_password, scenario_id, step_index).await });
-    
     view! {
         <Layout>
             <Transition fallback=move || view! { <p>"Loading..."</p> }>
@@ -177,53 +255,11 @@ pub fn ScenarioStep() -> impl IntoView {
                     view! { <p>"Error happened"</p> }
                 }>
                     {move || {
-                        let usr = if user.with_untracked(|user| user.password.is_empty()) {
-                            if register_version() == 0 {
-                                register.dispatch(Register {});
-                                register_version.set(1);
-                            }
-                            if let Some(Ok((user_id, user_password))) = register.value()() {
-                                set_user(User {
-                                    id: user_id,
-                                    password: user_password,
-                                });
-                                Some(view! {})
-                            } else {
-                                None
-                            }
-                        } else {
-                            if login_version() == 0 {
-                                login
-                                    .dispatch(Login {
-                                        user_id: user.with(|user| user.id),
-                                        user_password: user.with(|user| user.password.clone()),
-                                    });
-                                login_version.set(1);
-                            }
-                            if let Some(Ok(is_logged_in)) = login.value()() {
-                                if !is_logged_in {
-                                    if register_version() == 0 {
-                                        register.dispatch(Register {});
-                                        register_version.set(1);
-                                    }
-                                    if let Some(Ok((user_id, user_password))) = register.value()() {
-                                        set_user(User {
-                                            id: user_id,
-                                            password: user_password,
-                                        });
-                                        Some(view! {})
-                                    } else {
-                                        None
-                                    }
-                                } else {
-                                    Some(view! {})
-                                }
-                            } else {
-                                None
-                            }
-                        };
-                        let main = match data() {
-                            Some(Ok((scenario_step, pending_step, steps_names, data))) => {
+                        user();
+                    }}
+                    {move || {
+                        match data() {
+                            Some(Some((scenario_step, pending_step, steps_names, data))) => {
                                 let scenario_step_index = steps_names
                                     .iter()
                                     .position(|name| name == &scenario_step.name)
@@ -231,16 +267,8 @@ pub fn ScenarioStep() -> impl IntoView {
                                 if scenario_step_index != step_index() {
                                     let navigate = use_navigate();
                                     navigate(
-                                        format!(
-                                            "/scenarios/{}/{}",
-                                            scenario_id(),
-                                            scenario_step_index,
-                                        )
-                                            .as_str(),
-                                        NavigateOptions {
-                                            resolve: false,
-                                            ..Default::default()
-                                        },
+                                        format!("/scenario/{}/{}", scenario_id(), scenario_step_index).as_str(),
+                                        Default::default(),
                                     );
                                 }
                                 view! {
@@ -263,8 +291,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                     .into_view()
                             }
                             _ => view! {}.into_view(),
-                        };
-                        usr.map(|_| main)
+                        }
                     }}
 
                 </ErrorBoundary>

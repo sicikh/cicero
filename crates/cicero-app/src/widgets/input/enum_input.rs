@@ -35,7 +35,7 @@ pub fn EnumInput(
                             view! {
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
                                     <p>
-                                        <HtmlEnumRender html_string=enum_var.name.clone()/>
+                                        <HtmlEnumRender html_string=enum_var.comment.clone()/>
                                     </p>
                                 </div>
 
@@ -44,9 +44,7 @@ pub fn EnumInput(
                                         .field
                                         .as_ref()
                                         .map(|field| {
-                                            let data_signal = RwSignal::new(
-                                                data_from_entity(&field.ty),
-                                            );
+                                            let data_signal = RwSignal::new(data_from_entity(&field.ty));
                                             data.clone()
                                                 .update(|data| {
                                                     data.field = Some(data_signal);

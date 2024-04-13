@@ -17,14 +17,7 @@ pub fn EntityInput(
         {move || {
             data.with(|data| match (&entity.ty, data) {
                 (types::EntityType::Struct(structure), data::Data::Struct(data)) => {
-                    view! {
-                        <StructInput
-                            structure=structure.clone()
-                            is_required
-                            data=*data
-                            recursion_level
-                        />
-                    }
+                    view! { <StructInput structure=structure.clone() is_required data=*data recursion_level/> }
                 }
                 (types::EntityType::String, data::Data::String(data)) => {
                     view! {
@@ -37,16 +30,9 @@ pub fn EntityInput(
                     }
                 }
                 (types::EntityType::Enum(enumeration), data::Data::Enum(data)) => {
-                    view! {
-                        <EnumInput
-                            enumeration=enumeration.clone()
-                            is_required
-                            data=*data
-                            recursion_level
-                        />
-                    }
+                    view! { <EnumInput enumeration=enumeration.clone() is_required data=*data recursion_level/> }
                 }
-                _ => unreachable!("Data/type mismatch in EntityInput"),
+                _ => view! { <p>"Data/type mismatch in EntityInput"</p> }.into_view(),
             })
         }}
     }

@@ -381,6 +381,7 @@ dependencies = [
  "rand",
  "regex",
  "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "web-sys",

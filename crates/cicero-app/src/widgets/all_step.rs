@@ -48,9 +48,7 @@ pub fn AllSteps(
                     view! {
                         <a href=format!("/scenario/{}/{}", scenario_id(), i)>
                             <button class="hover:bg-[#8C7456] rounded-[10px] p-[3px] min-h-[40px] max-w-[120px]">
-                                <div class="text-[18px] text-[#EEEEEE] font-bold">
-                                    {name.clone()}
-                                </div>
+                                <div class="text-[18px] text-[#EEEEEE] font-bold">{name.clone()}</div>
                             </button>
                         </a>
                     }

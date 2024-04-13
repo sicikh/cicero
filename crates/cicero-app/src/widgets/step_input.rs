@@ -11,10 +11,7 @@ use crate::widgets::{EntityInput, HtmlRender};
 #[component]
 pub fn StepInput(scenario_step: ScenarioStep) -> impl IntoView {
     view! {
-        <section
-            id="input_data"
-            class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
-        >
+        <section id="input_data" class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]">
             {move || {
                 let header = if let Some(html_string) = scenario_step.header.clone() {
                     view! {

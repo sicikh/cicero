@@ -74,8 +74,15 @@ impl Env {
         user_id: UserId,
         scenario_id: ScenarioId,
         desired_step_id: usize,
-    ) -> Option<(ScenarioStep, usize, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
-        let running_scenario = self.get_running_scenario(user_id, scenario_id, desired_step_id).await;
+    ) -> Option<(
+        ScenarioStep,
+        usize,
+        Vec<String>,
+        Option<HashMap<String, dsl::Var>>,
+    )> {
+        let running_scenario = self
+            .get_running_scenario(user_id, scenario_id, desired_step_id)
+            .await;
 
         match running_scenario {
             Some(data) => Some(data),
@@ -92,7 +99,12 @@ impl Env {
         user_id: UserId,
         scenario_id: ScenarioId,
         desired_step_id: usize,
-    ) -> Option<(ScenarioStep, usize, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
+    ) -> Option<(
+        ScenarioStep,
+        usize,
+        Vec<String>,
+        Option<HashMap<String, dsl::Var>>,
+    )> {
         let mut lock = self.active_scenarios.write().await;
 
         let running_scenario = lock.get_mut(&user_id).and_then(|scenarios| {
@@ -104,7 +116,9 @@ impl Env {
         match running_scenario {
             Some(scenario) => {
                 if scenario.step_to(desired_step_id).is_err() {
-                    scenario.step_to(scenario.pending_step()).expect("Pending step should be valid");
+                    scenario
+                        .step_to(scenario.pending_step())
+                        .expect("Pending step should be valid");
                 };
 
                 let step = scenario.scenario_step();
@@ -250,7 +264,11 @@ impl Env {
                 break;
             }
 
-            let image_path = image_path.file_name().unwrap().to_string_lossy().to_string();
+            let image_path = image_path
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string();
 
             images.push(image_path);
         }
