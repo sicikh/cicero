@@ -73,15 +73,16 @@ impl Env {
         &self,
         user_id: UserId,
         scenario_id: ScenarioId,
-    ) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
-        let running_scenario = self.get_running_scenario(user_id, scenario_id).await;
+        desired_step_id: usize,
+    ) -> Option<(ScenarioStep, usize, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
+        let running_scenario = self.get_running_scenario(user_id, scenario_id, desired_step_id).await;
 
         match running_scenario {
             Some(data) => Some(data),
             None => {
                 self.start_scenario(user_id, scenario_id)
                     .await
-                    .map(|(step, steps_names)| (step, steps_names, None))
+                    .map(|(step, steps_names)| (step, 0, steps_names, None))
             },
         }
     }
@@ -90,22 +91,28 @@ impl Env {
         &self,
         user_id: UserId,
         scenario_id: ScenarioId,
-    ) -> Option<(ScenarioStep, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
-        let lock = self.active_scenarios.read().await;
+        desired_step_id: usize,
+    ) -> Option<(ScenarioStep, usize, Vec<String>, Option<HashMap<String, dsl::Var>>)> {
+        let mut lock = self.active_scenarios.write().await;
 
-        let running_scenario = lock.get(&user_id).and_then(|scenarios| {
+        let running_scenario = lock.get_mut(&user_id).and_then(|scenarios| {
             scenarios
-                .iter()
+                .iter_mut()
                 .find(|scenario| scenario.meta().id == scenario_id)
         });
 
         match running_scenario {
             Some(scenario) => {
+                if scenario.step_to(desired_step_id).is_err() {
+                    scenario.step_to(scenario.pending_step()).expect("Pending step should be valid");
+                };
+
                 let step = scenario.scenario_step();
+                let pending_step_id = scenario.pending_step();
                 let steps_names = scenario.steps_names();
                 let data = scenario.current_step_data();
 
-                Some((step, steps_names, data))
+                Some((step, pending_step_id, steps_names, data))
             },
             None => None,
         }
@@ -243,7 +250,7 @@ impl Env {
                 break;
             }
 
-            let image_path = image_path.to_string_lossy().to_string();
+            let image_path = image_path.file_name().unwrap().to_string_lossy().to_string();
 
             images.push(image_path);
         }

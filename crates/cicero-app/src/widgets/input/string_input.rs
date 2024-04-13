@@ -6,7 +6,7 @@ pub fn StringInput(
     placeholder: String,
     is_required: bool,
     data: RwSignal<String>,
-    recursion_level: usize,
+    _recursion_level: usize,
 ) -> impl IntoView {
     let regex = Regex::new(r"<[^>]*>").unwrap();
     let placeholder = regex

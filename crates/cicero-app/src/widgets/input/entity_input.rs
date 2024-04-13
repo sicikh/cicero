@@ -32,7 +32,7 @@ pub fn EntityInput(
                             placeholder=placeholder.clone()
                             is_required
                             data=*data
-                            recursion_level
+                            _recursion_level=recursion_level
                         />
                     }
                 }

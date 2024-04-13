@@ -74,7 +74,7 @@ impl Scenario {
     }
 
     #[inline(always)]
-    pub fn filled_steps(&self) -> usize {
+    pub fn pending_step(&self) -> usize {
         self.context.layers_len()
     }
 
@@ -85,7 +85,7 @@ impl Scenario {
 
     #[inline(always)]
     fn has_step_data(&self, step: usize) -> bool {
-        step < self.filled_steps()
+        step < self.pending_step()
     }
 
     #[inline(always)]
@@ -149,8 +149,7 @@ impl Scenario {
             return Err(ScenarioError::StepOutOfBounds(step));
         }
 
-        // FIXME: check
-        if step > self.filled_steps() {
+        if step > self.pending_step() {
             return Err(ScenarioError::StepNotFilled(step));
         }
 
@@ -163,7 +162,7 @@ impl Scenario {
         check_data_validity(&data, self.current_step_types())
             .map_err(|_| ScenarioError::StepNotValid(self.current_step))?;
 
-        if self.current_step == self.filled_steps() {
+        if self.current_step == self.pending_step() {
             self.context.insert_layer(data)
         } else {
             self.context
@@ -265,8 +264,9 @@ impl Scenario {
         path.push("rendered.tex");
         let mut output_path = path.clone();
         output_path.set_extension("docx");
+
         std::fs::write(&path, rendered).map_err(ScenarioError::FileWriteError)?;
-        // TODO: верные пути, понимать, откуда мы запускаемся
+
         Command::new("pandoc")
             .arg(path.as_os_str())
             .args([OsStr::new("-o"), output_path.as_os_str()])
