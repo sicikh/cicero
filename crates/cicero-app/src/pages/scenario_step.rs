@@ -14,7 +14,7 @@ use leptos_use::utils::JsonCodec;
 use serde::Deserialize;
 
 use crate::shared::api::{ScenarioId, User, UserId, UserPassword};
-use crate::widgets::*;
+use crate::widgets::{AllSteps, Layout, Preview, StepInput};
 
 cfg_if!(
     if #[cfg(feature = "ssr")] {
@@ -227,6 +227,7 @@ pub fn ScenarioStep() -> impl IntoView {
             .and_then(|step| step.parse::<usize>().ok())
             .unwrap_or(0)
     };
+    let signal = create_rw_signal(None);
 
     let data = create_resource(
         move || {
@@ -243,6 +244,23 @@ pub fn ScenarioStep() -> impl IntoView {
                             .await
                             .ok()
                     },
+                }
+            }
+        },
+    );
+
+    let pngs = create_resource(
+        move || (signal(), user.get_untracked(), scenario_id(), step_index()),
+        |(signal, user, scenario_id, step_index)| {
+            async move {
+                match (signal, user) {
+                    (Some(_), Some((user_id, user_password))) => {
+                        Some(
+                            render_scenario_step(user_id, user_password, scenario_id, step_index)
+                                .await,
+                        )
+                    },
+                    _ => None,
                 }
             }
         },
@@ -284,12 +302,20 @@ pub fn ScenarioStep() -> impl IntoView {
                                         >
                                             <AllSteps steps_names pending_step/>
                                         </section>
-                                        <StepInput scenario_step/>
+                                        <StepInput scenario_step signal/>
                                         <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
                                             <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                                                 Предварительный просмотр документа
                                             </div>
-                                            <section></section>
+                                            <section>
+                                                {move || {
+                                                    match pngs() {
+                                                        Some(Some(Ok(urls))) => Some(view! { <Preview urls/> }),
+                                                        _ => None,
+                                                    }
+                                                }}
+
+                                            </section>
                                         </section>
                                     </section>
                                 }

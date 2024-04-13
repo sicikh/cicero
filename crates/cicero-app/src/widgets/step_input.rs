@@ -1,15 +1,25 @@
 use std::collections::HashMap;
 
+use cfg_if::cfg_if;
 use cicero_dsl::data as dsl;
 use cicero_dsl::types::*;
 use indexmap::IndexMap;
 use leptos::html::P;
 use leptos::*;
 use leptos_meta::*;
-use leptos_router::{Form, A};
+use leptos_router::{use_params_map, Form, A};
+use leptos_use::storage::use_local_storage;
+use leptos_use::utils::JsonCodec;
 
-use crate::api::{ScenarioId, UserId, UserPassword};
+use crate::api::{ScenarioId, User, UserId, UserPassword};
 use crate::data::data_from_entity;
+
+cfg_if! {
+    if #[cfg(feature = "ssr")] {
+        use crate::server::Env;
+    }
+}
+
 use crate::shared::data;
 use crate::widgets::{EntityInput, HtmlRender};
 
@@ -19,15 +29,29 @@ pub async fn put_step_data(
     user_password: UserPassword,
     scenario_id: ScenarioId,
     step_id: usize,
-    data: Vec<(String, dsl::Data)>,
-) -> Result<(), ServerFnError> {
+    data: Vec<(String, dsl::Var)>,
+) -> Result<usize, ServerFnError> {
+    let env = Env::from_context()?;
+
     logging::log!("put_step_data: {:?}", data);
 
-    Ok(())
+    let is_logged_in = env.login_user(user_id, user_password).await;
+
+    if !is_logged_in {
+        return Err(ServerFnError::ServerError(
+            "Invalid user id or password".to_string(),
+        ));
+    };
+
+    let data = data.into_iter().collect::<HashMap<String, dsl::Var>>();
+
+    env.insert_data(user_id, scenario_id, step_id, data).await
 }
 
 #[component]
-pub fn StepInput(scenario_step: ScenarioStep) -> impl IntoView {
+pub fn StepInput(scenario_step: ScenarioStep, signal: RwSignal<Option<usize>>) -> impl IntoView {
+    let (user, ..) = use_local_storage::<User, JsonCodec>("user");
+
     let var_data = create_rw_signal(
         scenario_step
             .variables
@@ -37,6 +61,52 @@ pub fn StepInput(scenario_step: ScenarioStep) -> impl IntoView {
                 (var, data)
             })
             .collect::<Vec<(Var, RwSignal<data::Data>)>>(),
+    );
+    let params = use_params_map();
+    let scenario_id = move || {
+        params
+            .with(|params| params.get("id").cloned())
+            .and_then(|step| step.parse::<u64>().ok())
+            .unwrap_or(0)
+    };
+    let step_index = move || {
+        params
+            .with(|params| params.get("step").cloned())
+            .and_then(|step| step.parse::<usize>().ok())
+            .unwrap_or(0)
+    };
+    let result = create_resource(
+        move || {
+            (
+                signal(),
+                var_data.get_untracked(),
+                user.get_untracked(),
+                scenario_id(),
+                step_index(),
+            )
+        },
+        |(signal, var_data, user, scenario_id, step_index)| {
+            async move {
+                match signal {
+                    None => None,
+                    Some(step_id) => {
+                        let data = var_data
+                            .into_iter()
+                            .map(|(var, data)| {
+                                (var.name.clone(), dsl::Var {
+                                    name: var.name.clone(),
+                                    data: data().into(),
+                                })
+                            })
+                            .collect::<Vec<(String, dsl::Var)>>();
+                        Some(
+                            put_step_data(user.id, user.password, scenario_id, step_index, data)
+                                .await,
+                        )
+                    },
+                }
+            }
+        },
     );
 
     view! {
@@ -89,13 +159,13 @@ pub fn StepInput(scenario_step: ScenarioStep) -> impl IntoView {
                     <button
                         class="bg-[#8C7456] text-[#FFFFFF] py-[10px] px-[20px] rounded-[5px] mt-[20px] hover:bg-[#8C7456] hover:text-[#FFFFFF]"
                         on:click=move |_| {
-                            let data = var_data()
-                                .into_iter()
-                                .map(|(var, data)| { (var.name.clone(), data().into()) })
-                                .collect::<Vec<(String, dsl::Data)>>();
-                            spawn_local(async {
-                                put_step_data(0, "".to_string(), 0, 0, data).await.unwrap();
-                            });
+                            signal
+                                .update(|signal| {
+                                    *signal = match signal {
+                                        None => Some(0),
+                                        Some(signal) => Some(*signal + 1),
+                                    };
+                                });
                         }
                     >
 

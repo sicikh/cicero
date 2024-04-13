@@ -11,9 +11,7 @@ pub fn StringInput(
     let regex = Regex::new(r"<[^>]*>").unwrap();
     let placeholder = regex.replace_all(&placeholder, "").to_string();
     let placeholder = placeholder.trim();
-    logging::error!("placeholder: {:?}", placeholder);
     let placeholder = placeholder.trim_end_matches(':').to_string();
-    logging::error!("placeholder: {:?}", placeholder);
 
     view! {
         {move || {

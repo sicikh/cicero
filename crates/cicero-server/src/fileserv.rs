@@ -23,12 +23,16 @@ pub async fn file_and_error_handler(
     State(options): State<LeptosOptions>,
     req: Request<Body>,
 ) -> AxumResponse {
+    let res = get_static_file(uri.clone(), ".").await.unwrap();
     let root = options.site_root.clone();
-    let res = get_static_file(uri.clone(), &root).await.unwrap();
 
     if res.status() == StatusCode::OK {
         res.into_response()
     } else {
+        let res = get_static_file(uri.clone(), &root).await.unwrap();
+        if res.status() == StatusCode::OK {
+            return res.into_response();
+        }
         let handler = leptos_axum::render_app_to_stream(options.to_owned(), App);
         handler(req).await.into_response()
     }

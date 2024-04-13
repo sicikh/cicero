@@ -11,6 +11,7 @@
 
 use core::panic;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -20,7 +21,9 @@ use cicero_dsl::data as dsl;
 use cicero_dsl::scenario::Scenario;
 use cicero_dsl::types::{ScenarioMeta, ScenarioStep};
 use indexmap::IndexMap;
+use leptos::server_fn::error::NoCustomError;
 use leptos::*;
+use rand::Rng;
 use tokio::process::Command;
 use tokio::sync::{Mutex, RwLock};
 
@@ -50,7 +53,7 @@ impl Env {
         for scenario in loaded_scenarios.values() {
             let meta = scenario.meta();
             metas
-                .entry(meta.name.clone())
+                .entry(meta.category.clone())
                 .or_default()
                 .push(meta.clone());
         }
@@ -233,24 +236,32 @@ impl Env {
 
         let mut data_path = scenario_data_path.clone();
         data_path.push(format!("{step_id}"));
-        tokio::fs::create_dir_all(&scenario_data_path)
-            .await
-            .unwrap();
-        data_path.push("page");
+        tokio::fs::create_dir_all(&data_path).await.unwrap();
+        tokio::fs::remove_dir_all(&data_path).await.unwrap();
+        tokio::fs::create_dir_all(&data_path).await.unwrap();
+
+        // create ascii random string for the pages
+        let random_string: String = rand::thread_rng()
+            .sample_iter(rand::distributions::Alphanumeric)
+            .map(char::from)
+            .take(32)
+            .collect();
+        data_path.push(format!("{}-page", &random_string));
 
         let rendered_pdf_path =
             tokio::task::spawn_blocking(move || scenario.render_pdf(scenario_data_path))
                 .await
                 .unwrap()
-                .unwrap();
+                .ok()?;
 
-        Command::new("pdftoppm")
-            .arg("-jpeg")
-            .args(["-jpegopt", "quality=50", "-r 350"])
-            .arg(rendered_pdf_path)
-            .arg(data_path.as_os_str())
-            .spawn()
-            .expect("Malformed data");
+        let mut command = Command::new("pdftoppm");
+        command
+            .args([OsStr::new("-jpeg"), rendered_pdf_path.as_os_str(), data_path.as_ref()]);
+        let exit_status = command.spawn().expect("Malformed data").wait().await.expect("Malformed data");
+
+        if !exit_status.success() {
+            return None;
+        }
 
         // Remove "page" file prefix
         data_path.pop();
@@ -258,7 +269,7 @@ impl Env {
         let mut images = Vec::new();
         for i in 1.. {
             let mut image_path = data_path.clone();
-            image_path.push(format!("page-{i:02}.jpg"));
+            image_path.push(format!("{}-page-{i}.jpg", &random_string));
 
             if !image_path.exists() {
                 break;
@@ -344,18 +355,27 @@ impl Env {
         scenario_id: ScenarioId,
         step_id: usize,
         data: HashMap<String, dsl::Var>,
-    ) -> Option<usize> {
-        let lock = self.active_scenarios.write().await;
+    ) -> Result<usize, ServerFnError> {
+        let mut lock = self.active_scenarios.write().await;
 
-        let mut scenario = lock
-            .get(&user_id)?
-            .iter()
-            .find(|scenario| scenario.meta().id == scenario_id)?
-            .clone();
+        let scenario = lock
+            .get_mut(&user_id)
+            .ok_or(ServerFnError::<NoCustomError>::ServerError(
+                "User not found".to_string(),
+            ))?
+            .iter_mut()
+            .find(|scenario| scenario.meta().id == scenario_id)
+            .ok_or(ServerFnError::<NoCustomError>::ServerError(
+                "Scenario not found".to_string(),
+            ))?;
 
-        scenario.step_to(step_id).ok()?;
-        scenario.insert_data(data).ok()?;
+        scenario
+            .step_to(step_id)
+            .map_err(|err| ServerFnError::<NoCustomError>::ServerError(err.to_string()))?;
+        scenario
+            .insert_data(data)
+            .map_err(|err| ServerFnError::<NoCustomError>::ServerError(err.to_string()))?;
 
-        Some(scenario.pending_step())
+        Ok(scenario.pending_step())
     }
 }

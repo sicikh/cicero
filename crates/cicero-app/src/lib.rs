@@ -55,10 +55,10 @@ pub fn App() -> impl IntoView {
             view! { <ErrorTemplate outside_errors/> }.into_view()
         }>
             <Routes>
-                <Route path="/scenario" view=ScenarioChoice/>
-                <Route path="/scenario/:id" view=ScenarioStep/>
-                <Route path="/scenario/:id/:step" view=ScenarioStep/>
-                <Route path="/" view=MainPage/>
+                <Route path="/scenario" view=ScenarioChoice ssr=SsrMode::Async/>
+                <Route path="/scenario/:id" view=ScenarioStep ssr=SsrMode::Async/>
+                <Route path="/scenario/:id/:step" view=ScenarioStep ssr=SsrMode::Async/>
+                <Route path="/" view=MainPage ssr=SsrMode::Async/>
             </Routes>
         </Router>
     }
