@@ -119,7 +119,7 @@ pub fn StepInput(scenario_step: ScenarioStep, signal: RwSignal<Option<usize>>) -
                     view! {
                         <section
                             id="header"
-                            class="min-h-[80px] bg-[#cccccc] border-b-[3px] py-[15px] px-[15px] pb-[25px] gap-[2px] items-start flex flex-col border-[#8C7456]"
+                            class="min-h-[80px] bg-[#cccccc] border-b-[3px] px-[15px] gap-[2px] items-start flex flex-col border-[#8C7456]"
                         >
                             <div class="text-[15px] text-[#8C7456] items-center">
                                 <HtmlRender html_string/>

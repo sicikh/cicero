@@ -24,8 +24,8 @@ pub fn StructInput(
 ) -> impl IntoView {
     let height = 50;
     view! {
-        <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
-            <div class="flex flex-col gap-[10px] mb-[20px]">
+        <section class="flex flex-col text-[#8c7456] w-full px-[15px]">
+            <div class="flex flex-col gap-[10px]">
 
                 {move || {
                     let header = structure

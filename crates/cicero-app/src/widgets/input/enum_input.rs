@@ -3,7 +3,7 @@ use leptos::*;
 
 use crate::data::data_from_entity;
 use crate::shared::data;
-use crate::widgets::{EntityInput, HtmlEnumRender, HtmlRender};
+use crate::widgets::{EntityInput, HtmlEnumRender, HtmlRender, StringEnumInput};
 
 #[component]
 pub fn EnumInput(
@@ -13,8 +13,8 @@ pub fn EnumInput(
     recursion_level: usize,
 ) -> impl IntoView {
     view! {
-        <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
-            <div class="flex flex-col gap-[10px] mb-[20px]">
+        <section class="flex flex-col text-[#8c7456] w-full pr-[15px]">
+            <div class="flex flex-col gap-[10px]">
 
                 {move || {
                     let header = enumeration
@@ -34,9 +34,17 @@ pub fn EnumInput(
                         .map(|enum_var| {
                             view! {
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
-                                    <p>
-                                        <HtmlEnumRender html_string=enum_var.comment.clone()/>
-                                    </p>
+
+                                    {
+                                        let name = enumeration.name.clone();
+                                        view! {
+                                            <StringEnumInput
+                                                html_string=enum_var.comment.clone()
+                                                id=name.clone()
+                                            />
+                                        }
+                                    }
+
                                 </div>
 
                                 {move || {
@@ -44,7 +52,9 @@ pub fn EnumInput(
                                         .field
                                         .as_ref()
                                         .map(|field| {
-                                            let data_signal = RwSignal::new(data_from_entity(&field.ty));
+                                            let data_signal = RwSignal::new(
+                                                data_from_entity(&field.ty),
+                                            );
                                             data.clone()
                                                 .update(|data| {
                                                     data.field = Some(data_signal);
@@ -62,7 +72,7 @@ pub fn EnumInput(
                             }
                         })
                         .collect_view();
-                    (header, variants)
+                    (header, view! { <form>{variants}</form> })
                 }}
 
             </div>

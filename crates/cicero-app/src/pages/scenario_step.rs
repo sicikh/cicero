@@ -298,7 +298,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                     <section id="all_page" class="h-full w-full flex flex-row">
                                         <section
                                             id="step"
-                                            class="pl-[15px] pr-[15px] pt-[15px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"
+                                            class="p-[10px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"
                                         >
                                             <AllSteps steps_names pending_step/>
                                         </section>
