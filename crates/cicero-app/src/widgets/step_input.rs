@@ -122,7 +122,7 @@ scenario_step
     view! {
         <section
             id="input_data"
-            class="flex flex-col flex-1 h-[100%] pt-[10px] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
+            class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
         >
             {move || {
                 let header = if let Some(html_string) = scenario_step.header.clone() {
@@ -146,7 +146,7 @@ scenario_step
                             .iter()
                             .map(|(var, data)| {
                                 view! {
-                                    <section class="flex flex-col text-[#8c7456] w-full px-[15px] pb-[15px]">
+                                    <section class="flex flex-col text-[#8c7456] pt-[5px] w-full px-[15px] pb-[10px]">
                                         <div class="flex flex-col gap-[10px] mb-[20px]">
                                             <div class="font-bold">
                                                 <HtmlRender html_string=var.comment.clone()/>
