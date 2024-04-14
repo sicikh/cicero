@@ -20,14 +20,7 @@ pub fn EntityInput(
         {move || {
             data.with(|data| match (&entity.ty, data) {
                 (types::EntityType::Struct(structure), data::Data::Struct(data)) => {
-                    view! {
-                        <StructInput
-                            structure=structure.clone()
-                            is_required
-                            data=*data
-                            recursion_level
-                        />
-                    }
+                    view! { <StructInput structure=structure.clone() is_required data=*data recursion_level/> }
                 }
                 (types::EntityType::String, data::Data::String(data)) => {
                     view! {
@@ -52,11 +45,15 @@ pub fn EntityInput(
                     }
                 }
                 (types::EntityType::Array(array), data::Data::Array(data)) => {
-                    view! {
-                        <ArrayInput array=array.clone() is_required data=*data recursion_level/>
-                    }
+                    view! { <ArrayInput array=*array.clone() is_required data=*data recursion_level/> }
                 }
-                _ => view! { <p>"Data/type mismatch in EntityInput"</p> }.into_view(),
+                _ => {
+                    view! {
+                        <p>{format!("Data/type mismatch in EntityInput: {:?} and {:?}", &entity, &data)}
+                        </p>
+                    }
+                        .into_view()
+                }
             })
         }}
     }

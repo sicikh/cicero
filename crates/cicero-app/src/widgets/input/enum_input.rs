@@ -72,9 +72,7 @@ pub fn EnumInput(
                                         .as_ref()
                                         .map(|field| {
                                             if selected() == i {
-                                                let data_signal = RwSignal::new(
-                                                    data_from_entity(&field.ty),
-                                                );
+                                                let data_signal = RwSignal::new(data_from_entity(&field.ty));
                                                 data.clone()
                                                     .update(|data| {
                                                         data.field = Some(data_signal);

@@ -77,11 +77,8 @@ pub async fn render_scenario_step(
         ));
     }
 
-    let urls = env
-        .render_scenario_step(user_id, scenario_id, step_id)
-        .await;
-
-    urls.ok_or_else(|| ServerFnError::ServerError("Could not render scenario step".to_string()))
+    env.render_scenario_step(user_id, scenario_id, step_id)
+        .await
 }
 
 // TODO: Maybe use streaming instead of returning url. Find a way to do this in
@@ -227,7 +224,6 @@ pub fn ScenarioStep() -> impl IntoView {
             .and_then(|step| step.parse::<usize>().ok())
             .unwrap_or(0)
     };
-    let signal = create_rw_signal(None);
 
     let data = create_resource(
         move || {
@@ -249,22 +245,9 @@ pub fn ScenarioStep() -> impl IntoView {
         },
     );
 
-    let pngs = create_resource(
-        move || (signal(), user.get_untracked(), scenario_id(), step_index()),
-        |(signal, user, scenario_id, step_index)| {
-            async move {
-                match (signal, user) {
-                    (Some(i), Some((user_id, user_password))) if i > 0 => {
-                        Some(
-                            render_scenario_step(user_id, user_password, scenario_id, step_index)
-                                .await,
-                        )
-                    },
-                    _ => None,
-                }
-            }
-        },
-    );
+    let signal: RwSignal<Option<usize>> = create_rw_signal(None);
+
+    let pngs = create_rw_signal(None);
 
     view! {
         <Layout>
@@ -278,6 +261,7 @@ pub fn ScenarioStep() -> impl IntoView {
                     {move || {
                         match data() {
                             Some(Some((scenario_step, pending_step, steps_names, var_data))) => {
+                                signal.set_untracked(None);
                                 let scenario_step_index = steps_names
                                     .iter()
                                     .position(|name| name == &scenario_step.name)
@@ -308,20 +292,53 @@ pub fn ScenarioStep() -> impl IntoView {
                                         <StepInput scenario_step signal var_data/>
                                         <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
                                             <div class="flex flex-row justify-between w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
-                                                Предварительный просмотр документа
+                                                "Предварительный просмотр документа"
                                                 <div class="flex flex-row gap-x-[10px]">
-                                                    <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
-                                                        Скачать PDF
-                                                    </button>
-                                                    <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
-                                                        Обновить
+                                                    {move || {
+                                                        match user() {
+                                                            Some((user_id, user_password)) => {
+                                                                view! {
+                                                                    <a href=format!(
+                                                                        "/data/{}/{}/rendered.pdf",
+                                                                        user_id,
+                                                                        scenario_id(),
+                                                                    )>
+                                                                        <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
+                                                                            "Скачать PDF"
+                                                                        </button>
+                                                                    </a>
+                                                                }
+                                                                    .into_view()
+                                                            }
+                                                            None => view! {}.into_view(),
+                                                        }
+                                                    }}
+                                                    <button
+                                                        class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl"
+                                                        on:click=move |_| {
+                                                            spawn_local(async move {
+                                                                if let Some((user_id, user_password)) = user() {
+                                                                    let res = render_scenario_step(
+                                                                            user_id,
+                                                                            user_password,
+                                                                            scenario_id(),
+                                                                            step_index(),
+                                                                        )
+                                                                        .await;
+                                                                    pngs.set(Some(res));
+                                                                }
+                                                            })
+                                                        }
+                                                    >
+
+                                                        "Обновить"
                                                     </button>
                                                 </div>
                                             </div>
-                                            <section>
+                                            <section class="overflow-auto">
                                                 {move || {
                                                     match pngs() {
-                                                        Some(Some(Ok(urls))) => Some(view! { <Preview urls/> }),
+                                                        Some(Ok(urls)) => Some(view! { <Preview urls/> }),
                                                         _ => None,
                                                     }
                                                 }}

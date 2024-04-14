@@ -156,5 +156,5 @@ dist
 # Scenarios data
 /scenarios
 
-# User data
-/data
+# Rendered data
+/rendered

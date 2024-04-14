@@ -29,13 +29,7 @@ pub fn Preview(urls: Vec<String>) -> impl IntoView {
                 .map(|url| {
                     view! {
                         <img
-                            src=format!(
-                                "/data/{}/{}/{}/{}",
-                                user().id,
-                                scenario_id(),
-                                step_index(),
-                                url,
-                            )
+                            src=format!("/data/{}/{}/{}/{}", user().id, scenario_id(), step_index(), url)
 
                             class="m-[10px]"
                         />

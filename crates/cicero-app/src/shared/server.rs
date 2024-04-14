@@ -218,16 +218,22 @@ impl Env {
         user_id: UserId,
         scenario_id: ScenarioId,
         step_id: usize,
-    ) -> Option<Vec<String>> {
+    ) -> Result<Vec<String>, ServerFnError> {
         let lock = self.active_scenarios.read().await;
 
         let scenario = lock
-            .get(&user_id)?
+            .get(&user_id)
+            .ok_or_else(|| {
+                ServerFnError::<NoCustomError>::ServerError("User not found".to_string())
+            })?
             .iter()
-            .find(|scenario| scenario.meta().id == scenario_id)?
+            .find(|scenario| scenario.meta().id == scenario_id)
+            .ok_or_else(|| {
+                ServerFnError::<NoCustomError>::ServerError("Scenario not found".to_string())
+            })?
             .clone();
 
-        let mut scenario_data_path = PathBuf::from("data");
+        let mut scenario_data_path = PathBuf::from("rendered/data");
         scenario_data_path.push(format!("{user_id}"));
         scenario_data_path.push(format!("{scenario_id}"));
         tokio::fs::create_dir_all(&scenario_data_path)
@@ -252,15 +258,29 @@ impl Env {
             tokio::task::spawn_blocking(move || scenario.render_pdf(scenario_data_path))
                 .await
                 .unwrap()
-                .ok()?;
+                .map_err(|e| {
+                    ServerFnError::<NoCustomError>::ServerError(format!(
+                        "Failed to render PDF: {e}"
+                    ))
+                })?;
 
         let mut command = Command::new("pdftoppm");
-        command
-            .args([OsStr::new("-jpeg"), rendered_pdf_path.as_os_str(), data_path.as_ref()]);
-        let exit_status = command.spawn().expect("Malformed data").wait().await.expect("Malformed data");
+        command.args([
+            OsStr::new("-jpeg"),
+            rendered_pdf_path.as_os_str(),
+            data_path.as_ref(),
+        ]);
+        let exit_status = command
+            .spawn()
+            .expect("Malformed data")
+            .wait()
+            .await
+            .expect("Malformed data");
 
         if !exit_status.success() {
-            return None;
+            return Err(ServerFnError::<NoCustomError>::ServerError(
+                "Failed to convert PDF to images".to_string(),
+            ));
         }
 
         // Remove "page" file prefix
@@ -284,7 +304,7 @@ impl Env {
             images.push(image_path);
         }
 
-        Some(images)
+        Ok(images)
     }
 
     pub async fn full_render_pdf(

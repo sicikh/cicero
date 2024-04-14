@@ -20,7 +20,7 @@ use crate::widgets::{EntityInput, HtmlRender};
 
 #[component]
 pub fn ArrayInput(
-    array: Box<EntityType>,
+    array: EntityType,
     is_required: bool,
     data: RwSignal<data::Array>,
     recursion_level: usize,
