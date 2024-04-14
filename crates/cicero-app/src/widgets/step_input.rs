@@ -122,7 +122,7 @@ scenario_step
     view! {
         <section
             id="input_data"
-            class="flex flex-col flex-1 h-[100%] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
+            class="flex flex-col flex-1 h-[100%] pt-[10px] bg-[#EEEEEE] border-r-[7px] border-[#8c7456]"
         >
             {move || {
                 let header = if let Some(html_string) = scenario_step.header.clone() {
@@ -167,7 +167,7 @@ scenario_step
                     });
                 let button = view! {
                     <button
-                        class="bg-[#8C7456] text-[#FFFFFF] py-[10px] px-[20px] rounded-[5px] mt-[20px] hover:bg-[#8C7456] hover:text-[#FFFFFF]"
+                        class="bg-[#8C7456] text-[#FFFFFF] mb-[15px] py-[5px] mx-[20px] h-[80px] text-[18px] rounded-[15px] items-center mt-[10px] hover:shadow-2xl hover:text-[#FFFFFF]"
                         on:click=move |_| {
                             signal
                                 .update(|signal| {
@@ -179,7 +179,7 @@ scenario_step
                         }
                     >
 
-                        <p>submit</p>
+                        Применить изменения
                     </button>
                 };
                 (header, input, button)

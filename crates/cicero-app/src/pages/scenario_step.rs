@@ -307,8 +307,16 @@ pub fn ScenarioStep() -> impl IntoView {
                                         </section>
                                         <StepInput scenario_step signal var_data/>
                                         <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
-                                            <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
+                                            <div class="flex flex-row justify-between w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                                                 Предварительный просмотр документа
+                                                <div class="flex flex-row gap-x-[10px]">
+                                                    <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
+                                                        Скачать PDF
+                                                    </button>
+                                                    <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
+                                                        Обновить
+                                                    </button>
+                                                </div>
                                             </div>
                                             <section>
                                                 {move || {
