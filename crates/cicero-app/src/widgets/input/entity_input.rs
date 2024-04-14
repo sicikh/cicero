@@ -1,8 +1,11 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
+
 use cicero_dsl::types;
 use leptos::*;
 
 use crate::shared::data;
 use crate::widgets::{EnumInput, StringInput, StructInput};
+static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[component]
 pub fn EntityInput(
@@ -17,7 +20,14 @@ pub fn EntityInput(
         {move || {
             data.with(|data| match (&entity.ty, data) {
                 (types::EntityType::Struct(structure), data::Data::Struct(data)) => {
-                    view! { <StructInput structure=structure.clone() is_required data=*data recursion_level/> }
+                    view! {
+                        <StructInput
+                            structure=structure.clone()
+                            is_required
+                            data=*data
+                            recursion_level
+                        />
+                    }
                 }
                 (types::EntityType::String, data::Data::String(data)) => {
                     view! {
@@ -30,7 +40,16 @@ pub fn EntityInput(
                     }
                 }
                 (types::EntityType::Enum(enumeration), data::Data::Enum(data)) => {
-                    view! { <EnumInput enumeration=enumeration.clone() is_required data=*data recursion_level/> }
+                    let id = COUNTER.fetch_add(1, Ordering::SeqCst);
+                    view! {
+                        <EnumInput
+                            enumeration=enumeration.clone()
+                            name=id.to_string()
+                            is_required
+                            data=*data
+                            recursion_level
+                        />
+                    }
                 }
                 _ => view! { <p>"Data/type mismatch in EntityInput"</p> }.into_view(),
             })

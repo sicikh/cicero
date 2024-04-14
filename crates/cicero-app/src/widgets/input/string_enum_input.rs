@@ -7,9 +7,9 @@ use crate::shared::data;
 use crate::widgets::{EntityInput, HtmlEnumRender, HtmlRender};
 
 #[component]
-pub fn StringEnumInput(html_string: HtmlString, id: String) -> impl IntoView {
+pub fn StringEnumInput(html_string: HtmlString, id: String, name: String) -> impl IntoView {
     view! {
-        <input class="mr-[5px]" type="radio" id=id.clone()/>
+        <input class="mr-[5px]" type="radio" id=id.clone() name=name.clone()/>
         <HtmlEnumRender html_string=html_string name=id.clone()/>
     }
 }

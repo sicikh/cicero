@@ -11,6 +11,7 @@ pub fn EnumInput(
     is_required: bool,
     data: RwSignal<data::Enum>,
     recursion_level: usize,
+    name: String,
 ) -> impl IntoView {
     view! {
         <section class="flex flex-col text-[#8c7456] w-full pr-[15px]">
@@ -33,14 +34,16 @@ pub fn EnumInput(
                         .into_values()
                         .map(|enum_var| {
                             view! {
+                                // Add index here
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
 
                                     {
-                                        let name = enumeration.name.clone();
+                                        let id = enumeration.name.clone();
                                         view! {
                                             <StringEnumInput
                                                 html_string=enum_var.comment.clone()
-                                                id=name.clone()
+                                                id=id.clone()
+                                                name=name.clone()
                                             />
                                         }
                                     }
@@ -72,7 +75,20 @@ pub fn EnumInput(
                             }
                         })
                         .collect_view();
-                    (header, view! { <form>{variants}</form> })
+                    (
+                        header,
+                        view! {
+                            // Add index here
+
+                            // Add index here
+
+                            // Add index here
+
+                            // Add index here
+
+                            <form>{variants}</form>
+                        },
+                    )
                 }}
 
             </div>
