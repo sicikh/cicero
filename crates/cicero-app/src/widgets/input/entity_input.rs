@@ -4,7 +4,7 @@ use cicero_dsl::types;
 use leptos::*;
 
 use crate::shared::data;
-use crate::widgets::{EnumInput, StringInput, StructInput};
+use crate::widgets::{ArrayInput, EnumInput, StringInput, StructInput};
 static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[component]
@@ -51,8 +51,33 @@ pub fn EntityInput(
                         />
                     }
                 }
+                (types::EntityType::Array(array), data::Data::Array(data)) => {
+                    view! {
+                        <ArrayInput array=array.clone() is_required data=*data recursion_level/>
+                    }
+                }
                 _ => view! { <p>"Data/type mismatch in EntityInput"</p> }.into_view(),
             })
         }}
     }
 }
+
+/*
+(types::EntityType::PhoneNumber) => {
+    view! {
+        <PhoneNumberInput
+            placeholder=placeholder.clone()
+            is_required
+            recursion_level=recursion_level
+        />
+    }
+}
+(types::EntityType::Place) => {
+    view! {
+        <PlaceInput
+            placeholder=placeholder.clone()
+            is_required
+            recursion_level=recursion_level
+        />
+    }
+}*/

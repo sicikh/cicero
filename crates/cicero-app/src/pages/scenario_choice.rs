@@ -47,7 +47,7 @@ pub fn ScenarioChoice() -> impl IntoView {
     view! {
         <Title text="Выбор шаблона"/>
         <Layout>
-            <div id="main_body" class="flex flex-row h-full bg-[#EEEEEE]">
+            <div id="main_body" class="flex flex-1 flex-row h-full bg-[#EEEEEE]">
                 <div id="left_side" class="md:flex flex-col flex-1 border-r-[7px] border-[#8C7456]">
                     <SearchBar filter/>
                     <Suspense fallback=move || view! { <p>"Loading..."</p> }>

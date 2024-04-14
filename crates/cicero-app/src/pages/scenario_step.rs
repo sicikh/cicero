@@ -295,7 +295,10 @@ pub fn ScenarioStep() -> impl IntoView {
                                     );
                                 }
                                 view! {
-                                    <section id="all_page" class="h-full w-full flex flex-row">
+                                    <section
+                                        id="all_page"
+                                        class="h-full w-full flex flex-row overflow-hidden"
+                                    >
                                         <section
                                             id="step"
                                             class="p-[10px] border-r-[3px] border-[#8C7456] space-y-[8px] flex flex-col h-full w-[150px] items-center bg-[#BFA07A]"

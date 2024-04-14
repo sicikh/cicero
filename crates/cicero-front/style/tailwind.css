@@ -16,9 +16,15 @@
 
 @layer base {
     html {
-        @apply h-[100%];
+        @apply h-[100vh];
     }
     body {
-        @apply flex flex-col h-[100%] bg-[#eeeeee] w-[100%] overflow-hidden;
+        @apply bg-[#eeeeee] w-[100%] overflow-hidden;
+    }
+    #input_data {
+        @apply overflow-auto h-[83vh]; /* adjust the height as needed */
+    }
+    .scenario_step, .scenario_choice {
+        @apply h-[100%];
     }
 }
