@@ -13,6 +13,20 @@ pub fn EnumInput(
     recursion_level: usize,
     name: String,
 ) -> impl IntoView {
+    let selected = create_rw_signal(0usize);
+    let effect_enumeration = enumeration.clone();
+    create_effect(move |_| {
+        let (_, variant) = effect_enumeration
+            .variants
+            .values()
+            .enumerate()
+            .find(|(i, _)| *i == selected())
+            .unwrap(); // panics if selected is out of bounds
+        data.update(|data| {
+            data.discriminant.clone_from(&variant.name);
+        });
+    });
+
     view! {
         <section class="flex flex-col text-[#8c7456] w-full pr-[15px]">
             <div class="flex flex-col gap-[10px]">
@@ -32,9 +46,9 @@ pub fn EnumInput(
                         .variants
                         .clone()
                         .into_values()
-                        .map(|enum_var| {
+                        .enumerate()
+                        .map(|(i, enum_var)| {
                             view! {
-                                // Add index here
                                 <div class="pl-[25px] flex flex-row gap-x-[5px] items-center">
 
                                     {
@@ -44,6 +58,8 @@ pub fn EnumInput(
                                                 html_string=enum_var.comment.clone()
                                                 id=id.clone()
                                                 name=name.clone()
+                                                value=i
+                                                selected=selected.write_only()
                                             />
                                         }
                                     }
@@ -55,40 +71,31 @@ pub fn EnumInput(
                                         .field
                                         .as_ref()
                                         .map(|field| {
-                                            let data_signal = RwSignal::new(
-                                                data_from_entity(&field.ty),
-                                            );
-                                            data.clone()
-                                                .update(|data| {
-                                                    data.field = Some(data_signal);
-                                                });
-                                            view! {
-                                                <EntityInput
-                                                    entity=field.clone()
-                                                    placeholder=enum_var.comment.clone()
-                                                    data=data_signal
-                                                    recursion_level=recursion_level + 1
-                                                />
+                                            if selected() == i {
+                                                let data_signal = RwSignal::new(
+                                                    data_from_entity(&field.ty),
+                                                );
+                                                data.clone()
+                                                    .update(|data| {
+                                                        data.field = Some(data_signal);
+                                                    });
+                                                view! {
+                                                    <EntityInput
+                                                        entity=field.clone()
+                                                        placeholder=enum_var.comment.clone()
+                                                        data=data_signal
+                                                        recursion_level=recursion_level + 1
+                                                    />
+                                                }
+                                            } else {
+                                                view! {}.into_view()
                                             }
                                         })
                                 }}
                             }
                         })
                         .collect_view();
-                    (
-                        header,
-                        view! {
-                            // Add index here
-
-                            // Add index here
-
-                            // Add index here
-
-                            // Add index here
-
-                            <form>{variants}</form>
-                        },
-                    )
+                    (header, view! { <form>{variants}</form> })
                 }}
 
             </div>

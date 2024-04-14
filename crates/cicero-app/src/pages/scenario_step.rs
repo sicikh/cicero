@@ -254,7 +254,7 @@ pub fn ScenarioStep() -> impl IntoView {
         |(signal, user, scenario_id, step_index)| {
             async move {
                 match (signal, user) {
-                    (Some(_), Some((user_id, user_password))) => {
+                    (Some(i), Some((user_id, user_password))) if i > 0 => {
                         Some(
                             render_scenario_step(user_id, user_password, scenario_id, step_index)
                                 .await,
@@ -277,7 +277,7 @@ pub fn ScenarioStep() -> impl IntoView {
                     }}
                     {move || {
                         match data() {
-                            Some(Some((scenario_step, pending_step, steps_names, data))) => {
+                            Some(Some((scenario_step, pending_step, steps_names, var_data))) => {
                                 let scenario_step_index = steps_names
                                     .iter()
                                     .position(|name| name == &scenario_step.name)
@@ -302,7 +302,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                         >
                                             <AllSteps steps_names pending_step/>
                                         </section>
-                                        <StepInput scenario_step signal/>
+                                        <StepInput scenario_step signal var_data/>
                                         <section class="flex-1 h-full flex flex-col bg-[#EEEEEE] border-l-[7px] border-[#8c7456]">
                                             <div class="w-full h-[45px] border-b-[3px] px-[15px] py-[7px] border-[#8c7456] items-center text-[16px] text-[#8c7456] ">
                                                 Предварительный просмотр документа

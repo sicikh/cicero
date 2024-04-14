@@ -49,18 +49,28 @@ pub async fn put_step_data(
 }
 
 #[component]
-pub fn StepInput(scenario_step: ScenarioStep, signal: RwSignal<Option<usize>>) -> impl IntoView {
+pub fn StepInput(scenario_step: ScenarioStep, var_data: Option<HashMap<String, dsl::Var>>, signal: RwSignal<Option<usize>>) -> impl IntoView {
     let (user, ..) = use_local_storage::<User, JsonCodec>("user");
 
-    let var_data = create_rw_signal(
-        scenario_step
+    let var_data = create_rw_signal({
+        match var_data {
+            Some(var_data) => scenario_step.variables.into_iter().map(|var| {
+                let data = RwSignal::new(var_data.get(&var.name).cloned().map(|var| var.data.into()).unwrap_or_else(|| data_from_entity(&var.ty.ty)));
+                (var, data)
+            }).collect::<Vec<(Var, RwSignal<data::Data>)>>(),
+            None => {
+scenario_step
             .variables
             .into_iter()
             .map(|var| {
                 let data = RwSignal::new(data_from_entity(&var.ty.ty));
                 (var, data)
             })
-            .collect::<Vec<(Var, RwSignal<data::Data>)>>(),
+            .collect::<Vec<(Var, RwSignal<data::Data>)>>() 
+            },
+        }
+    }
+        
     );
     let params = use_params_map();
     let scenario_id = move || {
