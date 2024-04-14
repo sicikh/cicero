@@ -22,9 +22,6 @@
         @apply bg-[#eeeeee] w-[100%] overflow-hidden;
     }
     #input_data {
-        @apply overflow-auto h-[83vh]; /* adjust the height as needed */
-    }
-    .scenario_step, .scenario_choice {
-        @apply h-[100%];
+        @apply overflow-auto h-[calc(100vh-180px)]; /* adjust the height as needed */
     }
 }
