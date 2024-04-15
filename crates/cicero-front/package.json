@@ -1,0 +1,19 @@
+{
+  "name": "cicero-front",
+  "version": "0.1.0",
+  "description": "<picture>\r     <source srcset=\"https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_Solid_White.svg\" media=\"(prefers-color-scheme: dark)\">\r     <img src=\"https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_RGB.svg\" alt=\"Leptos Logo\">\r </picture>",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tailwindcss -i ./style/tailwind.css -o ./style/output.css",
+    "watch": "npx tailwindcss -i ./style/tailwind.css -o ./style/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT OR Apache-2.0",
+  "dependencies": {
+    "tailwindcss": "^3.3.2"
+  },
+  "devDependencies": {
+    "tailwind-scrollbar": "^3.1.0"
+  }
+}

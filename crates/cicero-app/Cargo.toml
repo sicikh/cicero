@@ -1,0 +1,48 @@
+[package]
+name = "cicero-app"
+version = "0.1.0"
+description = "Web-app for creating and using interactive documents templates"
+homepage.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+cicero-dsl.workspace = true
+leptos.workspace = true
+leptos_router.workspace = true
+leptos_meta.workspace = true
+leptos_axum = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true, features = ["process"] }
+http.workspace = true
+thiserror.workspace = true
+indexmap.workspace = true
+log = "0.4.1"
+web-sys = "0.3"
+cfg-if.workspace = true
+axum = { workspace = true, optional = true }
+regex = "1.10.4"
+rand = { version = "0.8.5", optional = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = "1"
+leptos-use = { version = "0.10.7", features = ["serde"] }
+
+[features]
+hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
+ssr = [
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+    "leptos-use/ssr",
+    "leptos-use/axum",
+    "dep:leptos_axum",
+    "dep:rand",
+    "cicero-dsl/render",
+    "tokio",
+    "axum",
+]
+
+[lints]
+workspace = true

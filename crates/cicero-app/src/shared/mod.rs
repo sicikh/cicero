@@ -9,13 +9,7 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
-
-#[cfg(feature = "render")]
-pub use render::*;
-
+pub mod api;
 pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+#[cfg(feature = "ssr")]
+pub mod server;

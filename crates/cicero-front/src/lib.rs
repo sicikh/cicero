@@ -9,13 +9,12 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+use cicero_app::*;
+use leptos::*;
 
-#[cfg(feature = "render")]
-pub use render::*;
-
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn hydrate() {
+    _ = console_log::init_with_level(log::Level::Debug);
+    console_error_panic_hook::set_once();
+    leptos::mount_to_body(App);
+}

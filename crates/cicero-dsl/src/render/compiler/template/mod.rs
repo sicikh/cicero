@@ -9,13 +9,17 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+use crate::render::context::VarEnv;
+use crate::render::scenario::Template;
 
-#[cfg(feature = "render")]
-pub use render::*;
+mod ast;
+mod grammar;
+mod resolver;
 
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
+pub fn compile_template(template: &str, var_env: &VarEnv) -> Result<Template, String> {
+    let ast = grammar::parse_template(template)?;
 
-pub mod types;
+    let template = resolver::resolve_template(ast, var_env)?;
+
+    Ok(template)
+}

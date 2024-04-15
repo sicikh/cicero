@@ -9,13 +9,10 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+use cicero_dsl::types::HtmlString;
+use leptos::*;
 
-#[cfg(feature = "render")]
-pub use render::*;
-
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+#[component]
+pub fn HtmlRender(html_string: HtmlString) -> impl IntoView {
+    view! { <div></div> }.inner_html(html_string)
+}

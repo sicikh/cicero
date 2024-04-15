@@ -9,13 +9,17 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+#[derive(Clone, Debug, PartialEq)]
+pub struct Template {
+    pub beginning_clause: String,
+    pub steps: Vec<Step>,
+    pub end_clause: String,
+}
 
-#[cfg(feature = "render")]
-pub use render::*;
-
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+#[derive(Clone, Debug, PartialEq)]
+pub struct Step {
+    pub name: String,
+    pub comment: Option<String>,
+    pub variables: Vec<String>,
+    pub body: String,
+}

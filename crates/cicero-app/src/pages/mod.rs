@@ -9,13 +9,10 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+mod index;
+mod scenario_choice;
+mod scenario_step;
 
-#[cfg(feature = "render")]
-pub use render::*;
-
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+pub use self::index::*;
+pub use self::scenario_choice::*;
+pub use self::scenario_step::*;

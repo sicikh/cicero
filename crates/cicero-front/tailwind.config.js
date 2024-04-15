@@ -9,13 +9,20 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
-
-#[cfg(feature = "render")]
-pub use render::*;
-
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
-
-pub mod types;
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+    content: {
+        relative: true,
+        files: ["*.html", "./src/**/*.rs", "../cicero-app/src/**/*.rs"],
+    },
+    theme: {
+        extend: {
+            fontFamily: {
+                'inter': ["Inter"]
+            }
+        },
+    },
+    plugins: [
+        require('tailwind-scrollbar'),
+    ],
+}

@@ -9,13 +9,19 @@
  * except according to those terms.
  */
 
-#![feature(assert_matches)]
+pub use resolver::check_data_validity;
 
-#[cfg(feature = "render")]
-pub use render::*;
+use self::grammar::parse_module;
+use self::resolver::resolve;
+use crate::render::context::VarEnv;
 
-pub mod data;
-#[cfg(feature = "render")]
-mod render;
+mod ast;
+mod grammar;
+mod lexer;
+mod resolver;
 
-pub mod types;
+pub fn compile_types(source: &str) -> Result<VarEnv, String> {
+    let module = parse_module(source)?;
+    let var_env = resolve(module)?;
+    Ok(var_env)
+}

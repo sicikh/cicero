@@ -1,0 +1,104 @@
+name: CI
+on: [ pull_request, push ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Format workspace with rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Enforce formatting
+        run: cargo fmt --all --check
+
+  lint:
+    name: Lint workspace with clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Run cargo clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  check:
+    name: Check workspace for compile-ability
+    runs-on: ubuntu-latest
+    needs: [ fmt, lint ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Run cargo check
+        run: cargo check --workspace --all-features --all-targets
+
+  test:
+    name: Test workspace
+    runs-on: ubuntu-latest
+    needs: [ check ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust nightly toolchain 
+        uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Pandoc
+        uses: pandoc/actions/setup@main
+        with:
+          version: 3.1
+      - name: Install Tectonic
+        uses: wtfjoke/setup-tectonic@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          tectonic-version: 0.15.0
+      - name: Run tests
+        run: cargo test --workspace --all-features --all-targets
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build workspace
+    needs: [ check ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: "wasm32-unknown-unknown"
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        working-directory: ./crates/cicero-front
+        run: |
+          npm install
+          cargo install cargo-leptos
+          cargo leptos build 
+
+# TODO: enable when E2E tests are added
+#  test:
+#    timeout-minutes: 60
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-node@v3
+#        with:
+#          node-version: 18
+#      - name: Install dependencies
+#        run: npm ci
+#      - name: Install Playwright Browsers
+#        run: npx playwright install --with-deps
+#      - name: Run Playwright tests
+#        run: npx playwright test
+#      - uses: actions/upload-artifact@v3
+#        if: always()
+#        with:
+#          name: playwright-report
+#          path: playwright-report/
+#          retention-days: 30

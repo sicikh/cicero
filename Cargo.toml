@@ -4,14 +4,81 @@ unsafe_code = "forbid"
 [workspace]
 resolver = "2"
 members = ["crates/*"]
-default-members = ["crates/*"]
+exclude = ["crates/cicero-e2e"]
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.dev]
+opt-level = 1
+[profile.dev.package."*"]
+opt-level = 3
 
 [workspace.package]
 homepage = "https://cicero-project.org/"
 repository = "https://github.com/sicikh/cicero"
-authors = ["Kirill Lukashev <kirill.lukashev.sic@gmail.com>", "Gleb Krylov <gleb_cry@mail.ru>"]
+authors = [
+    "Kirill Lukashev <kirill.lukashev.sic@gmail.com>",
+    "Gleb Krylov <gleb_cry@mail.ru>",
+]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 
 [workspace.dependencies]
+cicero-dsl = { version = "0.1.0", path = "crates/cicero-dsl" }
+cicero-app = { version = "0.1.0", path = "crates/cicero-app" }
+cicero-front = { version = "0.1.0", path = "crates/cicero-front" }
+cicero-server = { version = "0.1.0", path = "crates/cicero-server" }
+serde = { version = "1.0" }
+leptos = { version = "0.6.9", default-features = false, features = [
+    "nightly",
+    "serde",
+] }
+leptos_meta = { version = "0.6.9", default-features = false, features = [
+    "nightly",
+] }
+leptos_router = { version = "0.6.9", default-features = false, features = [
+    "nightly",
+] }
+leptos_axum = { version = "0.6.9" }
+gloo-net = { version = "0.5.0", features = ["http"] }
+http = "1.0.0"
+thiserror = { version = "1.0.41" }
+tracing = { version = "0.1.40" }
+tokio = { version = "1.0" }
+indexmap = { version = "2.2.5", features = ["serde"] }
+tempfile = "3.10.1"
+cfg-if = "1.0.0"
+axum = "0.7.4"
+
+[[workspace.metadata.leptos]]
+name = "cicero"
+output-name = "cicero"
+bin-package = "cicero-server"
+lib-package = "cicero-front"
+assets-dir = "crates/cicero-front/public"
+tailwind-input-file = "crates/cicero-front/style/tailwind.css"
+tailwind-config-file = "crates/cicero-front/tailwind.config.js"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+site-addr = "127.0.0.1:3000"
+reload-port = 3001
+end2end-cmd = "npx playwright test"
+end2end-dir = "crates/cicero-e2e"
+browserquery = "defaults"
+watch = false
+env = "DEV"
+bin-features = []
+bin-default-features = false
+bin-profile-dev = "server-dev"
+lib-features = []
+lib-default-features = false
+lib-profile-release = "wasm-release"
