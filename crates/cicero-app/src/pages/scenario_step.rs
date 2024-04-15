@@ -269,12 +269,7 @@ pub fn ScenarioStep() -> impl IntoView {
                                 if scenario_step_index != step_index() {
                                     let navigate = use_navigate();
                                     navigate(
-                                        format!(
-                                            "/scenario/{}/{}",
-                                            scenario_id(),
-                                            scenario_step_index,
-                                        )
-                                            .as_str(),
+                                        format!("/scenario/{}/{}", scenario_id(), scenario_step_index).as_str(),
                                         Default::default(),
                                     );
                                 }

@@ -48,10 +48,7 @@ pub fn EntityInput(
                     view! { <ArrayInput array=*array.clone() is_required data=*data recursion_level/> }
                 }
                 _ => {
-                    view! {
-                        <p>{format!("Data/type mismatch in EntityInput: {:?} and {:?}", &entity, &data)}
-                        </p>
-                    }
+                    view! { <p>{format!("Data/type mismatch in EntityInput: {:?} and {:?}", &entity, &data)}</p> }
                         .into_view()
                 }
             })
