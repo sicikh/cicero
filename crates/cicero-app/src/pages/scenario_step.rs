@@ -269,7 +269,12 @@ pub fn ScenarioStep() -> impl IntoView {
                                 if scenario_step_index != step_index() {
                                     let navigate = use_navigate();
                                     navigate(
-                                        format!("/scenario/{}/{}", scenario_id(), scenario_step_index).as_str(),
+                                        format!(
+                                            "/scenario/{}/{}",
+                                            scenario_id(),
+                                            scenario_step_index,
+                                        )
+                                            .as_str(),
                                         Default::default(),
                                     );
                                 }
@@ -293,11 +298,14 @@ pub fn ScenarioStep() -> impl IntoView {
                                                         match user() {
                                                             Some((user_id, user_password)) => {
                                                                 view! {
-                                                                    <a href=format!(
-                                                                        "/data/{}/{}/rendered.pdf",
-                                                                        user_id,
-                                                                        scenario_id(),
-                                                                    )>
+                                                                    <a
+                                                                        href=format!(
+                                                                            "/data/{}/{}/rendered.pdf",
+                                                                            user_id,
+                                                                            scenario_id(),
+                                                                        )
+                                                                        target="_blank"
+                                                                    >
                                                                         <button class="w-[100px] h-[30px] items-center rounded-[5px] bg-[#8c7456] text-[#eeeeee] hover:shadow-xl">
                                                                             "Скачать PDF"
                                                                         </button>
