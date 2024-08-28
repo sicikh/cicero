@@ -1,0 +1,11 @@
+.Container {
+    @apply w-full h-full p-2;
+    @apply flex;
+    @apply overflow-hidden;
+}
+
+.Categories {
+    @apply h-full px-1;
+    @apply flex-none flex flex-col gap-1;
+    @apply overflow-x-hidden overflow-y-auto;
+}

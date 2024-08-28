@@ -1,0 +1,34 @@
+.Container {
+    @apply flex w-full h-full px-2 py-1;
+}
+
+.DocxContainer {
+    @apply w-full h-full px-2 py-1 -ml-2;
+    @apply flex-1 gap-2;
+    @apply overflow-y-auto;
+}
+
+@media (max-width: 768px) {
+    .DocxContainer {
+        display: none;
+    }
+}
+
+.Form {
+    @apply flex-initial flex-col gap-4;
+    @apply overflow-y-auto;
+}
+
+@media (max-width: 768px) {
+    .Form {
+        @apply w-full;
+    }
+}
+
+.Group {
+    @apply flex flex-col gap-1;
+
+    .Fields {
+        @apply flex flex-col gap-2;
+    }
+}

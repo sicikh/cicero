@@ -1,0 +1,13 @@
+{
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "sort-imports": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "unicorn/no-abusive-eslint-disable": "off",
+    "react/react-in-jsx-scope": "off",
+    "react-perf/jsx-no-jsx-as-prop": "off"
+  }
+}

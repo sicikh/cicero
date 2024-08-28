@@ -1,45 +1,53 @@
-# Cicero Project
+# Welcome to Loco :train:
 
-Web-app for using Cicero DSL to generate documents interactively.
+Loco is a web and API framework running on Rust.
 
-# Prerequisites
+This is the **SaaS starter** which includes a `User` model and authentication based on JWT.
 
-- install [Rust](https://www.rust-lang.org/tools/install) nightly toolchain with WASM support:
 
-```sh
-$ rustup toolchain install nightly
-$ rustup default nightly
-$ rustup target add wasm32-unknown-unknown
+## Quick Start
+
+You need:
+
+* A local postgres instance
+* A local Redis instance
+
+Check out your development [configuration](config/development.yaml).
+
+> To configure a database , please run a local postgres database with <code>loco:loco</code> and a db named <code>[app name]_development.</code>: 
+<code>docker run -d -p 5432:5432 -e POSTGRES_USER=loco -e POSTGRES_DB=[app name]_development -e POSTGRES_PASSWORD="loco" postgres:15.3-alpine</code>
+
+Now start your app:
+
+```
+$ cargo loco start
+Finished dev [unoptimized + debuginfo] target(s) in 21.63s
+    Running `target/debug/myapp start`
+
+    :
+    :
+    :
+
+controller/app_routes.rs:203: [Middleware] Adding log trace id
+
+                      ▄     ▀
+                                 ▀  ▄
+                  ▄       ▀     ▄  ▄ ▄▀
+                                    ▄ ▀▄▄
+                        ▄     ▀    ▀  ▀▄▀█▄
+                                          ▀█▄
+▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄▄▄ ▀▀█
+ ██████  █████   ███ █████   ███ █████   ███ ▀█
+ ██████  █████   ███ █████   ▀▀▀ █████   ███ ▄█▄
+ ██████  █████   ███ █████       █████   ███ ████▄
+ ██████  █████   ███ █████   ▄▄▄ █████   ███ █████
+ ██████  █████   ███  ████   ███ █████   ███ ████▀
+   ▀▀▀██▄ ▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀ ██▀
+       ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+
+started on port 5150
 ```
 
-- install [cargo-leptos](https://github.com/leptos-rs/cargo-leptos):
+## Getting help
 
-```sh
-$ cargo install cargo-leptos
-```
-
-- install Tailwind CSS:
-
-```sh
-$ npm -i tailwindcss -g
-```
-
-- install [Tectonic](https://tectonic-typesetting.github.io/en-US/) for rendering into PDF (tested on version 0.15.0)
-
-- install [pandoc](https://pandoc.org/installing.html) for rendering into DOCX
-
-# Running in development
-
-Run application in `watch` mode via `cargo-leptos`:
-
-```sh
-$ cargo leptos watch
-```
-
-# Building for production
-
-Build application in `release` mode via `cargo-leptos`:
-
-```sh
-$ cargo leptos build --release
-```
+Check out [a quick tour](https://loco.rs/docs/getting-started/tour/) or [the complete guide](https://loco.rs/docs/getting-started/guide/).

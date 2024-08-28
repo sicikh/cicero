@@ -79,23 +79,19 @@
     "commit_scope": {
         "enable": true,
         "custom_scope": false,
-        "initial_value": "cicero-app",
+        "initial_value": "front",
         "options": [
             {
-                "value": "cicero-app",
-                "label": "app"
-            },
-            {
-                "value": "cicero-dsl",
-                "label": "dsl"
-            },
-            {
-                "value": "cicero-front",
+                "value": "front",
                 "label": "front"
             },
             {
-                "value": "cicero-server",
+                "value": "server",
                 "label": "server"
+            },
+            {
+                "value": "dsl",
+                "label": "dsl"
             },
             {
                 "value": "",

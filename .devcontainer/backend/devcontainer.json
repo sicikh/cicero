@@ -1,0 +1,14 @@
+{
+  "name": "Cicero Server Container",
+  "dockerComposeFile": "../compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspace/cicero",
+  "forwardPorts": [
+    5150
+  ],
+  "customizations": {
+    "jetbrains": {
+      "backend": "RustRover"
+    }
+  }
+}

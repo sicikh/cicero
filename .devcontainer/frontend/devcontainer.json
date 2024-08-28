@@ -1,0 +1,16 @@
+{
+  "name": "Cicero Client Container",
+  "dockerComposeFile": "../compose.yml",
+  "service": "frontend",
+  workspaceMount: "source=${localWorkspaceFolder}/frontend,target=/workspace/cicero/frontend,type=bind",
+  "workspaceFolder": "/workspace/cicero/frontend",
+  "forwardPorts": [
+    5151
+  ],
+  "postCreateCommand": "bun install",
+  "customizations": {
+    "jetbrains": {
+      "backend": "WebStorm"
+    }
+  }
+}
