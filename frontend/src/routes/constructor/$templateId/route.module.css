@@ -1,9 +1,9 @@
 .Container {
-    @apply flex w-full h-full px-2 py-1;
+    @apply flex w-full
 }
 
 .DocxContainer {
-    @apply w-full h-full px-2 py-1 -ml-2;
+    @apply w-full px-2 py-1 -ml-2;
     @apply flex-1 gap-2;
     @apply overflow-y-auto;
 }
@@ -15,7 +15,7 @@
 }
 
 .Form {
-    @apply flex-initial flex-col gap-4;
+    @apply flex-initial flex-col gap-4 basis-1/2;
     @apply overflow-y-auto;
 }
 
@@ -31,4 +31,52 @@
     .Fields {
         @apply flex flex-col gap-2;
     }
+}
+
+.container{
+    @apply bg-[#343A40]
+}
+.headerGroup{
+    @apply ml-[5px] mr-[3px];
+    @apply h-[61px] flex flex-row items-center justify-end;
+    @apply xl:ml-[40px] xl:mr-[25px]
+}
+.titleText{
+    @apply text-[14px] text-[#DEE2E6] font-bold
+}
+.previewText{
+    @apply text-[14px] text-[#DEE2E6] font-bold
+}
+.previewGroup{
+    @apply flex gap-x-[20px] xl:gap-x-[60px]
+}
+.buttonGroup{
+    @apply text-[#343A40]
+}
+.Button{
+    @apply rounded-[25px] text-[#343A40];
+}
+
+.containerMain{
+    @apply h-[100vh] w-full;
+    @apply flex flex-row;
+}
+.inputsForm{
+    @apply basis-1/2;
+    @apply bg-[#DEE2E6];
+    @apply pt-[15px] pl-[15px] md:pl-[40px]
+
+}
+.overview{
+    @apply basis-1/2;
+    @apply flex-1
+}
+
+.scrollbar{
+    @apply h-[calc(100vh-241px)];
+}
+.groupInputTitle{
+    @apply text-[16px] text-[#343A40] md:text-[18px] font-bold;
+    @apply my-[30px] md:pl-[30px] md:pr-[70px];
+    @apply flex justify-center
 }

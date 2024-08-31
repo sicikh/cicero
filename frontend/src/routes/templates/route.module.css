@@ -1,11 +1,37 @@
-.Container {
-    @apply w-full h-full p-2;
-    @apply flex;
-    @apply overflow-hidden;
+.Container{
+    @apply flex flex-row;
+    @apply h-[100vh]
 }
-
-.Categories {
-    @apply h-full px-1;
-    @apply flex-none flex flex-col gap-1;
-    @apply overflow-x-hidden overflow-y-auto;
+.leftSide{
+    @apply basis-1/2 h-full;
+    @apply border-r-[2px] border-[#DEE2E6];
+    @apply pt-[15px];
+}
+.rightSide{
+    @apply basis-1/2;
+    @apply text-[#495057]
+}
+.mainRS{
+    @apply mb-[15px];
+    @apply mx-[5px] md:mx-[30px];
+}
+.search{
+    @apply mx-[15px]
+}
+.accordion {
+    @apply border-t-[2px] border-[#DEE2E6];
+    @apply text-[#495057]
+}
+.button {
+    @apply mt-[30px];
+    @apply hover:bg-[#DEE2E6]
+}
+.description{
+    @apply border-t-[2px] border-[#DEE2E6];
+}
+.descriptionTitle{
+    @apply mx-[5px] md:mx-[10px];
+}
+.descriptionText{
+    @apply mx-[10px] md:mx-[30px];
 }

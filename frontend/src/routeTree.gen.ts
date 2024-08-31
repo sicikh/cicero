@@ -11,11 +11,11 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
-import { Route as ConstructorTemplateIdRouteImport } from "./routes/constructor/$templateId/route";
+import { Route as VerifyRouteImport } from "./routes/verify/route";
+import { Route as TemplatesRouteImport } from "./routes/templates/route";
 import { Route as IndexRouteImport } from "./routes/index/route";
 import { Route as TemplatesTemplateIdRouteImport } from "./routes/templates/$templateId/route";
-import { Route as TemplatesRouteImport } from "./routes/templates/route";
-import { Route as VerifyRouteImport } from "./routes/verify/route";
+import { Route as ConstructorTemplateIdRouteImport } from "./routes/constructor/$templateId/route";
 
 // Create/Update Routes
 

@@ -4,7 +4,9 @@ import {
   NumberInput,
   Radio,
   TextInput,
-  TypographyStylesProvider,
+  Container,
+  Group,
+  TypographyStylesProvider, ScrollArea,
 } from "@mantine/core";
 import { type FormApi, type ReactFormApi, useForm } from "@tanstack/react-form";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
@@ -127,37 +129,56 @@ const Page: React.FC = () => {
   });
 
   return (
-    <div className={styles.Container}>
-      <form
-        className={styles.Form}
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-      >
-        {dslTypes.map((typeDto) => (
-          <FormField
-            key={typeDto.name}
-            form={form}
-            typeDto={typeDto}
-            level={1}
-            parent={undefined}
-            isEnumField={false}
-          />
-        ))}
-        <Button type="submit" className={"mx-1 my-1"}>
-          Обновить шаблон
-        </Button>
-        {renderedDocxFile !== undefined && (
-          <Button
-            onClick={() => FileSaver.saveAs(renderedDocxFile, "template.docx")}
-          >
-            Сохранить шаблон
-          </Button>
-        )}
-      </form>
-      <Divider className={"h-full"} orientation={"vertical"} />
-      <div id={"docx-container"} className={styles.DocxContainer} />
+    <div>
+      <Container fluid h={61} className={styles.container}>
+        <Group className={styles.headerGroup}>
+          <Group className={styles.previewGroup}>
+            <div className={styles.previewText}>Предварительный просмотр документа</div>
+            <Group className={styles.buttonGroup}>
+              {renderedDocxFile !== undefined && (
+                  <Button
+                      className={styles.Button}
+                      color="#DEE2E6"
+                      onClick={() => FileSaver.saveAs(renderedDocxFile, "template.docx")}
+                  >
+                    Сохранить шаблон
+                  </Button>
+              )}
+              <Button type="submit" className={styles.Button} color="#DEE2E6" form="constructor">
+                Обновить
+              </Button>
+            </Group>
+          </Group>
+        </Group>
+      </Container>
+      <div className={styles.Container}>
+        <form
+            id="constructor"
+            className={styles.inputsForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+        >
+          <ScrollArea className={styles.scrollbar} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
+          {dslTypes.map((typeDto) => (
+              <FormField
+                  key={typeDto.name}
+                  form={form}
+                  typeDto={typeDto}
+                  level={1}
+                  parent={undefined}
+                  isEnumField={false}
+              />
+          ))}
+          </ScrollArea>
+        </form>
+        <Divider className={"h-full"} orientation={"vertical"}/>
+        <ScrollArea className={styles.scrollbar} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
+          <div id={"docx-container"} className={styles.overview}/>
+        </ScrollArea>
+      </div>
+
     </div>
   );
 };
@@ -171,12 +192,12 @@ interface FormFieldProps {
 }
 
 const FormField: React.FC<FormFieldProps> = ({
-  form,
-  typeDto,
-  level,
-  parent,
-  isEnumField,
-}) => {
+                                               form,
+                                               typeDto,
+                                               level,
+                                               parent,
+                                               isEnumField,
+                                             }) => {
   let name: string;
   if (!isEnumField) {
     name = parent ? `${parent}.${typeDto.name}` : typeDto.name;
