@@ -1,0 +1,15 @@
+.DataInput{
+    @apply flex flex-row justify-between items-center gap-x-[20px];
+    @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[20px]
+
+}
+.dateLabel{
+    @apply text-[#343A40] text-[16px] md:text-[18px] font-medium
+}
+.dateInput{
+    @apply border-[2px] border-solid border-[#868686] w-[300px] md:w-[500px];
+    @apply bg-transparent;
+    @apply placeholder-blue-950 pl-[10px];
+
+}

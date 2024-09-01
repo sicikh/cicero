@@ -6,16 +6,20 @@ import {
   TextInput,
   Container,
   Group,
-  TypographyStylesProvider, ScrollArea,
+  TypographyStylesProvider, ScrollArea, ActionIcon
 } from "@mantine/core";
 import { type FormApi, type ReactFormApi, useForm } from "@tanstack/react-form";
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import {createFileRoute, Link, useLoaderData} from "@tanstack/react-router";
 import type React from "react";
 import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { ConstructorApi } from "./-api/constructor.api.ts";
 import type { TypeDto } from "./-api/dtos/Type.dto.ts";
 import styles from "./route.module.css";
+import datastyles from "./cssInputs/data-input.module.css";
+import stringstyles from "./cssInputs/string-input.module.css";
+import numberstyles from "./cssInputs/number-input.module.css";
+import radiostyles from "./cssInputs/radio-input.module.css";
 import "dayjs/locale/ru";
 import { DateInput, type DateInputProps } from "@mantine/dates";
 import * as dayjs from "dayjs";
@@ -24,6 +28,7 @@ import Docxtemplater from "docxtemplater";
 import expressionParser from "docxtemplater/expressions";
 import FileSaver from "file-saver";
 import PizZip from "pizzip";
+import { IconArrowNarrowLeft } from '@tabler/icons-react';
 
 type PrimitiveValue = string | number | boolean | Date;
 
@@ -41,6 +46,8 @@ const Page: React.FC = () => {
   });
   const [templateContext, setTemplateContext] = useState<FormValues>({});
   const [renderedDocxFile, setRenderedDocxFile] = useState<Blob | undefined>();
+  const { templateId } = Route.useParams();
+
 
   useEffect(() => {
     try {
@@ -128,12 +135,22 @@ const Page: React.FC = () => {
     },
   });
 
+  const [visibleContainer, setVisibleContainer] = useState('first');
+
   return (
     <div>
       <Container fluid h={61} className={styles.container}>
         <Group className={styles.headerGroup}>
+          <Link
+              to={"/templates/$templateId"}
+              params={{ templateId }}
+          >
+              <ActionIcon size="lg" variant="outline" color="rgba(222, 222, 222, 1)" aria-label="Back">
+                <IconArrowNarrowLeft stroke={1.5} />
+              </ActionIcon>
+          </Link>
+
           <Group className={styles.previewGroup}>
-            <div className={styles.previewText}>Предварительный просмотр документа</div>
             <Group className={styles.buttonGroup}>
               {renderedDocxFile !== undefined && (
                   <Button
@@ -146,6 +163,10 @@ const Page: React.FC = () => {
               )}
               <Button type="submit" className={styles.Button} color="#DEE2E6" form="constructor">
                 Обновить
+              </Button>
+              <Button className={styles.Button1} variant="gradient" gradient={{ from: '#C8420D', to: '#842500', deg: 90 }} onClick={() => setVisibleContainer((prevState) => prevState === 'first' ? 'second' : 'first')}
+              >
+                {visibleContainer === "first" ? 'Show Form' : 'Show Docx'}
               </Button>
             </Group>
           </Group>
@@ -162,23 +183,54 @@ const Page: React.FC = () => {
         >
           <ScrollArea className={styles.scrollbar} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
           {dslTypes.map((typeDto) => (
-              <FormField
-                  key={typeDto.name}
-                  form={form}
-                  typeDto={typeDto}
-                  level={1}
-                  parent={undefined}
-                  isEnumField={false}
-              />
+              <div className={styles.inputsForm}>
+                <FormField
+                    key={typeDto.name}
+                    form={form}
+                    typeDto={typeDto}
+                    level={1}
+                    parent={undefined}
+                    isEnumField={false}
+                />
+              </div>
           ))}
           </ScrollArea>
         </form>
-        <Divider className={"h-full"} orientation={"vertical"}/>
-        <ScrollArea className={styles.scrollbar} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
-          <div id={"docx-container"} className={styles.overview}/>
+        <Divider className="h-full" orientation="vertical"/>
+        <ScrollArea className={styles.scrollbar1} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
+          <div id={"docx-container"}/>
         </ScrollArea>
       </div>
-
+      {visibleContainer === "first" ? (
+          <ScrollArea className={styles.scrollbar1} type="scroll" scrollbars="y" offsetScrollbars scrollHideDelay={1500}>
+            <div id={"docx-container"}/>
+          </ScrollArea>
+      ) : (
+          <form
+              id="constructor"
+              className={styles.inputsForm}
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+          >
+            <ScrollArea className={styles.scrollbar} type="scroll" scrollbars="y" offsetScrollbars
+                        scrollHideDelay={1500}>
+              {dslTypes.map((typeDto) => (
+                  <div className={styles.inputsForm}>
+                    <FormField
+                        key={typeDto.name}
+                        form={form}
+                        typeDto={typeDto}
+                        level={1}
+                        parent={undefined}
+                        isEnumField={false}
+                    />
+                  </div>
+              ))}
+            </ScrollArea>
+          </form>
+      )}
     </div>
   );
 };
@@ -230,29 +282,46 @@ const FormField: React.FC<FormFieldProps> = ({
         {(field) => {
           if (typeDto.type === "String") {
             return (
-              <TextInput
-                label={!isEnumField ? replaceTags(typeDto.comment) : ""}
-                placeholder={replaceTags(typeDto.comment)}
-                withAsterisk={typeDto.isRequired}
-                error={field.state.meta.errors.at(0)}
-                value={field.state.value === undefined ? "" : field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-              />
+                <>
+                  <div className={stringstyles.StringInput}>
+                    <div className={stringstyles.StringLabel}>{!isEnumField ? replaceTags(typeDto.comment) : ""}</div>
+                    <TextInput
+                        className={stringstyles.stringInput}
+                        size="md"
+                        variant="unstyled"
+                        placeholder={replaceTags(typeDto.comment)}
+                        withAsterisk={typeDto.isRequired}
+                        value={field.state.value === undefined ? "" : field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                    />
+                  </div>
+
+                </>
+
+
             );
           }
 
           if (typeDto.type === "Integer") {
             return (
-              <NumberInput
-                label={!isEnumField ? replaceTags(typeDto.comment) : ""}
-                placeholder={replaceTags(typeDto.comment)}
-                withAsterisk={typeDto.isRequired}
-                error={field.state.meta.errors.at(0)}
-                value={field.state.value as number}
-                onChange={(value) => field.handleChange(value)}
-                onBlur={field.handleBlur}
-              />
+                <>
+                  <div className={numberstyles.NumberInput}>
+                    <div className={numberstyles.numberLabel}>{!isEnumField ? replaceTags(typeDto.comment) : ""}</div>
+                      <NumberInput
+                          className={numberstyles.numberInput}
+                          placeholder={replaceTags(typeDto.comment)}
+                          size="md"
+                          variant="unstyled"
+                          withAsterisk={typeDto.isRequired}
+                          value={field.state.value as number}
+                          onChange={(value) => field.handleChange(value)}
+                          onBlur={field.handleBlur}
+                      />
+                  </div>
+
+                </>
+
             );
           }
 
@@ -263,21 +332,26 @@ const FormField: React.FC<FormFieldProps> = ({
 
             return (
               <>
-                <DateInput
-                  locale="ru"
-                  clearable
-                  dateParser={dateParser}
-                  valueFormat="DD.MM.YYYY"
-                  error={field.state.meta.errors.at(0)}
-                  label={!isEnumField ? replaceTags(typeDto.comment) : ""}
-                  placeholder={replaceTags(typeDto.comment)}
-                  withAsterisk={typeDto.isRequired}
-                  value={field.state.value}
-                  onChange={(value) => {
-                    field.handleChange(value as Date);
-                  }}
-                  onBlur={field.handleBlur}
-                />
+                <div className={datastyles.DataInput}>
+                  <div className={datastyles.dateLabel}>{!isEnumField ? replaceTags(typeDto.comment) : ""}</div>
+                  <DateInput
+                      className={datastyles.dateInput}
+                      locale="ru"
+                      variant="unstyled"
+                      size="md"
+                      clearable
+                      dateParser={dateParser}
+                      valueFormat="DD.MM.YYYY"
+                      placeholder={replaceTags(typeDto.comment)}
+                      withAsterisk={typeDto.isRequired}
+                      value={field.state.value}
+                      onChange={(value) => {
+                        field.handleChange(value as Date);
+                      }}
+                      onBlur={field.handleBlur}
+                  />
+                </div>
+
               </>
             );
           }
@@ -287,7 +361,7 @@ const FormField: React.FC<FormFieldProps> = ({
               <>
                 <TypographyStylesProvider>
                   {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
-                  <div dangerouslySetInnerHTML={{ __html: typeDto.comment }} />
+                  <div className={styles.groupInputTitle} dangerouslySetInnerHTML={{ __html: typeDto.comment }} />
                 </TypographyStylesProvider>
                 {typeDto.fields.map((field) => (
                   <FormField
@@ -305,34 +379,58 @@ const FormField: React.FC<FormFieldProps> = ({
 
           if (typeDto.type === "Enum") {
             return (
-              <Radio.Group
-                label={replaceTags(typeDto.comment)}
-                withAsterisk={typeDto.isRequired}
-                value={field.state.value as string}
-                // error={field.state.meta.touchedErrors.at(0)}
-                onChange={(value) => {
-                  setSelectedRadio(value);
-                  field.handleChange(value);
-                }}
-                onBlur={field.handleBlur}
-              >
-                <div className="flex flex-col gap-1">
+                <>
+                  <div className={radiostyles.RadioInput}>
+                    <div className={radiostyles.RadioLabel}>{replaceTags(typeDto.comment)}</div>
+                    <Radio.Group
+                        className={radiostyles.radioInput}
+                        withAsterisk={typeDto.isRequired}
+                        value={field.state.value as string}
+                        // error={field.state.meta.touchedErrors.at(0)}
+                        onChange={(value) => {
+                          setSelectedRadio(value);
+                          field.handleChange(value);
+                        }}
+                        onBlur={field.handleBlur}
+                    >
+                      <Group mt="xs" className={radiostyles.radioPos}>
+                        {typeDto.variants.map((it) => (
+                            <div  className={styles.exFormInput} key={it.name}>
+                              <Radio
+                                  label={replaceTags(it.comment)}
+                                  value={it.name}
+                                  iconColor="#343A40"
+                                  color='#C8420D'
+                                  styles={{
+                                    label: {
+                                      color: '#868686',
+                                      fontSize: 16,
+                                    }
+                                  }}
+                              />
+                            </div>
+
+                        ))}
+                      </Group>
+                    </Radio.Group>
+
+                  </div>
                   {typeDto.variants.map((it) => (
-                    <div key={it.name}>
-                      <Radio label={replaceTags(it.comment)} value={it.name} />
-                      {selectedRadio === it.name && "isRequired" in it ? (
-                        <FormField
-                          form={form}
-                          typeDto={it}
-                          level={level + 1}
-                          parent={oldName}
-                          isEnumField
-                        />
-                      ) : undefined}
-                    </div>
+                      <div  className={styles.exFormInput} key={it.name}>
+                        {selectedRadio === it.name && "isRequired" in it ? (
+                            <FormField
+                                form={form}
+                                typeDto={it}
+                                level={level + 1}
+                                parent={oldName}
+                                isEnumField
+                            />
+                        ) : undefined}
+                      </div>
+
                   ))}
-                </div>
-              </Radio.Group>
+                </>
+
             );
           }
         }}
@@ -347,20 +445,20 @@ const replaceTags = (comment: string) => {
 };
 
 export const Route = createFileRoute("/constructor/$templateId")({
-  loader: async ({ params: { templateId }, context: { queryClient } }) => {
+  loader: async ({params: {templateId}, context: {queryClient}}) => {
     const [docx, dsl, dslTypes] = await Promise.all([
       queryClient.ensureQueryData(
-        ConstructorApi.getTemplateDocxById(Number.parseInt(templateId, 10)),
+          ConstructorApi.getTemplateDocxById(Number.parseInt(templateId, 10)),
       ),
       queryClient.ensureQueryData(
-        ConstructorApi.getTemplateDslById(Number.parseInt(templateId, 10)),
+          ConstructorApi.getTemplateDslById(Number.parseInt(templateId, 10)),
       ),
       queryClient.ensureQueryData(
-        ConstructorApi.getTemplateDslTypesById(Number.parseInt(templateId, 10)),
+          ConstructorApi.getTemplateDslTypesById(Number.parseInt(templateId, 10)),
       ),
     ]);
 
-    return { docx, dsl, dslTypes };
+    return {docx, dsl, dslTypes};
   },
   component: Page,
 });

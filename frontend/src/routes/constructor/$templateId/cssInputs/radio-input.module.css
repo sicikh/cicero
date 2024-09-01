@@ -1,0 +1,18 @@
+.RadioInput{
+    @apply grid grid-flow-col justify-between items-center;
+    @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[20px]
+
+}
+.RadioLabel{
+    @apply text-[#343A40] text-[16px] md:text-[18px] font-medium
+}
+.radioInput{
+
+    @apply text-[16px] md:text-[18px];
+    @apply bg-transparent;
+    @apply placeholder-blue-950 pl-[10px];
+}
+.radioPos{
+    @apply flex-1
+}

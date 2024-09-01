@@ -9,7 +9,7 @@ import { router } from "./router.tsx";
 // biome-ignore lint/style/noNonNullAssertion: should always be present
 ReactDOM.createRoot(document.querySelector("#root")!).render(
   <React.StrictMode>
-    <MantineProvider>
+    <MantineProvider >
       <RouterProvider router={router} />
     </MantineProvider>
   </React.StrictMode>,

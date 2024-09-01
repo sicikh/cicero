@@ -13,6 +13,8 @@
 import { Route as rootRoute } from "./routes/__root";
 import { Route as VerifyRouteImport } from "./routes/verify/route";
 import { Route as TemplatesRouteImport } from "./routes/templates/route";
+import { Route as RegisterRouteImport } from "./routes/register/route";
+import { Route as LoginRouteImport } from "./routes/login/route";
 import { Route as IndexRouteImport } from "./routes/index/route";
 import { Route as TemplatesTemplateIdRouteImport } from "./routes/templates/$templateId/route";
 import { Route as ConstructorTemplateIdRouteImport } from "./routes/constructor/$templateId/route";
@@ -26,6 +28,16 @@ const VerifyRouteRoute = VerifyRouteImport.update({
 
 const TemplatesRouteRoute = TemplatesRouteImport.update({
   path: "/templates",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const RegisterRouteRoute = RegisterRouteImport.update({
+  path: "/register",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const LoginRouteRoute = LoginRouteImport.update({
+  path: "/login",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -55,6 +67,20 @@ declare module "@tanstack/react-router" {
       path: "/";
       fullPath: "/";
       preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/register": {
+      id: "/register";
+      path: "/register";
+      fullPath: "/register";
+      preLoaderRoute: typeof RegisterRouteImport;
       parentRoute: typeof rootRoute;
     };
     "/templates": {
@@ -92,6 +118,8 @@ declare module "@tanstack/react-router" {
 
 export const routeTree = rootRoute.addChildren({
   IndexRouteRoute,
+  LoginRouteRoute,
+  RegisterRouteRoute,
   TemplatesRouteRoute: TemplatesRouteRoute.addChildren({
     TemplatesTemplateIdRouteRoute,
   }),
@@ -108,6 +136,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/login",
+        "/register",
         "/templates",
         "/verify",
         "/constructor/$templateId"
@@ -115,6 +145,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/": {
       "filePath": "index/route.tsx"
+    },
+    "/login": {
+      "filePath": "login/route.tsx"
+    },
+    "/register": {
+      "filePath": "register/route.tsx"
     },
     "/templates": {
       "filePath": "templates/route.tsx",

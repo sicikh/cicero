@@ -67,7 +67,7 @@ const Page: React.FC = () => {
             {!matchedNoNavRoutes &&
                 <header>
                     <Container size="2xl" className={classes.inner}>
-                        <div className={classes.logo}><Title size="h1">Cicero</Title></div>
+                        <Link to={"/"}><div className={classes.logo}><Title size="h1">Cicero</Title></div></Link>
                         <Group gap={2} visibleFrom="sm" className={classes.links}>
                             <div className={classes.linksItem}>
                                 {items}
