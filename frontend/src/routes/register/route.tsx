@@ -73,7 +73,7 @@ const Page: React.FC = () => {
                     Login
                 </button>
                 <div id={styles['Register_link']}>
-                    <p>Есть аккаунт?<a href="login" className="font-semibold hover:underline ml-[5px]">Войти</a></p>
+                    <p>Есть аккаунт?<Link to={"/login"} className="font-semibold hover:underline ml-[5px]">Войти</Link></p>
                 </div>
             </form>
         </div>
