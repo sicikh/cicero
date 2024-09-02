@@ -5,12 +5,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./global.css";
 import { router } from "./router.tsx";
+import AuthProvider, {useAuth} from "./hooks/AuthProvider.tsx";
+
+const InnerApp: React.FC = () => {
+    const auth = useAuth();
+    return <RouterProvider router={router} context={{ auth }}/>;
+}
 
 // biome-ignore lint/style/noNonNullAssertion: should always be present
 ReactDOM.createRoot(document.querySelector("#root")!).render(
   <React.StrictMode>
-    <MantineProvider >
-      <RouterProvider router={router} />
-    </MantineProvider>
+    <AuthProvider>
+      <MantineProvider>
+        <InnerApp />
+      </MantineProvider>
+    </AuthProvider>
   </React.StrictMode>,
 );

@@ -19,6 +19,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import type { AuthState } from "../hooks/AuthProvider.tsx";
 
 const links = [
   { link: "/", label: "Главная" },
@@ -105,6 +106,7 @@ const Page: React.FC = () => {
 
 interface RouterContext {
   queryClient: QueryClient;
+  auth: AuthState;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
