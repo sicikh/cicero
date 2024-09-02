@@ -433,8 +433,8 @@ const FormField: React.FC<FormFieldProps> = ({
                     className={styles.RadioInput}
                     withAsterisk={typeDto.isRequired}
                     value={field.state.value as string}
-                    // error={field.state.meta.touchedErrors.at(0)}
                     onChange={(value) => {
+                      form.setFieldValue(name, undefined);
                       setSelectedRadio(value);
                       field.handleChange(value);
                     }}
