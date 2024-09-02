@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type React from "react";
+import { appAxios } from "../api/config.ts";
 import type { UserDto } from "../routes/-api/dtos/User.dto.ts";
 import type { LoginDto } from "../routes/login/-api/dtos/Login.dto.ts";
-import { LoginApi } from "../routes/login/-api/login.api.ts";
+import type { LoginResponseDto } from "../routes/login/-api/dtos/LoginResponse.dto.ts";
 
 export type AuthState = {
   user: UserDto | null;
@@ -25,11 +25,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
-  const isAuthenticated = !!token;
 
   const login = async (data: LoginDto) => {
     try {
-      const res = useQuery(LoginApi.login(data));
+      const res = await appAxios.post<LoginResponseDto>("/auth/login", data);
+      console.log(res);
 
       if (res.data) {
         setUser({
@@ -44,6 +44,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return { success: false };
     } catch (e) {
+      console.log(e);
       return { success: false };
     }
   };
@@ -53,6 +54,35 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem("token");
   };
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (token) {
+        try {
+          const response = await appAxios.get<UserDto>("/user/current");
+          if (response.data) {
+            setUser({
+              pid: response.data.pid,
+              name: response.data.name,
+              email: response.data.email,
+            });
+          } else {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem("token");
+          }
+        } catch (e) {
+          console.log(e);
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("token");
+        }
+      }
+    };
+    fetchCurrentUser();
+  }, [token]);
+
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider

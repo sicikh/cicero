@@ -1,95 +1,132 @@
-import {
-  Autocomplete,
-  Button,
-  Checkbox,
-  Loader,
-  PasswordInput,
-} from "@mantine/core";
+import { Autocomplete, Button, Loader, PasswordInput } from "@mantine/core";
+import { useForm } from "@tanstack/react-form";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import type React from "react";
 import { useRef, useState } from "react";
 import { useAuth } from "../../hooks/AuthProvider.tsx";
+import type { LoginDto } from "./-api/dtos/Login.dto.ts";
 import styles from "./route.module.css";
+
+interface FormValues extends LoginDto {
+  rememberMe: boolean;
+}
 
 const Page: React.FC = () => {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const timeoutRef = useRef<number>(-1);
-  const [value, setValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailProviders, setEmailProviders] = useState<string[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await login({ email, password });
-    if (!result.success) {
-      setError("Login failed");
-      console.log(error);
-    }
-    if (result.success) {
-      console.log("success");
-    }
-  };
+  const form = useForm<FormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+    onSubmit: async ({ value }) => {
+      const { success } = await login({
+        email: value.email,
+        password: value.password,
+      });
 
-  const handleChange = (val: string) => {
-    window.clearTimeout(timeoutRef.current);
-    setValue(val);
-    console.log(value);
-    setData([]);
-
-    if (val.trim().length === 0 || val.includes("@")) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-      timeoutRef.current = window.setTimeout(() => {
-        setLoading(false);
-        setData(
-          ["mail.ru", "gmail.com", "outlook.com"].map(
-            (provider) => `${val}@${provider}`,
-          ),
-        );
-      }, 1000);
-    }
-  };
-  handleChange("");
+      if (!success) {
+        // TODO: correctly show error message, for now just alert
+        alert("Неверный логин или пароль");
+      }
+    },
+  });
 
   return (
     <div id={styles.wrapper}>
       <Link to="/" className={styles["home-button"]}>
         На главную
       </Link>
-      <form action="" onSubmit={handleSubmit} className={styles.form}>
+      <form
+        id="login"
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+        className={styles.form}
+      >
         <h1>Войти</h1>
         <div className={styles["input-box"]}>
-          <Autocomplete
-            variant="unstyled"
-            size="lg"
-            data={data}
-            value={email}
-            onChange={setEmail}
-            rightSection={loading ? <Loader size="1rem" /> : null}
-            placeholder="E-mail"
-          />
+          <form.Field
+            name={"email"}
+            validators={{
+              onChange: ({ value }) =>
+                value === "" ? "Поле обязательно для заполнения" : undefined,
+            }}
+          >
+            {(field) => {
+              return (
+                <Autocomplete
+                  variant="unstyled"
+                  size="lg"
+                  data={emailProviders}
+                  withAsterisk={true}
+                  value={field.state.value}
+                  onChange={(e) => {
+                    window.clearTimeout(timeoutRef.current);
+                    field.handleChange(e);
+                    setEmailProviders([]);
+
+                    if (e.trim().length === 0 || e.includes("@")) {
+                      setIsLoading(false);
+                    } else {
+                      setIsLoading(true);
+                      timeoutRef.current = window.setTimeout(() => {
+                        setIsLoading(false);
+                        setEmailProviders(
+                          ["mail.ru", "gmail.com", "outlook.com"].map(
+                            (provider) => `${e}@${provider}`,
+                          ),
+                        );
+                      }, 1000);
+                    }
+                  }}
+                  onBlur={field.handleBlur}
+                  error={field.state.meta.errors.at(0)}
+                  rightSection={isLoading ? <Loader size="1rem" /> : null}
+                  placeholder="E-mail"
+                />
+              );
+            }}
+          </form.Field>
         </div>
         <div className={styles["input-box"]}>
-          <PasswordInput
-            placeholder="Пароль"
-            size="lg"
-            variant="unstyled"
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
-          />
+          <form.Field
+            name={"password"}
+            validators={{
+              onChange: ({ value }) =>
+                value === "" ? "Поле обязательно для заполнения" : undefined,
+            }}
+          >
+            {(field) => {
+              return (
+                <PasswordInput
+                  placeholder="Пароль"
+                  size="lg"
+                  variant="unstyled"
+                  withAsterisk={true}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={field.state.meta.errors.at(0)}
+                />
+              );
+            }}
+          </form.Field>
         </div>
         <div id={styles["remember-forgot"]}>
-          <label>
-            <Checkbox defaultChecked label="Запомнить пароль" color="gray" />
-          </label>
+          {/*TODO:*/}
+          {/*<label>*/}
+          {/*  <Checkbox defaultChecked label="Запомнить пароль" color="gray" />*/}
+          {/*</label>*/}
           <Link to={"/reset"}>Забыли пароль?</Link>
         </div>
         <Button id={styles.but_login} type="submit">
-          Login
+          Войти
         </Button>
         <div id={styles.Register_link}>
           <p>

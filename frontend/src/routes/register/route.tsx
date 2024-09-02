@@ -1,34 +1,37 @@
 import { Autocomplete, Loader, PasswordInput, TextInput } from "@mantine/core";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type React from "react";
+import { appAxios } from "../../api/config.ts";
+import type { RegisterDto } from "./-api/dtos/Register.dto.ts";
 import styles from "./route.module.css";
 
 const Page: React.FC = () => {
   const timeoutRef = useRef<number>(-1);
-  const [value, setValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailProviders, setEmailProviders] = useState<string[]>([]);
 
-  const handleChange = (val: string) => {
-    window.clearTimeout(timeoutRef.current);
-    setValue(val);
-    setData([]);
+  const form = useForm<RegisterDto>({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    onSubmit: async ({ value }) => {
+      const res = await appAxios.post("/auth/register", value);
 
-    if (val.trim().length === 0 || val.includes("@")) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-      timeoutRef.current = window.setTimeout(() => {
-        setLoading(false);
-        setData(
-          ["mail.ru", "gmail.com", "outlook.com"].map(
-            (provider) => `${val}@${provider}`,
-          ),
-        );
-      }, 1000);
-    }
-  };
+      if (res.status !== 200) {
+        alert("Произошла ошибка при регистрации");
+        return;
+      }
+
+      alert(
+        "На указанную почту выслано письмо для подтверждения. " +
+          "Пройдите по ссылке в письме, чтобы подтвердить регистрацию.",
+      );
+    },
+  });
 
   return (
     <div id={styles.wrapper}>
@@ -36,32 +39,108 @@ const Page: React.FC = () => {
         На главную
       </Link>
 
-      <form action="" className={styles.form}>
+      <form
+        id="register"
+        className={styles.form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
         <Link to="/" className="text-[#EEEEEE] hover:text-[#ffffff]">
           <i className="bx bx-left-arrow-alt" />
         </Link>
         <h1>Регистрация</h1>
         <div className={styles["input-box"]}>
-          <TextInput id="input-box" type="text" placeholder="Имя" required />
+          <form.Field
+            name={"name"}
+            validators={{
+              onChange: ({ value }) =>
+                value === "" ? "Поле обязательно для заполнения" : undefined,
+            }}
+          >
+            {(field) => {
+              return (
+                <TextInput
+                  id="input-box"
+                  type="text"
+                  placeholder="Имя"
+                  required
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  error={field.state.meta.errors.at(0)}
+                />
+              );
+            }}
+          </form.Field>
         </div>
         <div className={styles["input-box"]}>
-          <Autocomplete
-            variant="unstyled"
-            size="lg"
-            value={value}
-            data={data}
-            onChange={handleChange}
-            rightSection={loading ? <Loader size="1rem" /> : null}
-            placeholder="E-mail"
-          />
+          <form.Field
+            name={"email"}
+            validators={{
+              onChange: ({ value }) =>
+                value === "" ? "Поле обязательно для заполнения" : undefined,
+            }}
+          >
+            {(field) => {
+              return (
+                <Autocomplete
+                  variant="unstyled"
+                  size="lg"
+                  data={emailProviders}
+                  withAsterisk={true}
+                  value={field.state.value}
+                  onChange={(e) => {
+                    window.clearTimeout(timeoutRef.current);
+                    field.handleChange(e);
+                    setEmailProviders([]);
+
+                    if (e.trim().length === 0 || e.includes("@")) {
+                      setIsLoading(false);
+                    } else {
+                      setIsLoading(true);
+                      timeoutRef.current = window.setTimeout(() => {
+                        setIsLoading(false);
+                        setEmailProviders(
+                          ["mail.ru", "gmail.com", "outlook.com"].map(
+                            (provider) => `${e}@${provider}`,
+                          ),
+                        );
+                      }, 1000);
+                    }
+                  }}
+                  onBlur={field.handleBlur}
+                  error={field.state.meta.errors.at(0)}
+                  rightSection={isLoading ? <Loader size="1rem" /> : null}
+                  placeholder="E-mail"
+                />
+              );
+            }}
+          </form.Field>
         </div>
         <div className={styles["input-box"]}>
-          <PasswordInput
-            className={styles.inputBox}
-            variant="unstyled"
-            placeholder="Пароль"
-            size="lg"
-          />
+          <form.Field
+            name={"password"}
+            validators={{
+              onChange: ({ value }) =>
+                value === "" ? "Поле обязательно для заполнения" : undefined,
+            }}
+          >
+            {(field) => {
+              return (
+                <PasswordInput
+                  placeholder="Пароль"
+                  size="lg"
+                  variant="unstyled"
+                  withAsterisk={true}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={field.state.meta.errors.at(0)}
+                />
+              );
+            }}
+          </form.Field>
         </div>
         {/*<div id={styles['remember-forgot']} className="md:flex justify-end">*/}
         {/*    <a href="#" className="hover:underline">Забыли пароль?</a>*/}
@@ -86,4 +165,14 @@ const Page: React.FC = () => {
 };
 export const Route = createFileRoute("/register")({
   component: Page,
+  beforeLoad: ({ context, location }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({
+        to: "/",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
 });
