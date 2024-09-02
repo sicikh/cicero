@@ -1,21 +1,27 @@
-import {useContext, createContext, useState} from "react";
-import { LoginApi } from "../routes/login/-api/login.api.ts";
-import type { LoginDto } from "../routes/login/-api/dtos/Login.dto.ts";
 import { useQuery } from "@tanstack/react-query";
-import type { LoginResponseDto } from "../routes/login/-api/dtos/LoginResponse.dto.ts";
+import { createContext, useContext, useState } from "react";
+import type React from "react";
+import type { UserDto } from "../routes/-api/dtos/User.dto.ts";
+import type { LoginDto } from "../routes/login/-api/dtos/Login.dto.ts";
+import { LoginApi } from "../routes/login/-api/login.api.ts";
 
 export type AuthState = {
-  user: LoginResponseDto;
-  token: string;
-  login: (data: LoginDto) => Promise<{ success: boolean; message?: string }>;
+  user: UserDto | null;
+  token: string | null;
+  login: (data: LoginDto) => Promise<{ success: boolean }>;
   logout: () => void;
   isAuthenticated: boolean;
 };
 
-const AuthContext = createContext<AuthState | undefined>(undefined);
+// biome-ignore lint/style/noNonNullAssertion: <explanation>
+const AuthContext = createContext<AuthState>(undefined!);
 
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState<LoginResponseDto>();
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<UserDto | null>(null);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
@@ -26,15 +32,19 @@ const AuthProvider = ({ children }) => {
       const res = useQuery(LoginApi.login(data));
 
       if (res.data) {
-        setUser(res.data);
+        setUser({
+          pid: res.data.pid,
+          name: res.data.name,
+          email: res.data.email,
+        });
         setToken(res.data.token);
         localStorage.setItem("token", res.data.token);
         return { success: true };
       }
 
-      return { success: false, message: res.error.message };
+      return { success: false };
     } catch (e) {
-      return { success: false, message: e.message };
+      return { success: false };
     }
   };
 

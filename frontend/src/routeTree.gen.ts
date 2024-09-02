@@ -13,8 +13,8 @@
 import { Route as rootRoute } from "./routes/__root";
 import { Route as VerifyRouteImport } from "./routes/verify/route";
 import { Route as TemplatesRouteImport } from "./routes/templates/route";
+import { Route as ResetRouteImport } from "./routes/reset/route";
 import { Route as RegisterRouteImport } from "./routes/register/route";
-import { Route as LostPasswordRouteImport } from "./routes/lostPassword/route";
 import { Route as LoginRouteImport } from "./routes/login/route";
 import { Route as IndexRouteImport } from "./routes/index/route";
 import { Route as TemplatesTemplateIdRouteImport } from "./routes/templates/$templateId/route";
@@ -32,13 +32,13 @@ const TemplatesRouteRoute = TemplatesRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any);
 
-const RegisterRouteRoute = RegisterRouteImport.update({
-  path: "/register",
+const ResetRouteRoute = ResetRouteImport.update({
+  path: "/reset",
   getParentRoute: () => rootRoute,
 } as any);
 
-const LostPasswordRouteRoute = LostPasswordRouteImport.update({
-  path: "/lostPassword",
+const RegisterRouteRoute = RegisterRouteImport.update({
+  path: "/register",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -82,18 +82,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginRouteImport;
       parentRoute: typeof rootRoute;
     };
-    "/lostPassword": {
-      id: "/lostPassword";
-      path: "/lostPassword";
-      fullPath: "/lostPassword";
-      preLoaderRoute: typeof LostPasswordRouteImport;
-      parentRoute: typeof rootRoute;
-    };
     "/register": {
       id: "/register";
       path: "/register";
       fullPath: "/register";
       preLoaderRoute: typeof RegisterRouteImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/reset": {
+      id: "/reset";
+      path: "/reset";
+      fullPath: "/reset";
+      preLoaderRoute: typeof ResetRouteImport;
       parentRoute: typeof rootRoute;
     };
     "/templates": {
@@ -132,8 +132,8 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren({
   IndexRouteRoute,
   LoginRouteRoute,
-  LostPasswordRouteRoute,
   RegisterRouteRoute,
+  ResetRouteRoute,
   TemplatesRouteRoute: TemplatesRouteRoute.addChildren({
     TemplatesTemplateIdRouteRoute,
   }),
@@ -151,8 +151,8 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/login",
-        "/lostPassword",
         "/register",
+        "/reset",
         "/templates",
         "/verify",
         "/constructor/$templateId"
@@ -164,11 +164,11 @@ export const routeTree = rootRoute.addChildren({
     "/login": {
       "filePath": "login/route.tsx"
     },
-    "/lostPassword": {
-      "filePath": "lostPassword/route.tsx"
-    },
     "/register": {
       "filePath": "register/route.tsx"
+    },
+    "/reset": {
+      "filePath": "reset/route.tsx"
     },
     "/templates": {
       "filePath": "templates/route.tsx",

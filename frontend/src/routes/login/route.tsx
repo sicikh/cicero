@@ -1,7 +1,3 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import styles from "./route.module.css";
-import type React from "react";
-import { useRef, useState } from "react";
 import {
   Autocomplete,
   Button,
@@ -9,7 +5,11 @@ import {
   Loader,
   PasswordInput,
 } from "@mantine/core";
-import {useAuth} from "../../hooks/AuthProvider.tsx";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import type React from "react";
+import { useRef, useState } from "react";
+import { useAuth } from "../../hooks/AuthProvider.tsx";
+import styles from "./route.module.css";
 
 const Page: React.FC = () => {
   const { login } = useAuth();
@@ -21,24 +21,22 @@ const Page: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<string[]>([]);
 
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await login({ email, password });
     if (!result.success) {
-      setError(result.message || "Login failed");
-      console.log(result.message || "Log failed");
+      setError("Login failed");
+      console.log(error);
     }
     if (result.success) {
       console.log("success");
     }
   };
 
-
   const handleChange = (val: string) => {
     window.clearTimeout(timeoutRef.current);
     setValue(val);
+    console.log(value);
     setData([]);
 
     if (val.trim().length === 0 || val.includes("@")) {
@@ -55,6 +53,7 @@ const Page: React.FC = () => {
       }, 1000);
     }
   };
+  handleChange("");
 
   return (
     <div id={styles.wrapper}>
@@ -70,25 +69,24 @@ const Page: React.FC = () => {
             data={data}
             value={email}
             onChange={setEmail}
-
             rightSection={loading ? <Loader size="1rem" /> : null}
             placeholder="E-mail"
           />
         </div>
         <div className={styles["input-box"]}>
           <PasswordInput
-              placeholder="Пароль"
-              size="lg"
-              variant="unstyled"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
+            placeholder="Пароль"
+            size="lg"
+            variant="unstyled"
+            value={password}
+            onChange={(e) => setPassword(e.currentTarget.value)}
           />
         </div>
         <div id={styles["remember-forgot"]}>
           <label>
             <Checkbox defaultChecked label="Запомнить пароль" color="gray" />
           </label>
-          <Link to={"/lostPassword"}>Забыли пароль?</Link>
+          <Link to={"/reset"}>Забыли пароль?</Link>
         </div>
         <Button id={styles.but_login} type="submit">
           Login
@@ -105,4 +103,14 @@ const Page: React.FC = () => {
 
 export const Route = createFileRoute("/login")({
   component: Page,
+  beforeLoad: ({ context, location }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({
+        to: "/",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
 });

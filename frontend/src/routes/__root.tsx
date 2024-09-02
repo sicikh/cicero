@@ -1,22 +1,22 @@
 import {
-  Group,
-  Button,
-  Divider,
   Burger,
-  Drawer,
+  Button,
   Container,
+  Divider,
+  Drawer,
+  Group,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import { Title } from "@mantine/core";
-import classes from "./__root.module.css";
+import { useDisclosure } from "@mantine/hooks";
+import type { QueryClient } from "@tanstack/react-query";
 import {
   Link,
   Outlet,
   createRootRouteWithContext,
   useMatchRoute,
 } from "@tanstack/react-router";
-import type { QueryClient } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import classes from "./__root.module.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import type { AuthState } from "../hooks/AuthProvider.tsx";
@@ -36,7 +36,7 @@ const Page: React.FC = () => {
     useDisclosure(false);
 
   const matchRoute = useMatchRoute();
-  const hideNavRoutes = ["/login", "/register", "/lostpassword"];
+  const hideNavRoutes = ["/login", "/register", "/reset"];
   const matchedNoNavRoutes = hideNavRoutes.some((route) =>
     matchRoute({ to: route }),
   );

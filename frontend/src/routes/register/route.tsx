@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import styles from "./route.module.css";
 import { Autocomplete, Loader, PasswordInput, TextInput } from "@mantine/core";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type React from "react";
+import styles from "./route.module.css";
 
 const Page: React.FC = () => {
   const timeoutRef = useRef<number>(-1);

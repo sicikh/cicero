@@ -1,8 +1,8 @@
-import autoBind from "auto-bind";
 import { queryOptions } from "@tanstack/react-query";
+import autoBind from "auto-bind";
 import { appAxios } from "../../../api/config";
-import type { LoginResponseDto } from "./dtos/LoginResponse.dto.ts";
 import type { LoginDto } from "./dtos/Login.dto.ts";
+import type { LoginResponseDto } from "./dtos/LoginResponse.dto.ts";
 
 class _LoginApi {
   readonly baseQueryKey = ["Login"] as const;

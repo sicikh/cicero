@@ -1,17 +1,17 @@
 import {
+  ActionIcon,
   Button,
+  Container,
   Divider,
+  Group,
   NumberInput,
   Radio,
-  TextInput,
-  Container,
-  Group,
-  TypographyStylesProvider,
   ScrollArea,
-  ActionIcon,
+  TextInput,
+  TypographyStylesProvider,
 } from "@mantine/core";
 import { type FormApi, type ReactFormApi, useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { Link, createFileRoute, useLoaderData } from "@tanstack/react-router";
 import type React from "react";
 import { useEffect } from "react";
 import { useMemo, useState } from "react";
@@ -20,6 +20,7 @@ import type { TypeDto } from "./-api/dtos/Type.dto.ts";
 import styles from "./route.module.css";
 import "dayjs/locale/ru";
 import { DateInput, type DateInputProps } from "@mantine/dates";
+import { IconArrowNarrowLeft } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import * as DocxPreview from "docx-preview";
@@ -27,7 +28,6 @@ import Docxtemplater from "docxtemplater";
 import expressionParser from "docxtemplater/expressions";
 import FileSaver from "file-saver";
 import PizZip from "pizzip";
-import { IconArrowNarrowLeft } from "@tabler/icons-react";
 
 type PrimitiveValue = string | number | boolean;
 
@@ -459,23 +459,18 @@ const FormField: React.FC<FormFieldProps> = ({
                     </Group>
                   </Radio.Group>
                 </div>
-                {typeDto.variants.map((it) => (
-                    <>
-                      {selectedRadio === it.name && "isRequired" in it ? (
-                            <FormField
-                                form={form}
-                                typeDto={it}
-                                level={level + 1}
-                                parent={oldName}
-                                isEnumField
-                            />
-
-
-
-                      ) : undefined}
-                    </>
-
-                ))}
+                {typeDto.variants.map((it) =>
+                  selectedRadio === it.name && "isRequired" in it ? (
+                    <FormField
+                      key={it.name}
+                      form={form}
+                      typeDto={it}
+                      level={level + 1}
+                      parent={oldName}
+                      isEnumField
+                    />
+                  ) : undefined,
+                )}
               </>
             );
           }
