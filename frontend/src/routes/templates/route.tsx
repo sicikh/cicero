@@ -2,14 +2,29 @@ import {Accordion, Divider, Stack, TextInput} from "@mantine/core";
 import {IconSearch, IconFolder} from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
-import type React from "react";
+import React, {useState} from "react";
 import { TemplatesApi } from "./-api/templates.api.ts";
 import styles from "./route.module.css";
 
 const Page: React.FC = () => {
+    const [value, setValue] = useState("")
+
+
+
     const { data: categories } = useSuspenseQuery(
         TemplatesApi.getCategoriesWithTemplates(),
     );
+
+    const filterTemplates = categories.map((category) => {
+        const filteredTemplates = category.templates.filter(template =>
+            (template.name).toLowerCase().includes(value.toLowerCase())
+        );
+
+        return {
+            ...category,
+            templates: filteredTemplates,
+        };
+    }).filter(category => category.templates.length > 0);
 
     return (
         <div className={styles.Container}>
@@ -19,13 +34,16 @@ const Page: React.FC = () => {
                justify="start"
                gap="md"
            >
-                <TextInput
-                    className={styles.search}
-                    placeholder="Search"
-                    leftSection={<IconSearch/>}
-                />
+               <form action="">
+                    <TextInput
+                        className={styles.search}
+                        placeholder="Search"
+                        leftSection={<IconSearch/>}
+                        onChange={(event) => setValue(event.target.value)}
+                    />
+               </form>
                 <Accordion multiple>
-                    {categories.map((category) => (
+                    {filterTemplates.map((category) => (
                         <Accordion.Item className={styles.accordion} key={category.id} value={category.name}>
                             <Accordion.Control icon={<IconFolder />}>
                                 {category.name}
