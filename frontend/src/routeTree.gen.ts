@@ -14,6 +14,7 @@ import { Route as rootRoute } from "./routes/__root";
 import { Route as VerifyRouteImport } from "./routes/verify/route";
 import { Route as TemplatesRouteImport } from "./routes/templates/route";
 import { Route as RegisterRouteImport } from "./routes/register/route";
+import { Route as LostPasswordRouteImport } from "./routes/lostPassword/route";
 import { Route as LoginRouteImport } from "./routes/login/route";
 import { Route as IndexRouteImport } from "./routes/index/route";
 import { Route as TemplatesTemplateIdRouteImport } from "./routes/templates/$templateId/route";
@@ -33,6 +34,11 @@ const TemplatesRouteRoute = TemplatesRouteImport.update({
 
 const RegisterRouteRoute = RegisterRouteImport.update({
   path: "/register",
+  getParentRoute: () => rootRoute,
+} as any);
+
+const LostPasswordRouteRoute = LostPasswordRouteImport.update({
+  path: "/lostPassword",
   getParentRoute: () => rootRoute,
 } as any);
 
@@ -74,6 +80,13 @@ declare module "@tanstack/react-router" {
       path: "/login";
       fullPath: "/login";
       preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/lostPassword": {
+      id: "/lostPassword";
+      path: "/lostPassword";
+      fullPath: "/lostPassword";
+      preLoaderRoute: typeof LostPasswordRouteImport;
       parentRoute: typeof rootRoute;
     };
     "/register": {
@@ -119,6 +132,7 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren({
   IndexRouteRoute,
   LoginRouteRoute,
+  LostPasswordRouteRoute,
   RegisterRouteRoute,
   TemplatesRouteRoute: TemplatesRouteRoute.addChildren({
     TemplatesTemplateIdRouteRoute,
@@ -137,6 +151,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/login",
+        "/lostPassword",
         "/register",
         "/templates",
         "/verify",
@@ -148,6 +163,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/login": {
       "filePath": "login/route.tsx"
+    },
+    "/lostPassword": {
+      "filePath": "lostPassword/route.tsx"
     },
     "/register": {
       "filePath": "register/route.tsx"

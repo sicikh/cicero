@@ -36,7 +36,7 @@ const Page: React.FC = () => {
     useDisclosure(false);
 
   const matchRoute = useMatchRoute();
-  const hideNavRoutes = ["/login", "/register"];
+  const hideNavRoutes = ["/login", "/register", "/lostpassword"];
   const matchedNoNavRoutes = hideNavRoutes.some((route) =>
     matchRoute({ to: route }),
   );

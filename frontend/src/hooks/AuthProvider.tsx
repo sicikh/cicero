@@ -1,4 +1,4 @@
-import { useContext, createContext } from "react";
+import {useContext, createContext, useState} from "react";
 import { LoginApi } from "../routes/login/-api/login.api.ts";
 import type { LoginDto } from "../routes/login/-api/dtos/Login.dto.ts";
 import { useQuery } from "@tanstack/react-query";
@@ -12,10 +12,10 @@ export type AuthState = {
   isAuthenticated: boolean;
 };
 
-const AuthContext = createContext<AuthState>();
+const AuthContext = createContext<AuthState | undefined>(undefined);
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState<LoginResponseDto>(null);
+  const [user, setUser] = useState<LoginResponseDto>();
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );

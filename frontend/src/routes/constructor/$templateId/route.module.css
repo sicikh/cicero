@@ -111,13 +111,13 @@
 }
 
 .Root {
-    @apply grid grid-rows-3 grid-flow-col auto-cols-max gap-4 items-center place-content-between;
+    @apply grid grid-flow-col justify-between;
     @apply md:pl-[30px] md:pr-[70px];
-    @apply -mb-[60px]
+    @apply mb-[10px]
 }
 
 .Label {
-    @apply row-span-3 text-[#343A40] text-[16px] md:text-[18px] font-medium
+    @apply row-span-3 text-[#343A40] text-[16px] md:text-[18px] font-medium pt-[6px]
 }
 
 .Wrapper {
@@ -135,7 +135,7 @@
 }
 
 .RadioWrapper {
-    @apply grid grid-flow-col justify-between items-center;
+    @apply  items-center;
     @apply md:pl-[30px] md:pr-[70px];
     @apply mb-[20px]
 }
@@ -143,9 +143,13 @@
 .RadioInput {
     @apply text-[16px] md:text-[18px];
     @apply bg-transparent;
-    @apply placeholder-blue-950 pl-[10px];
+    @apply placeholder-blue-950;
+    @apply md:pl-[30px] md:pr-[70px];
 }
 
 .RadioPos {
     @apply flex-1
 }
+
+
+

@@ -9,7 +9,7 @@ import AuthProvider, {useAuth} from "./hooks/AuthProvider.tsx";
 
 const InnerApp: React.FC = () => {
     const auth = useAuth();
-    return <RouterProvider router={router} context={{ auth }}/>;
+    return <RouterProvider router={router} context={{ auth }}/>
 }
 
 // biome-ignore lint/style/noNonNullAssertion: should always be present

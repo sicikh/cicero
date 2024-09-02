@@ -430,7 +430,6 @@ const FormField: React.FC<FormFieldProps> = ({
                     {replaceTags(typeDto.comment)}
                   </div>
                   <Radio.Group
-                    className={styles.RadioInput}
                     withAsterisk={typeDto.isRequired}
                     value={field.state.value as string}
                     onChange={(value) => {

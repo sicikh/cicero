@@ -9,12 +9,32 @@ import {
   Loader,
   PasswordInput,
 } from "@mantine/core";
+import {useAuth} from "../../hooks/AuthProvider.tsx";
 
 const Page: React.FC = () => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const timeoutRef = useRef<number>(-1);
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<string[]>([]);
+
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = await login({ email, password });
+    if (!result.success) {
+      setError(result.message || "Login failed");
+      console.log(result.message || "Log failed");
+    }
+    if (result.success) {
+      console.log("success");
+    }
+  };
+
 
   const handleChange = (val: string) => {
     window.clearTimeout(timeoutRef.current);
@@ -41,28 +61,34 @@ const Page: React.FC = () => {
       <Link to="/" className={styles["home-button"]}>
         На главную
       </Link>
-      <form action="" className={styles.form}>
+      <form action="" onSubmit={handleSubmit} className={styles.form}>
         <h1>Войти</h1>
         <div className={styles["input-box"]}>
           <Autocomplete
             variant="unstyled"
             size="lg"
-            value={value}
             data={data}
-            onChange={handleChange}
+            value={email}
+            onChange={setEmail}
+
             rightSection={loading ? <Loader size="1rem" /> : null}
             placeholder="E-mail"
           />
         </div>
         <div className={styles["input-box"]}>
-          <PasswordInput placeholder="Пароль" size="lg" variant="unstyled" />
+          <PasswordInput
+              placeholder="Пароль"
+              size="lg"
+              variant="unstyled"
+              value={password}
+              onChange={(e) => setPassword(e.currentTarget.value)}
+          />
         </div>
         <div id={styles["remember-forgot"]}>
           <label>
             <Checkbox defaultChecked label="Запомнить пароль" color="gray" />
           </label>
-          {/*TODO: add forgot route*/}
-          {/*<Link to={"/login"}>Забыли пароль?</Link>*/}
+          <Link to={"/lostPassword"}>Забыли пароль?</Link>
         </div>
         <Button id={styles.but_login} type="submit">
           Login
