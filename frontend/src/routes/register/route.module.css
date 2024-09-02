@@ -37,6 +37,7 @@
 
 #but_login {
     @apply w-full h-[45px] bg-[#495057] border-none rounded-[40px] outline-none shadow-[0_0_10px_rgba(0,0,0,0.1)] text-[16px] text-[#ffffff] font-bold;
+    @apply mt-[20px];
 }
 
 #Register_link {

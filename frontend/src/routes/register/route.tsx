@@ -67,7 +67,7 @@ const Page: React.FC = () => {
         {/*    <a href="#" className="hover:underline">Забыли пароль?</a>*/}
         {/*</div>*/}
         <button id={styles.but_login} type="submit">
-          Login
+          Создать аккаунт
         </button>
         <div id={styles.Register_link}>
           <p>
