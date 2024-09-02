@@ -82,7 +82,8 @@
 .inputsForm{
     @apply basis-1/2;
     @apply bg-[#DEE2E6];
-    @apply pt-[15px] pl-[15px] md:pl-[40px]
+    @apply pl-[15px] md:pl-[40px];
+    @apply mb-[25px]
 
 }
 
@@ -125,7 +126,7 @@
 }
 
 .Input {
-    @apply border-[2px] border-solid border-[#868686] w-[300px] md:w-[500px];
+    @apply border-[2px] border-solid border-[#868686] w-[100px] xl:w-[300px]  2xl:w-[500px];
     @apply bg-transparent;
     @apply pl-[10px];
 }
@@ -145,11 +146,13 @@
     @apply bg-transparent;
     @apply placeholder-blue-950;
     @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[20px]
 }
 
 .RadioPos {
     @apply flex-1
 }
 
-
-
+.radioForm{
+    @apply flex flex-row
+}

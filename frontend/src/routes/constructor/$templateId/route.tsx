@@ -460,17 +460,21 @@ const FormField: React.FC<FormFieldProps> = ({
                   </Radio.Group>
                 </div>
                 {typeDto.variants.map((it) => (
-                  <div className={styles.exFormInput} key={it.name}>
-                    {selectedRadio === it.name && "isRequired" in it ? (
-                      <FormField
-                        form={form}
-                        typeDto={it}
-                        level={level + 1}
-                        parent={oldName}
-                        isEnumField
-                      />
-                    ) : undefined}
-                  </div>
+                    <>
+                      {selectedRadio === it.name && "isRequired" in it ? (
+                            <FormField
+                                form={form}
+                                typeDto={it}
+                                level={level + 1}
+                                parent={oldName}
+                                isEnumField
+                            />
+
+
+
+                      ) : undefined}
+                    </>
+
                 ))}
               </>
             );

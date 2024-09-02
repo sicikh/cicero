@@ -19,7 +19,6 @@ const Page: React.FC = () => {
         const filteredTemplates = category.templates.filter(template =>
             (template.name).toLowerCase().includes(value.toLowerCase())
         );
-
         return {
             ...category,
             templates: filteredTemplates,
