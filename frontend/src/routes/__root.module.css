@@ -17,6 +17,7 @@
   @apply grid items-end gap-y-[15px] text-center
 }
 .ButtonLink{
+  @apply font-light text-[#495057] text-[20px]
 }
 .linkBut{
   @apply font-light text-[#495057] text-[20px];
@@ -39,4 +40,7 @@
 .bigbar{
   @apply flex flex-col justify-evenly;
   @apply gap-y-[10px]
+}
+.emailUser{
+  @apply font-medium text-[24px] text-[#495057];
 }

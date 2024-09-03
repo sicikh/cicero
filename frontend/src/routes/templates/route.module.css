@@ -16,7 +16,8 @@
     @apply mx-[5px] md:mx-[30px];
 }
 .search{
-    @apply mx-[15px]
+    @apply mx-[15px];
+    @apply flex-1
 }
 .accordion {
     @apply border-t-[2px] border-[#DEE2E6];
@@ -34,4 +35,7 @@
 }
 .descriptionText{
     @apply mx-[10px] md:mx-[30px];
+}
+.ButtonLink{
+    @apply font-light text-[#495057] text-[20px]
 }

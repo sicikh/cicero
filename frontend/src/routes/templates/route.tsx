@@ -36,15 +36,24 @@ const Page: React.FC = () => {
         justify="start"
         gap="md"
       >
-        <form action="">
-          <TextInput
-            className={styles.search}
-            placeholder="Search"
-            leftSection={<IconSearch />}
-            onChange={(event) => setSearchValue(event.target.value)}
-          />
-        </form>
-        {isAuthenticated ? <Button>Добавить шаблон</Button> : undefined}
+              <form action="">
+                  <TextInput
+                      className={styles.search}
+                      placeholder="Search"
+                      leftSection={<IconSearch />}
+                      onChange={(event) => setSearchValue(event.target.value)}
+                  />
+              </form>
+              {isAuthenticated ?
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    color="#495057"
+                    radius="lg"
+                  >
+                      Добавить шаблон
+                  </Button> : undefined}
+
         <Accordion multiple>
           {filterTemplates.map((category) => (
             <Accordion.Item
