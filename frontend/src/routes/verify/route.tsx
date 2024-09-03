@@ -1,8 +1,8 @@
+import { Alert, Container, Loader, Text } from "@mantine/core";
 import { createFileRoute, redirect, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type React from "react";
 import { appAxios } from "../../api/config.ts";
-import { Container, Text, Loader, Alert } from "@mantine/core";
 
 interface ValidateSearch {
   token: string;

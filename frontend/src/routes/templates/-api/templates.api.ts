@@ -2,8 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 import autoBind from "auto-bind";
 import { appAxios } from "../../../api/config.ts";
 import type { CategoryWithTemplatesDto } from "./dtos/CategoryWithTemplates.dto.ts";
+import type { TemplateCategoryDto } from "./dtos/TemplateCategory.dto.ts";
 import type { TemplateWithCategoriesDto } from "./dtos/TemplateWithCategories.dto.ts";
-import {TemplateCategoryDto} from "./dtos/TemplateCategory.dto.ts";
 
 class _TemplatesApi {
   readonly baseQueryKey = ["Templates"] as const;
@@ -47,7 +47,7 @@ class _TemplatesApi {
       },
     } as const);
   }
-  
+
   getCategories() {
     return queryOptions({
       queryKey: [...this.baseQueryKey, "categories"],
@@ -56,7 +56,7 @@ class _TemplatesApi {
           await appAxios.get<TemplateWithCategoriesDto[]>("/templates");
 
         const categoriesMap = new Map<number, TemplateCategoryDto>();
-        
+
         for (const template of data) {
           for (const category of template.categories) {
             if (!categoriesMap.has(category.id)) {
@@ -67,10 +67,10 @@ class _TemplatesApi {
             }
           }
         }
-        
+
         let categories = Array.from(categoriesMap.values());
         categories = categories.sort((a, b) => b.id - a.id);
-        
+
         return categories;
       },
     } as const);

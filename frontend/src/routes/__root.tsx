@@ -19,7 +19,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import classes from "./__root.module.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
-import {AuthState, useAuth} from "../hooks/AuthProvider.tsx";
+import { type AuthState, useAuth } from "../hooks/AuthProvider.tsx";
 
 const links = [
   { link: "/", label: "Главная" },
@@ -32,7 +32,7 @@ const linksReg = [
 ];
 
 const Page: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated, user, logout } = useAuth();
 
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
@@ -75,24 +75,26 @@ const Page: React.FC = () => {
               <div className={classes.linksItem}>{items}</div>
 
               {isAuthenticated ? (
-                  <div className={classes.linksReg}>
-                      <div className={classes.emailUser}>{user?.email}</div>
-                      <div>
-                          <Button
-                              className={classes.ButtonLink}
-                              size="lg"
-                              variant="outline"
-                              color="#495057"
-                              radius="lg"
-                          >
-                              {logout.name}
-                          </Button>
-                      </div>
+                <div className={classes.linksReg}>
+                  <div className={classes.emailUser}>{user?.email}</div>
+                  <div>
+                    <Button
+                      className={classes.ButtonLink}
+                      size="lg"
+                      variant="outline"
+                      color="#495057"
+                      radius="lg"
+                    >
+                      {logout.name}
+                    </Button>
                   </div>
-              ) : (<div className={classes.linksReg}>{itemsReg}</div>)}
+                </div>
+              ) : (
+                <div className={classes.linksReg}>{itemsReg}</div>
+              )}
             </Group>
             <Burger
-                opened={drawerOpened}
+              opened={drawerOpened}
               onClick={toggleDrawer}
               hiddenFrom="sm"
             />

@@ -1,4 +1,4 @@
-import { Container, TextInput, Radio, Group, Button } from "@mantine/core";
+import { Button, Container, Group, Radio, TextInput } from "@mantine/core";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import type React from "react";

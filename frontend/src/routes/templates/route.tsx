@@ -4,9 +4,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import type React from "react";
 import { useState } from "react";
+import { useAuth } from "../../hooks/AuthProvider.tsx";
 import { TemplatesApi } from "./-api/templates.api.ts";
 import styles from "./route.module.css";
-import { useAuth } from "../../hooks/AuthProvider.tsx";
 
 const Page: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -46,12 +46,7 @@ const Page: React.FC = () => {
         </form>
         {isAuthenticated ? (
           <Link to={"/templates/new"}>
-            <Button
-              size="lg"
-              variant="outline"
-              color="#495057"
-              radius="lg"
-            >
+            <Button size="lg" variant="outline" color="#495057" radius="lg">
               Добавить шаблон
             </Button>
           </Link>
