@@ -36,24 +36,26 @@ const Page: React.FC = () => {
         justify="start"
         gap="md"
       >
-              <form action="">
-                  <TextInput
-                      className={styles.search}
-                      placeholder="Search"
-                      leftSection={<IconSearch />}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                  />
-              </form>
-              {isAuthenticated ?
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    color="#495057"
-                    radius="lg"
-                  >
-                      Добавить шаблон
-                  </Button> : undefined}
-
+        <form action="">
+          <TextInput
+            className={styles.search}
+            placeholder="Search"
+            leftSection={<IconSearch />}
+            onChange={(event) => setSearchValue(event.target.value)}
+          />
+        </form>
+        {isAuthenticated ? (
+          <Link to={"/templates/new"}>
+            <Button
+              size="lg"
+              variant="outline"
+              color="#495057"
+              radius="lg"
+            >
+              Добавить шаблон
+            </Button>
+          </Link>
+        ) : undefined}
         <Accordion multiple>
           {filterTemplates.map((category) => (
             <Accordion.Item
@@ -64,17 +66,16 @@ const Page: React.FC = () => {
               <Accordion.Control icon={<IconFolder />}>
                 {category.name}
               </Accordion.Control>
-              <Accordion.Panel>
-                {category.templates.map((template) => (
+              {category.templates.map((template) => (
+                <Accordion.Panel key={template.id}>
                   <Link
-                    key={template.id}
                     to={"/templates/$templateId"}
                     params={{ templateId: template.id.toString() }}
                   >
                     {template.name}
                   </Link>
-                ))}
-              </Accordion.Panel>
+                </Accordion.Panel>
+              ))}
             </Accordion.Item>
           ))}
         </Accordion>

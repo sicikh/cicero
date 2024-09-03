@@ -29,7 +29,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginDto) => {
     try {
       const res = await appAxios.post<LoginResponseDto>("/auth/login", data);
-      console.log(res);
 
       if (res.data) {
         setUser({
@@ -44,7 +43,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return { success: false };
     } catch (e) {
-      console.log(e);
       return { success: false };
     }
   };
@@ -72,7 +70,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             localStorage.removeItem("token");
           }
         } catch (e) {
-          console.log(e);
           setUser(null);
           setToken(null);
           localStorage.removeItem("token");

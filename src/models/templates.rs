@@ -44,7 +44,7 @@ impl templates::Model {
 
         let viewers = match &params.publicity {
             PublicityParams::Public => None,
-            PublicityParams::Private { visible_to } => {
+            PublicityParams::Private { viewers: visible_to } => {
                 let mut viewers = Vec::with_capacity(visible_to.len());
 
                 for viewer_email in visible_to.iter().map(String::as_str) {
@@ -66,6 +66,7 @@ impl templates::Model {
 
         let template = templates::ActiveModel {
             name: Set(params.name.clone()),
+            description: Set(params.description.clone()),
             is_public: Set(viewers.is_none()),
             user_id: Set(author.id),
             ..Default::default()
@@ -307,7 +308,7 @@ impl templates::ActiveModel {
 
         let viewers = match &params.publicity {
             PublicityParams::Public => None,
-            PublicityParams::Private { visible_to } => {
+            PublicityParams::Private { viewers: visible_to } => {
                 let mut viewers = Vec::with_capacity(visible_to.len());
 
                 for viewer_email in visible_to.iter().map(String::as_str) {

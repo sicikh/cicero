@@ -13,16 +13,20 @@ use crate::views::attachment::Attachment;
 use crate::views::template::{CreateTemplateResponse, TemplateWithCategoriesResponse};
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateTemplateParams {
     pub name: String,
+    pub description: String,
     pub categories: Vec<i32>,
+    #[serde(flatten)]
     pub publicity: PublicityParams,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", tag = "publicity")]
 pub enum PublicityParams {
     Public,
-    Private { visible_to: Vec<String> },
+    Private { viewers: Vec<String> },
 }
 
 #[derive(Debug, Deserialize, Serialize)]
