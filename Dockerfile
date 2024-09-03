@@ -12,7 +12,7 @@ COPY ./frontend .
 
 RUN bun install && bun build
 
-FROM rust:1.74-slim as backend
+FROM rustlang/rust:nightly-slim as backend
 
 WORKDIR /usr/src/
 

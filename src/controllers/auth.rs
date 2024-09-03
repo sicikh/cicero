@@ -49,7 +49,7 @@ async fn register(
         .set_email_verification_sent(&ctx.db)
         .await?;
 
-    AuthMailer::send_welcome(&ctx, &user).await?;
+    // AuthMailer::send_welcome(&ctx, &user).await?;
 
     format::json(())
 }
@@ -89,7 +89,7 @@ async fn forgot(
         return format::json(());
     };
 
-    AuthMailer::forgot_password(&ctx, &user).await?;
+    // AuthMailer::forgot_password(&ctx, &user).await?;
 
     user.into_active_model()
         .set_forgot_password_sent(&ctx.db)

@@ -84,8 +84,9 @@ const Page: React.FC = () => {
                       variant="outline"
                       color="#495057"
                       radius="lg"
+                      onClick={() => logout()}
                     >
-                      {logout.name}
+                      Выйти
                     </Button>
                   </div>
                 </div>

@@ -20,3 +20,5 @@ data
 
 .idea
 .vscode
+
+.production.env

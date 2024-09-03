@@ -1,6 +1,6 @@
 import { Autocomplete, Loader, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@tanstack/react-form";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import {Link, createFileRoute, redirect, useNavigate} from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type React from "react";
 import { appAxios } from "../../api/config.ts";
@@ -11,6 +11,7 @@ const Page: React.FC = () => {
   const timeoutRef = useRef<number>(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [emailProviders, setEmailProviders] = useState<string[]>([]);
+  const navigate = useNavigate({ from: "/register" })
 
   const form = useForm<RegisterDto>({
     defaultValues: {
@@ -25,11 +26,13 @@ const Page: React.FC = () => {
         alert("Произошла ошибка при регистрации");
         return;
       }
+      
+      navigate({ to: "/" })
 
-      alert(
-        "На указанную почту выслано письмо для подтверждения. " +
-          "Пройдите по ссылке в письме, чтобы подтвердить регистрацию.",
-      );
+      // alert(
+      //   "На указанную почту выслано письмо для подтверждения. " +
+      //     "Пройдите по ссылке в письме, чтобы подтвердить регистрацию.",
+      // );
     },
   });
 

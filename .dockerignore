@@ -4,6 +4,10 @@ dockerfile
 .git
 .gitignore
 frontend/node_modules
+data
 .vscode
 .idea
+.github
+examples
+tests
 
