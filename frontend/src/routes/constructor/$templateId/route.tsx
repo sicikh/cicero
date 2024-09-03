@@ -220,7 +220,7 @@ const Page: React.FC = () => {
         <ScrollArea
           className={styles.scrollbar1}
           type="scroll"
-          scrollbars="y"
+          scrollbars="xy"
           offsetScrollbars
           scrollHideDelay={1500}
         >
@@ -231,7 +231,7 @@ const Page: React.FC = () => {
         <ScrollArea
           className={styles.scrollbar1}
           type="scroll"
-          scrollbars="y"
+          scrollbars="xy"
           offsetScrollbars
           scrollHideDelay={1500}
         >

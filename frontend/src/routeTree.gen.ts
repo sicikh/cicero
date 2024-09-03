@@ -17,6 +17,7 @@ import { Route as ResetRouteImport } from "./routes/reset/route";
 import { Route as RegisterRouteImport } from "./routes/register/route";
 import { Route as LoginRouteImport } from "./routes/login/route";
 import { Route as IndexRouteImport } from "./routes/index/route";
+import { Route as TemplatesNewRouteImport } from "./routes/templates/new/route";
 import { Route as TemplatesTemplateIdRouteImport } from "./routes/templates/$templateId/route";
 import { Route as ConstructorTemplateIdRouteImport } from "./routes/constructor/$templateId/route";
 
@@ -50,6 +51,11 @@ const LoginRouteRoute = LoginRouteImport.update({
 const IndexRouteRoute = IndexRouteImport.update({
   path: "/",
   getParentRoute: () => rootRoute,
+} as any);
+
+const TemplatesNewRouteRoute = TemplatesNewRouteImport.update({
+  path: "/new",
+  getParentRoute: () => TemplatesRouteRoute,
 } as any);
 
 const TemplatesTemplateIdRouteRoute = TemplatesTemplateIdRouteImport.update({
@@ -124,6 +130,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TemplatesTemplateIdRouteImport;
       parentRoute: typeof TemplatesRouteImport;
     };
+    "/templates/new": {
+      id: "/templates/new";
+      path: "/new";
+      fullPath: "/templates/new";
+      preLoaderRoute: typeof TemplatesNewRouteImport;
+      parentRoute: typeof TemplatesRouteImport;
+    };
   }
 }
 
@@ -136,6 +149,7 @@ export const routeTree = rootRoute.addChildren({
   ResetRouteRoute,
   TemplatesRouteRoute: TemplatesRouteRoute.addChildren({
     TemplatesTemplateIdRouteRoute,
+    TemplatesNewRouteRoute,
   }),
   VerifyRouteRoute,
   ConstructorTemplateIdRouteRoute,
@@ -173,7 +187,8 @@ export const routeTree = rootRoute.addChildren({
     "/templates": {
       "filePath": "templates/route.tsx",
       "children": [
-        "/templates/$templateId"
+        "/templates/$templateId",
+        "/templates/new"
       ]
     },
     "/verify": {
@@ -184,6 +199,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/templates/$templateId": {
       "filePath": "templates/$templateId/route.tsx",
+      "parent": "/templates"
+    },
+    "/templates/new": {
+      "filePath": "templates/new/route.tsx",
       "parent": "/templates"
     }
   }

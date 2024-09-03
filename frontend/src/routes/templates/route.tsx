@@ -1,4 +1,4 @@
-import { Accordion, Divider, Stack, TextInput } from "@mantine/core";
+import { Accordion, Button, Divider, Stack, TextInput } from "@mantine/core";
 import { IconFolder, IconSearch } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
@@ -6,9 +6,11 @@ import type React from "react";
 import { useState } from "react";
 import { TemplatesApi } from "./-api/templates.api.ts";
 import styles from "./route.module.css";
+import { useAuth } from "../../hooks/AuthProvider.tsx";
 
 const Page: React.FC = () => {
-  const [value, setValue] = useState("");
+  const { isAuthenticated } = useAuth();
+  const [searchValue, setSearchValue] = useState("");
 
   const { data: categories } = useSuspenseQuery(
     TemplatesApi.getCategoriesWithTemplates(),
@@ -17,7 +19,7 @@ const Page: React.FC = () => {
   const filterTemplates = categories
     .map((category) => {
       const filteredTemplates = category.templates.filter((template) =>
-        template.name.toLowerCase().includes(value.toLowerCase()),
+        template.name.toLowerCase().includes(searchValue.toLowerCase()),
       );
       return {
         ...category,
@@ -39,9 +41,10 @@ const Page: React.FC = () => {
             className={styles.search}
             placeholder="Search"
             leftSection={<IconSearch />}
-            onChange={(event) => setValue(event.target.value)}
+            onChange={(event) => setSearchValue(event.target.value)}
           />
         </form>
+        {isAuthenticated ? <Button>Добавить шаблон</Button> : undefined}
         <Accordion multiple>
           {filterTemplates.map((category) => (
             <Accordion.Item
