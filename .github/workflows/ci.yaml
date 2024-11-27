@@ -11,6 +11,8 @@ env:
   TOOLCHAIN_PROFILE: minimal
   HUSKY: 0
   NODE_VERSION: 20.16
+  FRONTEND_IMAGE_NAME: cicero-frontend
+  BACKEND_IMAGE_NAME: cicero-backend
 
 jobs:
   #region Backend steps
@@ -92,6 +94,38 @@ jobs:
           args: --all-features --workspace
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
+
+  push-backend-image:
+    name: Push Docker Backend Image
+    runs-on: ubuntu-latest
+    needs: [ test, clippy, rustfmt ]
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $BACKEND_IMAGE_NAME --label "runnnumber=${GITHUB_RUN_ID}"
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$BACKEND_IMAGE_NAME
+
+          # This changes all uppercase characters to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # This strips the git ref prefix from the version.
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # This strips the "v" prefix from the tag name.
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # This uses the Docker `latest` tag convention.
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $BACKEND_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
   #endregion
 
   #region Frontend steps
@@ -160,5 +194,39 @@ jobs:
         run: npm ci
       - name: Build the frontend
         run: npm run build
-  #endregion
+
+  push-frontend-image:
+    name: Push Docker Frontend Image
+    runs-on: ubuntu-latest
+    needs: [build-frontend, biome-frontend, oxlint-frontend]
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $FRONTEND_IMAGE_NAME --label "runnnumber=${GITHUB_RUN_ID}"
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$FRONTEND_IMAGE_NAME
           
+          # This changes all uppercase characters to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # This strips the git ref prefix from the version.
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # This strips the "v" prefix from the tag name.
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # This uses the Docker `latest` tag convention.
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $FRONTEND_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+  #endregion
