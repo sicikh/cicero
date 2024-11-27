@@ -6,8 +6,8 @@ mod m20220101_000001_users;
 mod m20240827_164857_templates;
 mod m20240827_165252_categories;
 mod m20240827_165502_templates_categories;
-
 mod m20240827_171617_users_visible_templates;
+
 pub struct Migrator;
 
 #[async_trait::async_trait]

@@ -1,3 +1,5 @@
 [alias]
 loco = "run --"
+loco-tool = "run --"
+
 playground = "run --example playground"

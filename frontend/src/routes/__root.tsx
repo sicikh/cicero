@@ -15,7 +15,7 @@ import {
   createRootRouteWithContext,
   useMatchRoute,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+// import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import classes from "./__root.module.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
@@ -119,7 +119,7 @@ const Page: React.FC = () => {
         </header>
       )}
       <Outlet />
-      <TanStackRouterDevtools />
+      {/*<TanStackRouterDevtools />*/}
     </>
   );
 };

@@ -4,12 +4,12 @@ use crate::models::_entities::categories;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CategoryResponse {
+pub struct Response {
     pub id: i32,
     pub name: String,
 }
 
-impl CategoryResponse {
+impl Response {
     #[must_use]
     pub fn new(category: &categories::Model) -> Self {
         Self {

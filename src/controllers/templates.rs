@@ -2,6 +2,7 @@
 
 use axum::debug_handler;
 use axum::extract::Multipart;
+use axum_extra::response::Attachment;
 use cicero_dsl::compiler::compile_types;
 use loco_rs::prelude::auth::JWTWithUser;
 use loco_rs::prelude::*;
@@ -9,8 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::middlewares::MaybeJwtWithUser;
 use crate::models::{categories, templates, users};
-use crate::views::attachment::Attachment;
-use crate::views::template::{CreateTemplateResponse, TemplateWithCategoriesResponse};
+use crate::views::template::{CreateResponse, WithCategoriesResponse};
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -100,7 +100,7 @@ async fn create_template(
     )
     .await?;
 
-    let response = CreateTemplateResponse::new(&template);
+    let response = CreateResponse::new(&template);
 
     format::json(response)
 }
@@ -131,8 +131,7 @@ async fn update_template(
     let categories = categories::Model::find_for_template(&ctx.db, id).await?;
     let viewers = users::Model::find_template_viewers(&ctx.db, id).await?;
 
-    let response =
-        TemplateWithCategoriesResponse::new(&template, &author, &categories, viewers.as_ref());
+    let response = WithCategoriesResponse::new(&template, &author, &categories, viewers.as_ref());
 
     format::json(response)
 }
@@ -143,7 +142,7 @@ async fn validate(
     State(_ctx): State<AppContext>,
     mut multipart: Multipart,
 ) -> Result<Response> {
-    while let Some(mut field) = multipart
+    if let Some(field) = multipart
         .next_field()
         .await
         .map_err(|_| Error::BadRequest("Invalid multipart".into()))?
@@ -163,11 +162,11 @@ async fn validate(
 
         let types = match compile_types(dsl.as_str()) {
             Ok(types) => types,
-            Err(err) => return Err(Error::BadRequest(err.to_string())),
+            Err(err) => return Err(Error::BadRequest(err)),
         };
 
         return format::json(types);
-    }
+    };
 
     Err(Error::BadRequest("Invalid multipart".into()))
 }
@@ -188,7 +187,7 @@ async fn get_visible(
         let categories = categories::Model::find_for_template(&ctx.db, template.id).await?;
         let viewers = users::Model::find_template_viewers(&ctx.db, template.id).await?;
 
-        response.push(TemplateWithCategoriesResponse::new(
+        response.push(WithCategoriesResponse::new(
             &template,
             &author,
             &categories,
@@ -212,8 +211,7 @@ async fn get_one(
     let categories = categories::Model::find_for_template(&ctx.db, id).await?;
     let viewers = users::Model::find_template_viewers(&ctx.db, id).await?;
 
-    let response =
-        TemplateWithCategoriesResponse::new(&template, &author, &categories, viewers.as_ref());
+    let response = WithCategoriesResponse::new(&template, &author, &categories, viewers.as_ref());
 
     format::json(response)
 }
@@ -265,7 +263,7 @@ async fn get_dsl_types(
     let template = templates::Model::find_visible_by_id(&ctx.db, id, maybe_user_id).await?;
     let dsl = templates::Model::find_dsl(template.id).await?;
 
-    let types = compile_types(dsl.as_str()).map_err(|err| Error::BadRequest(err.to_string()))?;
+    let types = compile_types(dsl.as_str()).map_err(Error::BadRequest)?;
 
     format::json(types.into_values().collect::<Vec<_>>())
 }

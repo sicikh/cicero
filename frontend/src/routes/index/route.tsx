@@ -11,7 +11,7 @@ const Page: React.FC = () => {
       gap="lg"
     >
       <Title className={classes.title}>
-        Проект <div className={classes.TitleName}>Cicero</div>- это удобный
+        Проект <div className={classes.TitleName}>Cicero</div> — это удобный
         инструмент для создания юридически значимых документов.
       </Title>
       <div className={classes.text}>

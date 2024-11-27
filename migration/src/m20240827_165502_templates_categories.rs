@@ -1,5 +1,6 @@
 use loco_rs::schema::table_auto_tz;
-use sea_orm_migration::{prelude::*, schema::*};
+use sea_orm_migration::prelude::*;
+use sea_orm_migration::schema::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -15,8 +16,7 @@ impl MigrationTrait for Migration {
                             .name("idx-templates_categories-refs-pk")
                             .table(TemplatesCategories::Table)
                             .col(TemplatesCategories::TemplateId)
-                            .col(TemplatesCategories::CategoryId)
-                            ,
+                            .col(TemplatesCategories::CategoryId),
                     )
                     .col(integer(TemplatesCategories::TemplateId))
                     .col(integer(TemplatesCategories::CategoryId))
@@ -53,9 +53,7 @@ enum TemplatesCategories {
     Table,
     TemplateId,
     CategoryId,
-    
 }
-
 
 #[derive(DeriveIden)]
 enum Templates {

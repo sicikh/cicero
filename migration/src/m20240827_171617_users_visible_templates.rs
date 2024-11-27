@@ -1,5 +1,6 @@
 use loco_rs::schema::table_auto_tz;
-use sea_orm_migration::{prelude::*, schema::*};
+use sea_orm_migration::prelude::*;
+use sea_orm_migration::schema::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -15,15 +16,17 @@ impl MigrationTrait for Migration {
                             .name("idx-users_visible_templates-refs-pk")
                             .table(UsersVisibleTemplates::Table)
                             .col(UsersVisibleTemplates::TemplateId)
-                            .col(UsersVisibleTemplates::UserId)
-                            ,
+                            .col(UsersVisibleTemplates::UserId),
                     )
                     .col(integer(UsersVisibleTemplates::TemplateId))
                     .col(integer(UsersVisibleTemplates::UserId))
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-users_visible_templates-templates")
-                            .from(UsersVisibleTemplates::Table, UsersVisibleTemplates::TemplateId)
+                            .from(
+                                UsersVisibleTemplates::Table,
+                                UsersVisibleTemplates::TemplateId,
+                            )
                             .to(Templates::Table, Templates::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
@@ -53,9 +56,7 @@ enum UsersVisibleTemplates {
     Table,
     TemplateId,
     UserId,
-    
 }
-
 
 #[derive(DeriveIden)]
 enum Templates {

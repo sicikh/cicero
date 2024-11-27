@@ -1,6 +1,8 @@
 use axum::http::{HeaderName, HeaderValue};
-use loco_rs::{app::AppContext, TestServer};
-use cicero::{models::users, views::auth::LoginResponse};
+use cicero::models::users;
+use cicero::views::auth::LoginResponse;
+use loco_rs::app::AppContext;
+use loco_rs::TestServer;
 
 const USER_EMAIL: &str = "test@loco.com";
 const USER_PASSWORD: &str = "1234";

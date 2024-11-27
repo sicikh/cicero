@@ -1,5 +1,6 @@
 use loco_rs::schema::table_auto_tz;
-use sea_orm_migration::{prelude::*, schema::*};
+use sea_orm_migration::prelude::*;
+use sea_orm_migration::schema::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -42,9 +43,8 @@ enum Templates {
     Name,
     UserId,
     IsPublic,
-    Description
+    Description,
 }
-
 
 #[derive(DeriveIden)]
 enum Users {

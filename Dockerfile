@@ -1,32 +1,22 @@
-FROM oven/bun:1 as frontend
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+WORKDIR /app
 
-ENV PATH="~/.bun/bin:${PATH}"
-RUN ln -s /usr/local/bin/bun /usr/local/bin/node
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-     && apt-get install -y git
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
 
-WORKDIR /usr/src/
-
-COPY ./frontend .
-
-RUN bun install && bun build
-
-FROM rustlang/rust:nightly-slim as backend
-
-WORKDIR /usr/src/
+RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
-
 RUN cargo build --release
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runtime
+WORKDIR /app
 
-WORKDIR /usr/app
+COPY --from=builder /app/target/release/cicero-cli /app/cicero-cli
+COPY --from=builder /app/config /app/config
 
-COPY --from=frontend /usr/src/dist /usr/app/frontend/dist
-COPY --from=frontend /usr/src/dist/index.html /usr/app/frontend/dist/index.html
-COPY --from=backend /usr/src/config /usr/app/config
-COPY --from=backend /usr/src/target/release/cicero-cli /usr/app/cicero-cli
-
-ENTRYPOINT ["/usr/app/cicero-cli"]
+ENTRYPOINT ["/app/cicero-cli"]

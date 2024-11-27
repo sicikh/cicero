@@ -16,9 +16,11 @@ target/
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 
-data
+data/
 
-.idea
-.vscode
+.idea/
+.vscode/
+
+*.sqlite
 
 .production.env

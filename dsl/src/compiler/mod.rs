@@ -21,6 +21,7 @@ mod grammar;
 mod lexer;
 mod resolver;
 
+#[allow(clippy::missing_errors_doc)]
 pub fn compile_types(source: &str) -> Result<VarEnv, String> {
     let module = parse_module(source)?;
     let var_env = resolve(module)?;

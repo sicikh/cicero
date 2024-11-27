@@ -56,6 +56,7 @@ const Page: React.FC = () => {
       const doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
+        delimiters: { start: "{{", end: "}}" },
         parser: expressionParser,
         nullGetter: (part) => {
           if (!part.module) {
@@ -127,11 +128,11 @@ const Page: React.FC = () => {
   const form = useForm<FormValues>({
     defaultValues: formData.defaultValues,
     onSubmit: async ({ value }) => {
-      setTemplateContext(() => value);
+      setTemplateContext(() => structuredClone(value));
     },
   });
 
-  const [visibleContainer, setVisibleContainer] = useState("first");
+  const [visibleContainer] = useState("first");
 
   return (
     <div>
@@ -169,20 +170,20 @@ const Page: React.FC = () => {
               >
                 Обновить
               </Button>
-              <Button
-                className={styles.Button1}
-                variant="gradient"
-                gradient={{ from: "#C8420D", to: "#842500", deg: 90 }}
-                onClick={() =>
-                  setVisibleContainer((prevState) =>
-                    prevState === "first" ? "second" : "first",
-                  )
-                }
-              >
-                {visibleContainer === "first"
-                  ? "Показать форму"
-                  : "Показать документ"}
-              </Button>
+              {/*<Button*/}
+              {/*  className={styles.Button1}*/}
+              {/*  variant="gradient"*/}
+              {/*  gradient={{ from: "#C8420D", to: "#842500", deg: 90 }}*/}
+              {/*  onClick={() =>*/}
+              {/*    setVisibleContainer((prevState) =>*/}
+              {/*      prevState === "first" ? "second" : "first",*/}
+              {/*    )*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  {visibleContainer === "first"*/}
+              {/*    ? "Показать форму"*/}
+              {/*    : "Показать документ"}*/}
+              {/*</Button>*/}
             </Group>
           </Group>
         </Group>

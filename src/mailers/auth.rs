@@ -21,19 +21,15 @@ impl AuthMailer {
     ///
     /// When email sending is failed
     pub async fn send_welcome(ctx: &AppContext, user: &users::Model) -> Result<()> {
-        Self::mail_template(
-            ctx,
-            &welcome,
-            mailer::Args {
-                to: user.email.to_string(),
-                locals: json!({
-                  "name": user.name,
-                  "verifyToken": user.email_verification_token,
-                  "domain": ctx.config.server.full_url()
-                }),
-                ..Default::default()
-            },
-        )
+        Self::mail_template(ctx, &welcome, mailer::Args {
+            to: user.email.to_string(),
+            locals: json!({
+              "name": user.name,
+              "verifyToken": user.email_verification_token,
+              "domain": ctx.config.server.full_url()
+            }),
+            ..Default::default()
+        })
         .await?;
 
         Ok(())
@@ -45,19 +41,15 @@ impl AuthMailer {
     ///
     /// When email sending is failed
     pub async fn forgot_password(ctx: &AppContext, user: &users::Model) -> Result<()> {
-        Self::mail_template(
-            ctx,
-            &forgot,
-            mailer::Args {
-                to: user.email.to_string(),
-                locals: json!({
-                  "name": user.name,
-                  "resetToken": user.reset_token,
-                  "domain": ctx.config.server.full_url()
-                }),
-                ..Default::default()
-            },
-        )
+        Self::mail_template(ctx, &forgot, mailer::Args {
+            to: user.email.to_string(),
+            locals: json!({
+              "name": user.name,
+              "resetToken": user.reset_token,
+              "domain": ctx.config.server.full_url()
+            }),
+            ..Default::default()
+        })
         .await?;
 
         Ok(())

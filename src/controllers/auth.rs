@@ -2,7 +2,7 @@ use axum::debug_handler;
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::mailers::auth::AuthMailer;
+// use crate::mailers::auth::AuthMailer;
 use crate::models::_entities::users;
 use crate::models::users::{LoginParams, RegisterParams};
 use crate::views::auth::LoginResponse;
@@ -44,7 +44,7 @@ async fn register(
         },
     };
 
-    let user = user
+    let _user = user
         .into_active_model()
         .set_email_verification_sent(&ctx.db)
         .await?;

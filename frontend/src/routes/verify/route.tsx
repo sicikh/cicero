@@ -25,7 +25,7 @@ const Page: React.FC = () => {
           setIsVerified(false);
           setError("Верификация не удалась.");
         }
-      } catch (err) {
+      } catch (_) {
         setIsVerified(false);
         setError("Верификация не удалась.");
       }

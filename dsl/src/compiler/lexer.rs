@@ -14,21 +14,21 @@ use logos::{Lexer, Logos};
 
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-fn strip_quotes<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Result<&'src str, ()> {
+fn strip_quotes<'src>(lex: &Lexer<'src, Token<'src>>) -> Result<&'src str, ()> {
     let slice = lex.slice();
     let stripped = &slice[1..slice.len() - 1];
     Ok(stripped)
 }
 
 #[inline]
-fn number<'src>(lex: &'_ mut Lexer<'src, Token<'src>>) -> Option<i64> {
+fn number<'src>(lex: &Lexer<'src, Token<'src>>) -> Option<i64> {
     let slice = lex.slice();
     let n: i64 = slice[..slice.len() - 1].parse().ok()?;
     Some(n)
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Logos, Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Logos, Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 pub enum Token<'src> {
     #[regex(r"\d+", number)]
     Number(i64),

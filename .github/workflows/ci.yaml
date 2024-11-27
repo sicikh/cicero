@@ -1,18 +1,20 @@
-name: CI
+name: Cicero CI
 on:
   push:
     branches:
+      - master
       - main
   pull_request:
 
 env:
-  RUST_TOOLCHAIN: nightly
+  RUST_TOOLCHAIN: stable
   TOOLCHAIN_PROFILE: minimal
   HUSKY: 0
+  NODE_VERSION: 20.16
 
 jobs:
   #region Backend steps
-  rustfmt-backend:
+  rustfmt:
     name: Check Style
     runs-on: ubuntu-latest
 
@@ -22,9 +24,9 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          toolchain: nightly
           components: rustfmt
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
@@ -32,7 +34,7 @@ jobs:
           command: fmt
           args: --all -- --check
 
-  clippy-backend:
+  clippy:
     name: Run Clippy
     runs-on: ubuntu-latest
 
@@ -53,23 +55,14 @@ jobs:
           command: clippy
           args: --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery -W rust-2018-idioms
 
-  test-backend:
-    name: Run backend tests
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
     
     services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - "6379:6379"
       postgres:
         image: postgres
         env:
@@ -96,9 +89,8 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features --all
+          args: --all-features --workspace
         env:
-          REDIS_URL: redis://localhost:${{job.services.redis.ports[6379]}}
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
   #endregion
 
@@ -116,14 +108,14 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version-file: ".bun-version"
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: bun install
+        run: npm ci
       - name: Check the frontend with biome
-        run: bun run check
+        run: npm run check-ci
 
   oxlint-frontend:
     name: Lint frontend with oxlint
@@ -138,14 +130,14 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version-file: ".bun-version"
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: bun install
+        run: npm ci
       - name: Lint the frontend with oxlint
-        run: bun run lint
+        run: npm run lint-ci
 
   build-frontend:
     name: Build frontend
@@ -160,12 +152,13 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version-file: ".bun-version"
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: bun install
+        run: npm ci
       - name: Build the frontend
-        run: bun run build
+        run: npm run build
   #endregion
+          

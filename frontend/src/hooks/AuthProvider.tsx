@@ -69,7 +69,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setToken(null);
             localStorage.removeItem("token");
           }
-        } catch (e) {
+        } catch (_) {
           setUser(null);
           setToken(null);
           localStorage.removeItem("token");

@@ -46,7 +46,8 @@ impl Hash for Var {
 }
 
 impl Var {
-    pub fn new(name: String, comment: HtmlString, ty: Entity) -> Self {
+    #[must_use]
+    pub const fn new(name: String, comment: HtmlString, ty: Entity) -> Self {
         Self { name, comment, ty }
     }
 }
@@ -70,8 +71,9 @@ impl PartialEq for Enum {
 
 impl Enum {
     /// Returns false if any of the variants has fields.
+    #[must_use]
     pub fn is_simple(&self) -> bool {
-        self.variants.iter().all(|variant| variant.is_simple())
+        self.variants.iter().all(EnumVariant::is_simple)
     }
 }
 
@@ -92,7 +94,8 @@ impl PartialEq for EnumVariant {
 
 impl EnumVariant {
     /// Returns false if the variant has field.
-    pub fn is_simple(&self) -> bool {
+    #[must_use]
+    pub const fn is_simple(&self) -> bool {
         self.field.is_none()
     }
 }
@@ -116,6 +119,7 @@ impl PartialEq for Struct {
 }
 
 impl Struct {
+    #[must_use]
     pub fn get_field(&self, name: &str) -> Option<&Field> {
         self.parent
             .as_deref()
@@ -123,7 +127,8 @@ impl Struct {
             .or_else(|| self.fields.iter().find(|&field| field.name == name))
     }
 
-    pub fn is_descendant(&self) -> bool {
+    #[must_use]
+    pub const fn is_descendant(&self) -> bool {
         self.parent.is_some()
     }
 }

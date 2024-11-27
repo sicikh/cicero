@@ -4,13 +4,13 @@ use crate::models::_entities::users;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UserResponse {
+pub struct Response {
     pub pid: String,
     pub name: String,
     pub email: String,
 }
 
-impl UserResponse {
+impl Response {
     #[must_use]
     pub fn new(user: &users::Model) -> Self {
         Self {

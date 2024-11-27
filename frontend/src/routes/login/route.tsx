@@ -1,6 +1,11 @@
 import { Autocomplete, Button, Loader, PasswordInput } from "@mantine/core";
 import { useForm } from "@tanstack/react-form";
-import {Link, createFileRoute, redirect, useNavigate} from "@tanstack/react-router";
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import type React from "react";
 import { useRef, useState } from "react";
 import { useAuth } from "../../hooks/AuthProvider.tsx";
@@ -16,7 +21,7 @@ const Page: React.FC = () => {
   const timeoutRef = useRef<number>(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [emailProviders, setEmailProviders] = useState<string[]>([]);
-  const navigate = useNavigate({ from: "/login" })
+  const navigate = useNavigate({ from: "/login" });
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -35,8 +40,8 @@ const Page: React.FC = () => {
         alert("Неверный логин или пароль");
         return;
       }
-      
-      navigate({ to: "/" })
+
+      navigate({ to: "/" });
     },
   });
 
