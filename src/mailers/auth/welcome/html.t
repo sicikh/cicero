@@ -1,13 +1,13 @@
-;<html>
+<html>
 
 <body>
-  Dear {{name}},
-  Welcome to Loco! You can now log in to your account.
-  Before you get started, please verify your account by clicking the link below:
-  <a href="http://{{domain}}/verify#{{verifyToken}}">
-    Verify Your Account
+  Пользователь {{name}},
+  Добро пожаловать в Цицерон! Теперь вы можете войти в свой аккаунт.
+  Перед тем, как начать, пожалуйста, подтвердите свой адрес электронной почты, пройдя по ссылке ниже:
+  <a href="{{domain}}/verify?token={{verifyToken}}">
+    Подтвердить адрес электронной почты
   </a>
-  <p>Best regards,<br>The Loco Team</p>
+  <p>Проект Цицерон</p>
 </body>
 
 </html>

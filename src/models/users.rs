@@ -27,7 +27,7 @@ pub struct RegisterParams {
 pub struct Validator {
     #[validate(length(min = 2, message = "Name must be at least 2 characters long."))]
     pub name: String,
-    #[validate(custom = "validation::is_valid_email")]
+    #[validate(custom(function = "validation::is_valid_email"))]
     pub email: String,
 }
 
@@ -227,6 +227,9 @@ impl super::_entities::users::Model {
         Ok(jwt::JWT::new(secret).generate_token(expiration, self.pid.to_string(), None)?)
     }
 
+    /// # Errors
+    ///
+    /// When could not find the template author or DB query error
     pub async fn find_template_author(
         db: &DatabaseConnection,
         template_id: i32,
@@ -246,6 +249,9 @@ impl super::_entities::users::Model {
         author.ok_or_else(|| ModelError::EntityNotFound)
     }
 
+    /// # Errors
+    ///
+    /// When could not find the template viewers or DB query error
     pub async fn find_template_viewers(
         db: &DatabaseConnection,
         template_id: i32,
@@ -254,7 +260,7 @@ impl super::_entities::users::Model {
             .one(db)
             .await?
             .ok_or(ModelError::EntityNotFound)?;
-        
+
         if template.is_public {
             return Ok(None);
         }

@@ -556,7 +556,7 @@ mod tests {
                             }),
                             is_required: true,
                         }),
-                    }
+                    },
                 ],
             };
 

@@ -1,0 +1,52 @@
+
+#wrapper {
+    @apply flex items-center justify-center min-h-screen bg-[#DEE2E6];
+}
+
+.form {
+    @apply w-full md:w-[420px] bg-transparent border-2 border-[#495057] backdrop-blur-[20px] text-[#495057] rounded-[10px] pt-[30px] pb-[30px] px-[20px] md:px-[40px];
+}
+
+.form h1 {
+    @apply text-center text-[28px] md:text-[36px] font-bold;
+}
+
+.input-box {
+    @apply w-full h-[50px] mt-[20px] mb-0 relative;
+}
+
+.input-box input {
+    @apply w-full h-full bg-transparent outline-none border-2 border-[#495057] rounded-[40px] placeholder-[#495057] text-[16px] text-[#495057] md:text-[18px] pb-[15px] pr-[45px] pt-[20px] pl-[20px];
+}
+
+.inputBox{
+    @apply w-full bg-transparent outline-none border-solid border-2 border-[#495057] rounded-[40px] placeholder-[#495057] text-[16px] text-[#495057] md:text-[18px];
+}
+
+.input-box i {
+    @apply absolute right-[20px] text-[20px] top-[50%] -translate-y-1/2;
+}
+
+#remember-forgot {
+    @apply md:flex justify-end text-[14px] md:text-[15px] mt-[15px] mb-[15px];
+}
+
+#remember-forgot a {
+    @apply hover:underline;
+}
+
+#but_login {
+    @apply w-full h-[45px] bg-[#495057] border-none rounded-[40px] outline-none shadow-[0_0_10px_rgba(0,0,0,0.1)] text-[16px] text-[#ffffff] font-bold;
+    @apply mt-[20px];
+}
+
+#Register_link {
+    @apply text-[14px] md:text-[15px] text-center mt-[15px];
+}
+
+#Register_link a {
+    @apply font-semibold hover:underline ml-[5px];
+}
+.home-button {
+    @apply absolute top-0 left-0 m-[10px] p-[10px] bg-[#495057] rounded text-[#ffffff] font-bold;
+}

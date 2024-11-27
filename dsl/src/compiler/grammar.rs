@@ -12,7 +12,7 @@ use chumsky::input::{SpannedInput, Stream as TokenStream, ValueInput};
 use chumsky::prelude::*;
 use logos::Logos;
 
-use super::ast::*;
+use super::ast::{Enum, EnumVariant, Field, Module, Struct, Type, TypeDef, Variable};
 use super::lexer::Token;
 use crate::compiler::parse_markdown;
 use crate::types::HtmlString;
@@ -36,7 +36,9 @@ pub fn parse_module(input: &str) -> Result<Module, String> {
     }
 }
 
+/// ```ebnf
 /// module ::= ( struct | enum )* variables
+/// ```
 fn module_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Module, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     struct_parser()
@@ -53,7 +55,9 @@ fn module_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         })
 }
 
+/// ```ebnf
 /// ident ::= [a-zA-Z_][a-zA-Z0-9_]*
+/// ```
 fn ident_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, String, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     // NB: don't remove let binding, otherwise `labelled` method can't resolve
@@ -64,7 +68,9 @@ fn ident_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
     ident.labelled("identifier")
 }
 
+/// ```ebnf
 /// struct ::= [ comment ] 'struct' ident [ ':' ident ] '{' fields '}'
+/// ```
 fn struct_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Struct, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     comment_parser()
@@ -73,11 +79,18 @@ fn struct_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .then(ident_parser().then(just(Token::Colon).ignore_then(ident_parser()).or_not()))
         .then(fields_parser().delimited_by(just(Token::LBrace), just(Token::RBrace)))
         .map(|((comment, (name, parent)), fields)| {
-            Struct { name, comment, fields, parent }
+            Struct {
+                name,
+                comment,
+                fields,
+                parent,
+            }
         })
 }
 
+/// ```ebnf
 /// fields ::= ( field )*
+/// ```
 fn fields_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Vec<Field>, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     field_parser()
@@ -86,7 +99,9 @@ fn fields_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .collect()
 }
 
+/// ```ebnf
 /// field ::= comment ident ':' type
+/// ```
 fn field_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Field, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     comment_parser()
@@ -96,7 +111,9 @@ fn field_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|((comment, name), ty)| Field { name, comment, ty })
 }
 
+/// ```ebnf
 /// comment ::= ( '/// ' [^\n\r] )*
+/// ```
 fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, HtmlString, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     let comment = select! {
@@ -112,8 +129,10 @@ fn comment_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|markdown| parse_markdown(&markdown))
 }
 
-/// enum ::= [ comment ] 'enum' ident '{' enum_variant [ ',' enum_variant ]* [
-/// ',' ] '}'
+/// ```ebnf
+/// enum ::=
+///     [ comment ] 'enum' ident '{' enum_variant [ ',' enum_variant ]* `[` ',' `]` '}'
+/// ```
 fn enum_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Enum, extra::Err<Rich<'a, Token<'a>>>> + Clone {
     comment_parser()
@@ -136,7 +155,9 @@ fn enum_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         })
 }
 
+/// ```ebnf
 /// enum_variant ::= comment ident [ '(' type ')' ]
+/// ```
 fn enum_variant_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, EnumVariant, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     comment_parser()
@@ -155,7 +176,9 @@ fn enum_variant_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpa
         })
 }
 
+/// ```ebnf
 /// variables ::= variable ( ';' variable )* [ ';' ]
+/// ```
 fn variables_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Vec<Variable>, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     variable_parser()
@@ -165,7 +188,9 @@ fn variables_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>
         .collect()
 }
 
+/// ```ebnf
 /// variable ::= comment 'let' ident ':' type
+/// ```
 fn variable_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Variable, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     comment_parser()
@@ -176,7 +201,9 @@ fn variable_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
         .map(|((comment, name), ty)| Variable { name, comment, ty })
 }
 
+/// ```ebnf
 /// type ::= ( ident | '[' ident ']' ) [ '?' ]
+/// ```
 fn type_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 ) -> impl Parser<'a, I, Type, extra::Err<Rich<'a, Token<'a>>>> + Copy {
     ident_parser()
@@ -196,13 +223,11 @@ fn type_parser<'a, I: ValueInput<'a, Token = Token<'a>, Span = SimpleSpan>>(
 
 fn wrap_lexer(
     src: &str,
-) -> SpannedInput<Token, SimpleSpan, TokenStream<impl Iterator<Item = (Token, SimpleSpan)>>> {
+) -> SpannedInput<Token<'_>, SimpleSpan, TokenStream<impl Iterator<Item = (Token<'_>, SimpleSpan)>>>
+{
     let lex_iter = Token::lexer(src).spanned().map(|(tok, span)| {
         (
-            match tok {
-                Ok(tkn) => tkn,
-                Err(_) => Token::Unknown(&src[span.clone()]),
-            },
+            tok.unwrap_or_else(|()| Token::Unknown(&src[span.clone()])),
             span.into(),
         )
     });

@@ -11,6 +11,8 @@ const createRouterWithContext = () => {
     routeTree,
     context: {
       queryClient: queryClient,
+      // biome-ignore lint/style/noNonNullAssertion: we will set the context in the App.tsx
+      auth: undefined!,
     },
     Wrap: ({ children }) => (
       <Suspense fallback={<Text>Приложение загружается...</Text>}>

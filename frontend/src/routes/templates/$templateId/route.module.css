@@ -1,9 +1,21 @@
-.Container {
-    @apply w-full h-full px-1;
-    @apply flex flex-col;
-    @apply overflow-hidden;
-
-    button {
-        @apply w-fit px-10 mt-2;
-    }
+.rightSide{
+    @apply basis-1/2;
+    @apply text-[#495057]
+}
+.mainRS{
+    @apply mb-[15px];
+    @apply mx-[5px] md:mx-[30px];
+}
+.button {
+    @apply mt-[30px];
+    @apply hover:bg-[#DEE2E6]
+}
+.description{
+    @apply border-t-[2px] border-[#DEE2E6];
+}
+.descriptionTitle{
+    @apply mx-[5px] md:mx-[10px];
+}
+.descriptionText{
+    @apply mx-[10px] md:mx-[30px];
 }

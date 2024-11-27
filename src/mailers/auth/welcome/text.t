@@ -1,4 +1,6 @@
-Welcome {{name}}, you can now log in.
-  Verify your account with the link below:
 
-  http://localhost/verify#{{verifyToken}}
+Пользователь {{name}},
+Добро пожаловать в Цицерон! Теперь вы можете войти в свой аккаунт.
+Перед тем, как начать, пожалуйста, подтвердите свой адрес электронной почты, пройдя по ссылке ниже:
+
+    {{domain}}/verify?token={{verifyToken}}

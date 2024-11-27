@@ -2,20 +2,24 @@ use std::path::PathBuf;
 
 use cicero_dsl::compiler::compile_types;
 use loco_rs::prelude::*;
-use sea_orm::entity::prelude::*;
+// use sea_orm::entity::prelude::*;
 use sea_orm::sea_query::Query;
 use sea_orm::Condition;
 use tokio::fs;
 
 pub use super::_entities::templates::{self, ActiveModel, Entity, Model};
-use super::_entities::{categories, templates_categories, users, users_visible_templates};
+use super::_entities::{templates_categories, users, users_visible_templates};
 use crate::controllers::templates::{CreateTemplateParams, PublicityParams};
 
-impl ActiveModelBehavior for templates::ActiveModel {
-    // extend activemodel below (keep comment for generators)
+impl ActiveModelBehavior for ActiveModel {
+    // extend active model below (keep comment for generators)
 }
 
-impl templates::Model {
+impl Model {
+    /// # Errors
+    ///
+    /// When author is not found, categories are not found, viewers are not
+    /// found, or error writing files.
     pub async fn create(
         db: &DatabaseConnection,
         params: &CreateTemplateParams,
@@ -27,15 +31,15 @@ impl templates::Model {
 
         compile_types(dsl).map_err(|_| ModelError::Any("Invalid DSL".into()))?;
 
-        let author = users::Entity::find_by_id(author_id)
+        let author = Entity::find_by_id(author_id)
             .one(&txn)
             .await?
             .ok_or(ModelError::EntityNotFound)?;
 
         let mut categories = Vec::with_capacity(params.categories.len());
 
-        for category_id in params.categories.iter().cloned() {
-            let category = categories::Entity::find_by_id(category_id)
+        for category_id in params.categories.iter().copied() {
+            let category = Entity::find_by_id(category_id)
                 .one(&txn)
                 .await?
                 .ok_or(ModelError::EntityNotFound)?;
@@ -44,7 +48,9 @@ impl templates::Model {
 
         let viewers = match &params.publicity {
             PublicityParams::Public => None,
-            PublicityParams::Private { visible_to } => {
+            PublicityParams::Private {
+                viewers: visible_to,
+            } => {
                 let mut viewers = Vec::with_capacity(visible_to.len());
 
                 for viewer_email in visible_to.iter().map(String::as_str) {
@@ -64,25 +70,26 @@ impl templates::Model {
             },
         };
 
-        let template = templates::ActiveModel {
+        let template = ActiveModel {
             name: Set(params.name.clone()),
+            description: Set(params.description.clone()),
             is_public: Set(viewers.is_none()),
             user_id: Set(author.id),
             ..Default::default()
         };
 
-        let template = templates::Entity::insert(template).exec(&txn).await?;
+        let template = Entity::insert(template).exec(&txn).await?;
         let template_id = template.last_insert_id;
 
-        fs::write(format!("./data/templates/{}.docx", template_id), docx)
+        fs::write(format!("./data/templates/{template_id}.docx"), docx)
             .await
             .map_err(|_| ModelError::Any("Error writing file".into()))?;
 
-        fs::write(format!("./data/templates/{}.dsl", template_id), dsl)
+        fs::write(format!("./data/templates/{template_id}.dsl"), dsl)
             .await
             .map_err(|_| ModelError::Any("Error writing file".into()))?;
 
-        for category in categories.iter() {
+        for category in &categories {
             let template_category = templates_categories::ActiveModel {
                 template_id: Set(template_id),
                 category_id: Set(category.id),
@@ -95,7 +102,7 @@ impl templates::Model {
         }
 
         if let Some(viewers) = viewers {
-            for viewer in viewers.iter() {
+            for viewer in &viewers {
                 let viewer_template = users_visible_templates::ActiveModel {
                     user_id: Set(viewer.id),
                     template_id: Set(template_id),
@@ -108,7 +115,7 @@ impl templates::Model {
             }
         }
 
-        let template = templates::Entity::find_by_id(template_id)
+        let template = Entity::find_by_id(template_id)
             .one(&txn)
             .await?
             .ok_or(ModelError::EntityNotFound);
@@ -118,11 +125,17 @@ impl templates::Model {
         template
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_by_id(db: &DatabaseConnection, id: i32) -> ModelResult<Self> {
-        let template = templates::Entity::find_by_id(id).one(db).await?;
+        let template = Entity::find_by_id(id).one(db).await?;
         template.ok_or_else(|| ModelError::EntityNotFound)
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_public(db: &DatabaseConnection) -> ModelResult<Vec<Self>> {
         let templates = templates::Entity::find()
             .filter(templates::Column::IsPublic.eq(true))
@@ -131,6 +144,9 @@ impl templates::Model {
         Ok(templates)
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_visible_to_user(
         db: &DatabaseConnection,
         user_id: i32,
@@ -156,6 +172,9 @@ impl templates::Model {
         Ok(templates)
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_visible(
         db: &DatabaseConnection,
         user_id: Option<i32>,
@@ -166,6 +185,9 @@ impl templates::Model {
         }
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_by_id_for_user(
         db: &DatabaseConnection,
         id: i32,
@@ -192,6 +214,9 @@ impl templates::Model {
         Err(ModelError::Any("Unauthorized".into()))
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_public_by_id(db: &DatabaseConnection, id: i32) -> ModelResult<Self> {
         let template = templates::Entity::find()
             .filter(templates::Column::IsPublic.eq(true))
@@ -201,6 +226,9 @@ impl templates::Model {
         template.ok_or_else(|| ModelError::EntityNotFound)
     }
 
+    /// # Errors
+    ///
+    /// When entity is not found
     pub async fn find_visible_by_id(
         db: &DatabaseConnection,
         id: i32,
@@ -212,8 +240,11 @@ impl templates::Model {
         }
     }
 
+    /// # Errors
+    ///
+    /// When file is not found or error reading file
     pub async fn find_docx(id: i32) -> ModelResult<Vec<u8>> {
-        let file_path = PathBuf::from(format!("./data/templates/{}.docx", id));
+        let file_path = PathBuf::from(format!("./data/templates/{id}.docx"));
 
         if !file_path.exists() {
             return Err(ModelError::EntityNotFound);
@@ -226,8 +257,11 @@ impl templates::Model {
         Ok(buffer)
     }
 
+    /// # Errors
+    ///
+    /// When file is not found or error reading file
     pub async fn find_dsl(id: i32) -> ModelResult<String> {
-        let file_path = PathBuf::from(format!("./data/templates/{}.dsl", id));
+        let file_path = PathBuf::from(format!("./data/templates/{id}.dsl"));
 
         if !file_path.exists() {
             return Err(ModelError::EntityNotFound);
@@ -240,6 +274,10 @@ impl templates::Model {
         Ok(buffer)
     }
 
+    /// # Errors
+    ///
+    /// When author is not found, categories are not found, viewers are not
+    /// found, or error writing files.
     pub async fn delete_template(
         db: &DatabaseConnection,
         id: i32,
@@ -247,7 +285,7 @@ impl templates::Model {
     ) -> ModelResult<()> {
         let txn = db.begin().await?;
 
-        let template = templates::Entity::find_by_id(id)
+        let template = Entity::find_by_id(id)
             .one(&txn)
             .await?
             .ok_or(ModelError::EntityNotFound)?;
@@ -263,7 +301,7 @@ impl templates::Model {
 
         let template = template.into_active_model();
 
-        templates::Entity::delete(template).exec(&txn).await?;
+        Entity::delete(template).exec(&txn).await?;
 
         txn.commit().await?;
 
@@ -271,21 +309,25 @@ impl templates::Model {
     }
 }
 
-impl templates::ActiveModel {
+impl ActiveModel {
+    /// # Errors
+    ///
+    /// When author is not found, categories are not found, viewers are not
+    /// found, or error writing files.
     pub async fn update_template(
-        mut self,
+        self,
         db: &DatabaseConnection,
         params: &CreateTemplateParams,
         id: i32,
         author_id: i32,
         docx: &[u8],
         dsl: &str,
-    ) -> ModelResult<templates::Model> {
+    ) -> ModelResult<Model> {
         let txn = db.begin().await?;
 
         compile_types(dsl).map_err(|_| ModelError::Any("Invalid DSL".into()))?;
 
-        let template = templates::Entity::find_by_id(id)
+        let template = Entity::find_by_id(id)
             .one(&txn)
             .await?
             .ok_or(ModelError::EntityNotFound)?;
@@ -297,8 +339,8 @@ impl templates::ActiveModel {
 
         let mut categories = Vec::with_capacity(params.categories.len());
 
-        for category_id in params.categories.iter().cloned() {
-            let category = categories::Entity::find_by_id(category_id)
+        for category_id in params.categories.iter().copied() {
+            let category = Entity::find_by_id(category_id)
                 .one(&txn)
                 .await?
                 .ok_or(ModelError::EntityNotFound)?;
@@ -307,7 +349,9 @@ impl templates::ActiveModel {
 
         let viewers = match &params.publicity {
             PublicityParams::Public => None,
-            PublicityParams::Private { visible_to } => {
+            PublicityParams::Private {
+                viewers: visible_to,
+            } => {
                 let mut viewers = Vec::with_capacity(visible_to.len());
 
                 for viewer_email in visible_to.iter().map(String::as_str) {
@@ -327,12 +371,12 @@ impl templates::ActiveModel {
             },
         };
 
-        templates_categories::Entity::delete_many()
+        Entity::delete_many()
             .filter(templates_categories::Column::TemplateId.eq(id))
             .exec(&txn)
             .await?;
 
-        users_visible_templates::Entity::delete_many()
+        Entity::delete_many()
             .filter(users_visible_templates::Column::TemplateId.eq(id))
             .exec(&txn)
             .await?;
@@ -345,7 +389,7 @@ impl templates::ActiveModel {
             .await
             .map_err(|_| ModelError::Any("Error writing file".into()))?;
 
-        for category in categories.iter() {
+        for category in &categories {
             let template_category = templates_categories::ActiveModel {
                 template_id: Set(template.id),
                 category_id: Set(category.id),
@@ -358,7 +402,7 @@ impl templates::ActiveModel {
         }
 
         if let Some(viewers) = viewers.as_ref() {
-            for viewer in viewers.iter() {
+            for viewer in viewers {
                 let viewer_template = users_visible_templates::ActiveModel {
                     user_id: Set(viewer.id),
                     template_id: Set(template.id),

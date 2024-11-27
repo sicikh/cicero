@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   backend:
     build:
@@ -6,7 +7,6 @@ services:
     command: sleep infinity
     networks:
       - db
-      - redis
       - mailer
     volumes:
       - ..:/workspace/cicero:cached
@@ -23,13 +23,6 @@ services:
       - postgres-data:/var/lib/postgresql/data
     env_file:
       - .env
-  redis:
-    image: redis:latest
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    networks:
-      - redis
   mailer:
     image: mailtutan/mailtutan:latest
     restart: unless-stopped
@@ -54,5 +47,4 @@ volumes:
 
 networks:
   db:
-  redis:
   mailer:

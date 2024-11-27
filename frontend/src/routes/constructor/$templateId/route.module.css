@@ -1,22 +1,39 @@
 .Container {
-    @apply flex w-full h-full px-2 py-1;
+    @apply flex w-full;
 }
 
 .DocxContainer {
-    @apply w-full h-full px-2 py-1 -ml-2;
+    @apply w-full px-2 py-1 -ml-2;
     @apply flex-1 gap-2;
     @apply overflow-y-auto;
 }
 
 @media (max-width: 768px) {
     .DocxContainer {
-        display: none;
+        display: none; /* Initially hide the DocxContainer */
     }
 }
 
 .Form {
-    @apply flex-initial flex-col gap-4;
+    @apply flex-initial flex-col gap-4 basis-1/2;
     @apply overflow-y-auto;
+}
+
+@media (max-width: 768px) {
+    .Form {
+        @apply w-full; /* Full width on small screens */
+    }
+}
+
+.toggle-button {
+    @apply bg-blue-500 text-white rounded p-2; /* Style for the toggle button */
+    display: none; /* Hide by default */
+}
+
+@media (max-width: 768px) {
+    .toggle-button {
+        display: block; /* Show button on small screens */
+    }
 }
 
 @media (max-width: 768px) {
@@ -31,4 +48,111 @@
     .Fields {
         @apply flex flex-col gap-2;
     }
+}
+
+.container{
+    @apply bg-[#343A40]
+}
+.headerGroup{
+    @apply ml-[5px] mr-[3px];
+    @apply h-[61px] flex flex-row items-center justify-between;
+    @apply xl:mr-[25px]
+}
+.titleText{
+    @apply text-[14px] text-[#DEE2E6] font-bold
+}
+.previewGroup{
+    @apply flex gap-x-[20px] xl:gap-x-[60px]
+}
+.buttonGroup{
+    @apply text-[#343A40]
+}
+.Button{
+    @apply rounded-[25px] text-[#343A40];
+}
+.Button1{
+    @apply rounded-[25px] text-[#ffffff];
+}
+
+
+.containerMain{
+    @apply h-[100vh] w-full;
+    @apply flex flex-row;
+}
+.inputsForm{
+    @apply basis-1/2;
+    @apply bg-[#DEE2E6];
+    @apply pl-[15px] md:pl-[40px];
+    @apply mb-[25px]
+
+}
+
+.scrollbar{
+    @apply h-[calc(100vh-241px)];
+    @apply basis-1/2;
+    @apply flex-1
+}
+.scrollbar1{
+    @apply h-[calc(100vh-241px)];
+    @apply basis-1/2;
+    @apply flex-1;
+    @apply bg-[#808080]
+
+}
+.groupInputTitle{
+    @apply text-[16px] text-[#343A40] md:text-[18px] font-bold;
+    @apply my-[30px] md:pl-[30px] md:pr-[70px];
+    @apply flex justify-center
+}
+.exFormInput{
+    @apply flex flex-col
+}
+.iconBack{
+    @apply text-white
+}
+
+.Root {
+    @apply grid grid-flow-col justify-between;
+    @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[10px]
+}
+
+.Label {
+    @apply row-span-3 text-[#343A40] text-[16px] md:text-[18px] font-medium pt-[6px]
+}
+
+.Wrapper {
+    @apply row-start-2
+}
+
+.Input {
+    @apply border-[2px] border-solid border-[#868686] w-[100px] xl:w-[300px]  2xl:w-[500px];
+    @apply bg-transparent;
+    @apply pl-[10px];
+}
+
+.Error {
+    @apply text-center;
+}
+
+.RadioWrapper {
+    @apply  items-center;
+    @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[20px]
+}
+
+.RadioInput {
+    @apply text-[16px] md:text-[18px];
+    @apply bg-transparent;
+    @apply placeholder-blue-950;
+    @apply md:pl-[30px] md:pr-[70px];
+    @apply mb-[20px]
+}
+
+.RadioPos {
+    @apply flex-1
+}
+
+.radioForm{
+    @apply flex flex-row
 }

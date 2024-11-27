@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use axum::extract::{FromRef, FromRequestParts};
 use axum::http::request::Parts;
-use loco_rs::prelude::*;
 use loco_rs::prelude::auth::{JWTWithUser, JWT};
+use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]

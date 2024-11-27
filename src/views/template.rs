@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 use crate::models::{categories, templates, users};
-use crate::views::category::CategoryResponse;
-use crate::views::user::UserResponse;
+use crate::views::category::Response as CategoryResponse;
+use crate::views::user::Response;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct TemplateWithCategoriesResponse {
+pub struct WithCategoriesResponse {
     pub id: i32,
     pub name: String,
     pub description: String,
-    pub author: UserResponse,
+    pub author: Response,
     pub publicity: PublicityResponse,
     pub categories: Vec<CategoryResponse>,
 }
@@ -19,16 +19,23 @@ pub struct TemplateWithCategoriesResponse {
 #[serde(rename_all = "camelCase")]
 pub enum PublicityResponse {
     Public,
-    Private { viewers: Vec<UserResponse> },
+    Private { viewers: Vec<Response> },
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateTemplateResponse {
+pub struct CreateResponse {
     pub id: i32,
 }
 
-impl TemplateWithCategoriesResponse {
+impl WithCategoriesResponse {
+    /// # Panics
+    ///
+    /// Panics in the following cases:
+    ///
+    /// 1. if the template is public and has initialized viewers,
+    ///
+    /// 2. if the template is private and doesn't have initialized viewers.
     #[must_use]
     pub fn new(
         template: &templates::Model,
@@ -37,17 +44,8 @@ impl TemplateWithCategoriesResponse {
         viewers: Option<&Vec<users::Model>>,
     ) -> Self {
         assert_eq!(template.user_id, author.id);
-        let publicity = match viewers {
-            Some(users) => {
-                assert!(
-                    !template.is_public,
-                    "Template is public, but it has a list of users that it is visible to"
-                );
-                PublicityResponse::Private {
-                    viewers: users.iter().map(UserResponse::new).collect(),
-                }
-            },
-            None => {
+        let publicity = viewers.map_or_else(
+            || {
                 assert!(
                     template.is_public,
                     "Template is private, but there is no list of users that it is visible to"
@@ -55,22 +53,31 @@ impl TemplateWithCategoriesResponse {
 
                 PublicityResponse::Public
             },
-        };
+            |users| {
+                assert!(
+                    !template.is_public,
+                    "Template is public, but it has a list of users that it is visible to"
+                );
+                PublicityResponse::Private {
+                    viewers: users.iter().map(Response::new).collect(),
+                }
+            },
+        );
 
         Self {
             id: template.id,
             name: template.name.clone(),
             description: template.description.clone(),
-            author: UserResponse::new(author),
+            author: Response::new(author),
             publicity,
             categories: categories.iter().map(CategoryResponse::new).collect(),
         }
     }
 }
 
-impl CreateTemplateResponse {
+impl CreateResponse {
     #[must_use]
-    pub fn new(template: &templates::Model) -> Self {
+    pub const fn new(template: &templates::Model) -> Self {
         Self { id: template.id }
     }
 }

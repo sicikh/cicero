@@ -1,7 +1,8 @@
 use axum::debug_handler;
 use loco_rs::prelude::*;
 
-use crate::{models::_entities::users, views::user::UserResponse};
+use crate::models::_entities::users;
+use crate::views::user::Response as UserResponse;
 
 #[debug_handler]
 async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Response> {

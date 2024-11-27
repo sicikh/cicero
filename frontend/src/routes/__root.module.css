@@ -1,17 +1,46 @@
-.Container {
-  @apply w-full h-full;
-  @apply flex flex-col gap-2;
-  @apply bg-gray-50;
-  @apply overflow-hidden;
+
+.inner {
+  @apply h-[180px] flex justify-between items-center;
+  @apply bg-[#DEE2E6];
+
+}
+.links {
+  @apply flex px-[8px] py-[12px] gap-x-[20px];
+  @apply md:mr-[25px];
+}
+.linksItem{
+  @apply flex items-center gap-x-[22px] justify-center;
+  @apply hover:gap-x-[8px];
+  @apply mr-[15px]
+}
+.linksReg{
+  @apply grid items-end gap-y-[15px] text-center
+}
+.ButtonLink{
+  @apply font-light text-[#495057] text-[20px]
+}
+.linkBut{
+  @apply font-light text-[#495057] text-[20px];
 }
 
-.Header {
-  @apply w-full h-fit px-2 py-1;
-  @apply flex justify-between items-center gap-2;
-  @apply border-b;
+.link {
+  @apply px-[8px] py-[12px] block no-underline font-medium;
+  @apply font-light text-[24px] text-[#495057];
+  @apply hover:font-medium
 }
 
-.Navigation {
-  @apply w-fit h-fit;
-  @apply flex gap-2;
+.logo{
+  @apply text-[#495057] font-extrabold;
+  @apply md:ml-[45px];
+}
+.smallbar{
+  @apply flex flex-col justify-evenly
+
+}
+.bigbar{
+  @apply flex flex-col justify-evenly;
+  @apply gap-y-[10px]
+}
+.emailUser{
+  @apply font-medium text-[24px] text-[#495057];
 }

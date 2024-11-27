@@ -1,41 +1,80 @@
-import { Accordion, Button, Divider, Title } from "@mantine/core";
-import { IconFolder } from "@tabler/icons-react";
+import { Accordion, Button, Divider, Stack, TextInput } from "@mantine/core";
+import { IconFolder, IconSearch } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import type React from "react";
+import { useState } from "react";
+import { useAuth } from "../../hooks/AuthProvider.tsx";
 import { TemplatesApi } from "./-api/templates.api.ts";
 import styles from "./route.module.css";
 
 const Page: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  const [searchValue, setSearchValue] = useState("");
+
   const { data: categories } = useSuspenseQuery(
     TemplatesApi.getCategoriesWithTemplates(),
   );
 
+  const filterTemplates = categories
+    .map((category) => {
+      const filteredTemplates = category.templates.filter((template) =>
+        template.name.toLowerCase().includes(searchValue.toLowerCase()),
+      );
+      return {
+        ...category,
+        templates: filteredTemplates,
+      };
+    })
+    .filter((category) => category.templates.length > 0);
+
   return (
     <div className={styles.Container}>
-      <div className={styles.Categories}>
-        <Title order={5}>Выберите шаблон из представленных категорий</Title>
+      <Stack
+        className={styles.leftSide}
+        align="stretch"
+        justify="start"
+        gap="md"
+      >
+        <form action="">
+          <TextInput
+            className={styles.search}
+            placeholder="Search"
+            leftSection={<IconSearch />}
+            onChange={(event) => setSearchValue(event.target.value)}
+          />
+        </form>
+        {isAuthenticated ? (
+          <Link to={"/templates/new"}>
+            <Button size="lg" variant="outline" color="#495057" radius="lg">
+              Добавить шаблон
+            </Button>
+          </Link>
+        ) : undefined}
         <Accordion multiple>
-          {categories.map((category) => (
-            <Accordion.Item key={category.id} value={category.name}>
+          {filterTemplates.map((category) => (
+            <Accordion.Item
+              className={styles.accordion}
+              key={category.id}
+              value={category.name}
+            >
               <Accordion.Control icon={<IconFolder />}>
                 {category.name}
               </Accordion.Control>
-              <Accordion.Panel>
-                {category.templates.map((template) => (
+              {category.templates.map((template) => (
+                <Accordion.Panel key={template.id}>
                   <Link
-                    key={template.id}
                     to={"/templates/$templateId"}
                     params={{ templateId: template.id.toString() }}
                   >
-                    <Button key={template.id}>{template.name}</Button>
+                    {template.name}
                   </Link>
-                ))}
-              </Accordion.Panel>
+                </Accordion.Panel>
+              ))}
             </Accordion.Item>
           ))}
         </Accordion>
-      </div>
+      </Stack>
       <Divider className="h-full" orientation="vertical" />
       <Outlet />
     </div>

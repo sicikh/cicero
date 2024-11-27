@@ -14,7 +14,8 @@
 //! cargo run task seed_data refresh:true
 //! ```
 
-use loco_rs::{db, prelude::*};
+use loco_rs::db;
+use loco_rs::prelude::*;
 use migration::Migrator;
 
 use crate::app::App;
@@ -35,10 +36,16 @@ impl Task for SeedData {
             .cli_arg("refresh")
             .is_ok_and(|refresh| refresh == "true");
 
+        let is_prod = vars.cli_arg("prod").is_ok_and(|prod| prod == "true");
+
         if refresh {
             db::reset::<Migrator>(&app_context.db).await?;
         }
-        let path = std::path::Path::new("src/fixtures");
+        let path = if is_prod {
+            std::path::Path::new("src/fixtures/prod")
+        } else {
+            std::path::Path::new("src/fixtures/test")
+        };
         db::run_app_seed::<App>(&app_context.db, path).await?;
         Ok(())
     }

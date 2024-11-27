@@ -1,9 +1,27 @@
 .Container {
-  @apply w-full h-full px-2 pt-20 pb-1;
-  @apply flex flex-col items-center gap-4;
-  @apply text-center;
-}
 
-.TextBlock {
-  @apply flex flex-col gap-2;
+  @apply gap-y-[35px] flex flex-col
+}
+.group{
+  @apply mx-[10px];
+  @apply md:ml-[74px] md:mr-[100px];
+  @apply mt-[50px];
+  @apply gap-y-[35px] flex flex-col
+}
+.title {
+  @apply md:text-[48px] font-black text-[#495057];
+  @apply 2xl:text-[56px]
+}
+.TitleName {
+  @apply bg-gradient-to-r from-[#C8420D] to-[#842500] inline-block text-transparent bg-clip-text
+}
+.text {
+  @apply md:text-[24px] font-medium text-[#495057];
+  @apply 2xl:text-[32px]
+}
+.button {
+  @apply h-[81px] w-[400px];
+  @apply md:h-[81px] md:w-[551px];
+  @apply text-[24px] font-black text-[#FFFFFF] p-0;
+  @apply bg-gradient-to-r to-[#C8420D] from-[#842500] rounded-[24px]
 }

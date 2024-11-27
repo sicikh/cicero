@@ -2,7 +2,7 @@ use axum::debug_handler;
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::mailers::auth::AuthMailer;
+// use crate::mailers::auth::AuthMailer;
 use crate::models::_entities::users;
 use crate::models::users::{LoginParams, RegisterParams};
 use crate::views::auth::LoginResponse;
@@ -44,12 +44,12 @@ async fn register(
         },
     };
 
-    let user = user
+    let _user = user
         .into_active_model()
         .set_email_verification_sent(&ctx.db)
         .await?;
 
-    AuthMailer::send_welcome(&ctx, &user).await?;
+    // AuthMailer::send_welcome(&ctx, &user).await?;
 
     format::json(())
 }
@@ -89,7 +89,7 @@ async fn forgot(
         return format::json(());
     };
 
-    AuthMailer::forgot_password(&ctx, &user).await?;
+    // AuthMailer::forgot_password(&ctx, &user).await?;
 
     user.into_active_model()
         .set_forgot_password_sent(&ctx.db)

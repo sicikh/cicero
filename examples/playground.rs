@@ -1,6 +1,6 @@
+use cicero::app::App;
 #[allow(unused_imports)]
 use loco_rs::{cli::playground, prelude::*};
-use cicero::app::App;
 
 #[tokio::main]
 async fn main() -> loco_rs::Result<()> {
