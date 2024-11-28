@@ -96,7 +96,7 @@ pub enum Token<'src> {
     Unknown(&'src str),
 }
 
-impl<'src> Display for Token<'src> {
+impl Display for Token<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Token::Number(n) => write!(f, "{n}"),
