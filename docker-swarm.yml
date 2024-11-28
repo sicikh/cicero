@@ -1,0 +1,95 @@
+version: '3.7'
+services:
+  cicero-frontend:
+    image: ghcr.io/sicikh/cicero-frontend:dev
+    volumes:
+      - /etc/nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/:ro
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: start-first
+    init: true
+    networks:
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/_ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  cicero-backend:
+    depends_on:
+      - db
+    image: ghcr.io/sicikh/cicero-backend:dev
+    volumes:
+      - /etc/cicero/config:/app/config:ro
+      - /etc/cicero/fixtures:/app/src/fixtures/prod:ro
+      - /var/lib/cicero/data:/app/data:rw
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: start-first
+    init: true
+#    environment:
+#      - SERVER_HOST=https://cicero-project.ru
+#      - DB_CONNECT_TIMEOUT=5000
+#      - DB_IDLE_TIMEOUT=500
+#      - DB_MIN_CONNECTIONS=5
+#      - DB_MAX_CONNECTIONS=20
+#      - MAILER_HOST=mail.cicero-project.ru
+#      - SERVER_PORT=5150
+#      - DATABASE_URL=/run/secrets/database-url
+#    secrets:
+#      - database-url
+    env_file:
+      - .production.env
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD", "/app/healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  db:
+    image: postgres:15.3-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+#    environment:
+#      - POSTGRES_USER=/run/secrets/postgres-user
+#      - POSTGRES_PASSWORD=/run/secrets/postgres-password
+#      - POSTGRES_DB=/run/secrets/postgres-db
+#    secrets:
+#      - postgres-user
+#      - postgres-password
+#      - postgres-db
+    env_file:
+      - .production.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+volumes:
+  postgres-data:
+networks:
+  frontend:
+  backend:
+#secrets:
+#  database-url:
+#    external: true
+#  postgres-user:
+#    external: true
+#  postgres-password:
+#    external: true
+#  postgres-db:
+#    external: true
