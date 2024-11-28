@@ -23,4 +23,4 @@ RUN useradd -u 1001 cicero
 USER cicero
 
 ENTRYPOINT ["/app/cicero-cli"]
-CMD ["start", "-s", "-e", "production"]
+CMD ["start", "-s", "-e", "production", "-b", "0.0.0.0"]
